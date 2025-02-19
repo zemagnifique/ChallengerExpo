@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { StyleSheet, View, TextInput, TouchableOpacity, FlatList } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -13,7 +12,7 @@ export default function ChatScreen() {
   const { challenges, user } = useAuth();
   const router = useRouter();
   const [message, setMessage] = React.useState('');
-  
+
   const challenge = challenges.find(c => c.id === challengeId);
 
   if (!challenge) {
@@ -55,7 +54,7 @@ export default function ChatScreen() {
             {isCoach ? `Challenger: ${challenge.userId}` : `Coach: ${challenge.coachId}`}
           </ThemedText>
         </View>
-        
+
         {challenge.status === 'pending' && !isCoach && (
               <View style={styles.actionButtons}>
                 <TouchableOpacity 
@@ -70,8 +69,6 @@ export default function ChatScreen() {
                 </TouchableOpacity>
               </View>
             )}
-          </View>
-        )}
       </View>
 
       <FlatList
