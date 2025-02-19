@@ -14,13 +14,20 @@ export default function IndexScreen() {
   const { challenges, user, updateChallengeStatus, updateChallengeCoach, deleteChallenge, archiveChallenge } = useAuth();
 
   const filteredChallenges = () => {
-    if (filter === 'challenger') {
-      return challenges.filter(c => c.status !== 'rejected' && c.userId === user?.id);
-    } else if (filter === 'coaching') {
-      return challenges.filter(c => c.status !== 'rejected' && c.coachId === user?.id);
-    } else {
-      return challenges.filter(c => c.status !== 'rejected');
+    let filtered = challenges.filter(c => c.status !== 'rejected');
+    
+    if (filter === 'archived') {
+      return filtered.filter(c => c.archived);
     }
+    
+    filtered = filtered.filter(c => !c.archived);
+    
+    if (filter === 'challenger') {
+      return filtered.filter(c => c.userId === user?.id);
+    } else if (filter === 'coaching') {
+      return filtered.filter(c => c.coachId === user?.id);
+    }
+    return filtered;
   };
 
   const allChallenges = filteredChallenges();
@@ -185,7 +192,7 @@ export default function IndexScreen() {
 
   const handleArchiveChallenge = async (challengeId) => {
     try {
-      console.log(`Archiving challenge with ID: ${challengeId}`);
+      await archiveChallenge(challengeId);
       rowRefs.get(challengeId)?.close();
     } catch (error) {
       console.error("Error archiving challenge:", error);
@@ -212,6 +219,11 @@ export default function IndexScreen() {
             style={[styles.filterButton, filter === 'coaching' && styles.filterButtonActive]}
             onPress={() => setFilter('coaching')}>
             <ThemedText style={filter === 'coaching' && styles.filterTextActive}>Coaching</ThemedText>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.filterButton, filter === 'archived' && styles.filterButtonActive]}
+            onPress={() => setFilter('archived')}>
+            <ThemedText style={filter === 'archived' && styles.filterTextActive}>Archived</ThemedText>
           </TouchableOpacity>
         </View>
       </ThemedView>
