@@ -160,7 +160,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     addNotification(`Challenge ${status === 'rejected' ? 'rejected' : 'updated to ' + status}`);
   };
 
-  updateChallengeCoach = async (challengeId: string, newCoachId: string) => {
+  const updateChallengeCoach = async (challengeId: string, newCoachId: string) => {
     const updatedChallenges = challenges.map(c => {
       if (c.id === challengeId) {
         return { ...c, coachId: newCoachId, status: 'pending' };
@@ -171,7 +171,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     addNotification('Coach updated for challenge');
   };
 
-  deleteChallenge = async (challengeId: string) => {
+  const deleteChallenge = async (challengeId: string) => {
     setChallenges(challenges.filter(c => c.id !== challengeId));
     addNotification('Challenge deleted');
   };
@@ -189,7 +189,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       addNotification,
       markNotificationAsRead,
       updateChallenge,
-      updateChallengeStatus
+      updateChallengeStatus,
+      updateChallengeCoach,
+      deleteChallenge
     }}>
       {children}
     </AuthContext.Provider>
