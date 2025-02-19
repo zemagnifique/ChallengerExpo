@@ -42,7 +42,7 @@ export default function ChatScreen() {
         <TouchableOpacity 
           style={styles.backButton} 
           onPress={() => router.back()}>
-          <IconSymbol name="chevron.left" size={24} color={useThemeColor('text')} />
+          <IconSymbol name="chevron.left" size={24} color={useThemeColor({}, 'text')} />
         </TouchableOpacity>
         <View style={styles.headerContent}>
           <ThemedText style={styles.title}>{challenge.title}</ThemedText>
