@@ -6,6 +6,7 @@ import { IconSymbol } from '@/components/ui/IconSymbol';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { useAuth } from '@/contexts/AuthContext';
+import { useThemeColor } from '@/hooks/useThemeColor';
 
 export default function ChatScreen() {
   const { challengeId } = useLocalSearchParams();
@@ -32,7 +33,7 @@ export default function ChatScreen() {
         <TouchableOpacity 
           style={styles.backButton} 
           onPress={() => router.back()}>
-          <IconSymbol name="chevron.left" size={24} color="#000" />
+          <IconSymbol name="chevron.left" size={24} color={useThemeColor('text')} />
         </TouchableOpacity>
         <ThemedText style={styles.title}>{challenge.title}</ThemedText>
         <ThemedText style={styles.subtitle}>
