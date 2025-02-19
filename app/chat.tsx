@@ -208,7 +208,7 @@ export default function ChatScreen() {
         onContentSizeChange={() => flatListRef.current?.scrollToEnd({animated: true})}
         onLayout={() => flatListRef.current?.scrollToEnd({animated: true})}
         renderItem={({ item }) => (
-          <LongPressGestureHandler onHandlerStateChange={(e) => { if(e.nativeEvent.state === State.ACTIVE && isCoach) handleLongPress(item) }} >
+          <TouchableOpacity onPress={() => isCoach && handleLongPress(item)}>
           <View style={[
             styles.messageBubble,
             item.userId === user?.id ? 
@@ -228,7 +228,7 @@ export default function ChatScreen() {
             </ThemedText>
             {item.isValidated && <ThemedText style = {{color: 'green'}}>Validated</ThemedText>}
           </View>
-          </LongPressGestureHandler>
+          </TouchableOpacity>
         )}
       />
 
