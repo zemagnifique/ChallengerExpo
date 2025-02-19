@@ -158,13 +158,11 @@ export default function IndexScreen() {
             onPress={() => setFilter('challenger')}>
             <ThemedText style={filter === 'challenger' && styles.filterTextActive}>My Challenges</ThemedText>
           </TouchableOpacity>
-          {user?.role === 'coach' && (
-            <TouchableOpacity 
-              style={[styles.filterButton, filter === 'coaching' && styles.filterButtonActive]}
-              onPress={() => setFilter('coaching')}>
-              <ThemedText style={filter === 'coaching' && styles.filterTextActive}>Coaching</ThemedText>
-            </TouchableOpacity>
-          )}
+          <TouchableOpacity 
+            style={[styles.filterButton, filter === 'coaching' && styles.filterButtonActive]}
+            onPress={() => setFilter('coaching')}>
+            <ThemedText style={filter === 'coaching' && styles.filterTextActive}>Coaching</ThemedText>
+          </TouchableOpacity>
         </View>
       </ThemedView>
       <ThemedView style={styles.container}>

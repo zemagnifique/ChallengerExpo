@@ -101,8 +101,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const getCoaches = () => {
     return Object.entries(USERS)
-      .filter(([_, info]) => info.role === 'coach')
-      .map(([id]) => ({ id, username: id, role: 'coach' as const }));
+      .map(([id]) => ({ id, username: id }));
   };
 
   const addChallenge = (challenge: Challenge) => {
