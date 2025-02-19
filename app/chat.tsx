@@ -34,7 +34,7 @@ export default function ChatScreen() {
     };
   }, []);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!message.trim()) return;
     
     const newMessage = {
@@ -48,9 +48,25 @@ export default function ChatScreen() {
       messages: [...(challenge.messages || []), newMessage]
     };
 
-    updateChallenge(updatedChallenge);
+    await updateChallenge(updatedChallenge);
     setMessage('');
   };
+
+  // Poll for new messages every 2 seconds
+  React.useEffect(() => {
+    const interval = setInterval(async () => {
+      const storedChallenges = await AsyncStorage.getItem('challenges');
+      if (storedChallenges) {
+        const parsedChallenges = JSON.parse(storedChallenges);
+        const updatedChallenge = parsedChallenges.find((c: Challenge) => c.id === challengeId);
+        if (updatedChallenge && JSON.stringify(updatedChallenge.messages) !== JSON.stringify(challenge?.messages)) {
+          updateChallenge(updatedChallenge);
+        }
+      }
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [challengeId, challenge?.messages]);
 
   const handleAcceptChallenge = async () => {
     try {

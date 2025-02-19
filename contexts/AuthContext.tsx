@@ -163,13 +163,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     );
   };
 
-  const updateChallenge = (challenge: Challenge) => {
-    setChallenges(prev =>
-      prev.map(ch =>
-        ch.id === challenge.id ? challenge : ch
-      )
+  const updateChallenge = async (challenge: Challenge) => {
+    const updatedChallenges = challenges.map(ch =>
+      ch.id === challenge.id ? challenge : ch
     );
-    saveChallenges(challenges);
+    setChallenges(updatedChallenges);
+    await AsyncStorage.setItem('challenges', JSON.stringify(updatedChallenges));
   };
 
   const updateChallengeStatus = async (challengeId: string, status: string, reason?: string) => {
