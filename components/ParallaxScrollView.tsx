@@ -70,8 +70,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    height: HEADER_HEIGHT,
-    overflow: 'hidden',
+    height: 'auto',
+    position: 'sticky',
+    top: 0,
+    zIndex: 1000,
+    backgroundColor: '#fff',
   },
   content: {
     flex: 1,
