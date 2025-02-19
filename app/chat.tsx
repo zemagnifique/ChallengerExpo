@@ -12,8 +12,17 @@ export default function ChatScreen() {
   const { challenges, user, updateChallengeStatus } = useAuth();
   const router = useRouter();
   const [message, setMessage] = React.useState('');
-
+  const [localStatus, setLocalStatus] = React.useState('');
   const challenge = challenges.find(c => c.id === challengeId);
+
+  const handleAcceptChallenge = async () => {
+    try {
+      await updateChallengeStatus(challengeId as string, 'active');
+      setLocalStatus('active');
+    } catch (error) {
+      console.error('Error accepting challenge:', error);
+    }
+  };
 
   if (!challenge) {
     return (
@@ -40,7 +49,7 @@ export default function ChatScreen() {
             <View style={styles.actionButtons}>
               <TouchableOpacity 
                 style={[styles.actionButton, styles.acceptButton]} 
-                onPress={() => updateChallengeStatus(challenge.id, 'active')}>
+                onPress={handleAcceptChallenge}>
                 <ThemedText style={styles.buttonText}>Accept</ThemedText>
               </TouchableOpacity>
               <TouchableOpacity 
