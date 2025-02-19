@@ -20,7 +20,7 @@ export default function IndexScreen() {
         coachPendingRequests: [],
         coachActiveRequests: []
       };
-    } else if (filter === 'coaching' && user?.role === 'coach') {
+    } else if (filter === 'coaching') {
       return {
         pendingChallenges: [],
         activeChallenges: [],
@@ -31,12 +31,8 @@ export default function IndexScreen() {
       return {
         pendingChallenges: challenges.filter(c => c.status === 'pending' && c.userId === user?.id),
         activeChallenges: challenges.filter(c => c.status === 'active' && c.userId === user?.id),
-        coachPendingRequests: user?.role === 'coach' 
-          ? challenges.filter(c => c.status === 'pending' && c.coachId === user?.id)
-          : [],
-        coachActiveRequests: user?.role === 'coach'
-          ? challenges.filter(c => c.status === 'active' && c.coachId === user?.id)
-          : []
+        coachPendingRequests: challenges.filter(c => c.status === 'pending' && c.coachId === user?.id),
+        coachActiveRequests: challenges.filter(c => c.status === 'active' && c.coachId === user?.id)
       };
     }
   };

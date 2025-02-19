@@ -18,7 +18,6 @@ export default function UserScreen() {
     <ThemedView style={styles.container}>
       <ThemedText type="title">Profile</ThemedText>
       <ThemedText style={styles.username}>{user?.username}</ThemedText>
-      <ThemedText>Role: {user?.role}</ThemedText>
       
       <ThemedView style={styles.notificationsContainer}>
         <ThemedText type="subtitle">Notifications</ThemedText>
