@@ -174,14 +174,17 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 16,
+    paddingTop: 48,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(0,0,0,0.1)',
   },
   title: {
     fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 4,
+    marginLeft: 8,
   },
   subtitle: {
     fontSize: 14,
