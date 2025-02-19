@@ -179,8 +179,14 @@ export default function ChatScreen() {
               [styles.ownMessage, { backgroundColor: item.userId === challenge?.coachId ? '#9FD5E5' : '#98D8A1' }] : 
               styles.otherMessage
           ]}>
-            <ThemedText style={styles.messageText}>{item.text}</ThemedText>
-            {item.image && <Image source={{ uri: item.image }} style={styles.messageImage} />}
+            {item.text && <ThemedText style={styles.messageText}>{item.text}</ThemedText>}
+            {item.image && (
+              <Image 
+                source={{ uri: item.image }} 
+                style={styles.messageImage}
+                resizeMode="contain"
+              />
+            )}
             <ThemedText style={styles.messageTime}>
               {new Date(item.timestamp).toLocaleTimeString()}
             </ThemedText>
@@ -357,9 +363,10 @@ const styles = StyleSheet.create({
   },
   messageImage: {
     width: 200,
-    height: 150,
+    height: 200,
     borderRadius: 8,
-    marginVertical: 4,
+    marginVertical: 8,
+    alignSelf: 'center',
   },
   imagePreview: {
     position: 'relative',
