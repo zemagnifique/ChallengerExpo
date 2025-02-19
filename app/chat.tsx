@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, TextInput, TouchableOpacity, FlatList, Keyboard, Image } from 'react-native';
+import { StyleSheet, View, TextInput, TouchableOpacity, FlatList, Keyboard, Image, LongPressGestureHandler, State } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { ThemedView } from '@/components/ThemedView';
@@ -8,6 +8,27 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+type Challenge = {
+  id: string;
+  title: string;
+  description: string;
+  startDate: Date;
+  endDate: Date;
+  frequency: string;
+  proofRequirements: string;
+  status: string;
+  userId: string;
+  coachId: string;
+  createdAt: Date;
+  messages?: Array<{
+    text: string;
+    userId: string;
+    timestamp: Date;
+    image?: string;
+    isValidated?: boolean;
+  }>;
+};
 
 export default function ChatScreen() {
   const flatListRef = React.useRef(null);
@@ -45,7 +66,8 @@ export default function ChatScreen() {
       text: message,
       userId: user?.id || '',
       timestamp: new Date(),
-      image: selectedImage
+      image: selectedImage,
+      isValidated: false // Initially not validated
     };
 
     const updatedChallenge = {
@@ -97,7 +119,8 @@ export default function ChatScreen() {
         text: '',
         userId: user?.id || '',
         timestamp: new Date(),
-        image: result.assets[0].uri
+        image: result.assets[0].uri,
+        isValidated: false // Initially not validated
       };
 
       const updatedChallenge = {
@@ -108,6 +131,18 @@ export default function ChatScreen() {
       await updateChallenge(updatedChallenge);
     }
   };
+
+  const handleLongPress = async (message: any) => {
+    const updatedMessages = challenge.messages.map(msg => {
+      if (msg === message) {
+        return { ...msg, isValidated: !msg.isValidated };
+      }
+      return msg;
+    })
+    const updatedChallenge = { ...challenge, messages: updatedMessages };
+    await updateChallenge(updatedChallenge);
+
+  }
 
   if (!challenge) {
     return (
@@ -173,6 +208,7 @@ export default function ChatScreen() {
         onContentSizeChange={() => flatListRef.current?.scrollToEnd({animated: true})}
         onLayout={() => flatListRef.current?.scrollToEnd({animated: true})}
         renderItem={({ item }) => (
+          <LongPressGestureHandler onHandlerStateChange={(e) => { if(e.nativeEvent.state === State.ACTIVE && isCoach) handleLongPress(item) }} >
           <View style={[
             styles.messageBubble,
             item.userId === user?.id ? 
@@ -190,7 +226,9 @@ export default function ChatScreen() {
             <ThemedText style={styles.messageTime}>
               {new Date(item.timestamp).toLocaleTimeString()}
             </ThemedText>
+            {item.isValidated && <ThemedText style = {{color: 'green'}}>Validated</ThemedText>}
           </View>
+          </LongPressGestureHandler>
         )}
       />
 
