@@ -378,7 +378,7 @@ const styles = StyleSheet.create({
     borderColor: '#4CAF50',
   },
   filterTextActive: {
-    color: '#fff',
+    color: useColorScheme() === 'dark' ? '#fff' : '#000',
   },
   participantsContainer: {
     flexDirection: 'row',
