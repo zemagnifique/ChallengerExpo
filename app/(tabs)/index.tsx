@@ -17,13 +17,13 @@ export default function IndexScreen() {
 
   const filteredChallenges = () => {
     let filtered = (challenges ?? []).filter(c => c.status !== 'rejected');
-    
+
     if (filter === 'archived') {
       return filtered.filter(c => c.archived);
     }
-    
+
     filtered = filtered.filter(c => !c.archived);
-    
+
     if (filter === 'challenger') {
       return filtered.filter(c => c.userId === user?.id);
     } else if (filter === 'coaching') {
@@ -260,12 +260,12 @@ const styles = StyleSheet.create({
   },
   typeLabel: {
     fontSize: 12,
-    color: '#666',
+    opacity: 0.6,
     fontStyle: 'italic',
   },
   participantInfo: {
     fontSize: 12,
-    color: '#666',
+    opacity: 0.6,
     marginTop: 4,
   },
   container: {
@@ -313,7 +313,7 @@ const styles = StyleSheet.create({
   },
   date: {
     fontSize: 12,
-    color: '#666',
+    opacity: 0.6,
   },
   previewRow: {
     flexDirection: 'row',
@@ -322,7 +322,7 @@ const styles = StyleSheet.create({
   },
   preview: {
     fontSize: 14,
-    color: '#666',
+    opacity: 0.6,
     flex: 1,
     marginRight: 8,
   },
