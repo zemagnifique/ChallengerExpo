@@ -4,13 +4,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 type User = {
   id: string;
   username: string;
-  role: 'user' | 'coach';
 };
 
-const USERS: Record<string, { password: string; role: 'user' | 'coach' }> = {
-  'user1': { password: 'user1', role: 'user' },
-  'user2': { password: 'user2', role: 'coach' },
-  'coach1': { password: 'coach1', role: 'coach' }
+const USERS: Record<string, { password: string }> = {
+  'user1': { password: 'user1' },
+  'user2': { password: 'user2' },
+  'user3': { password: 'user3' }
 };
 
 type Notification = {
@@ -85,7 +84,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (username: string, password: string) => {
     const userInfo = USERS[username];
     if (userInfo && userInfo.password === password) {
-      const user = { id: username, username, role: userInfo.role };
+      const user = { id: username, username };
       await AsyncStorage.setItem('user', JSON.stringify(user));
       setIsAuthenticated(true);
       setUser(user);

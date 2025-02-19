@@ -74,7 +74,7 @@ export default function IndexScreen() {
 
                 {item.status === 'pending' && (
                   <View style={styles.actionsContainer}>
-                    {user?.role === 'coach' && item.coachId === user.id && (
+                    {item.coachId === user?.id && (
                       <View style={styles.actionButtons}>
                         <TouchableOpacity 
                           style={[styles.actionButton, styles.acceptButton]} 
@@ -88,7 +88,7 @@ export default function IndexScreen() {
                         </TouchableOpacity>
                       </View>
                     )}
-                    {user?.role === 'user' && item.userId === user.id && item.status === 'pending' && (
+                    {item.userId === user.id && (
                       <View style={styles.challengerActions}>
                         <TouchableOpacity 
                           style={[styles.actionButton, styles.changeCoachButton]}
@@ -220,7 +220,7 @@ export default function IndexScreen() {
 
                 {item.status === 'pending' && (
                   <View style={styles.actionsContainer}>
-                    {user?.role === 'coach' && item.coachId === user.id && (
+                    {item.coachId === user?.id && (
                       <View style={styles.actionButtons}>
                         <TouchableOpacity 
                           style={[styles.actionButton, styles.acceptButton]} 
@@ -234,7 +234,7 @@ export default function IndexScreen() {
                         </TouchableOpacity>
                       </View>
                     )}
-                    {user?.role === 'user' && item.userId === user.id && (
+                    {item.userId === user.id && (
                       <View style={styles.challengerActions}>
                         <TouchableOpacity 
                           style={[styles.actionButton, styles.changeCoachButton]}
@@ -456,7 +456,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f44336',
   },
   coachSection: {
-    backgroundColor: 'rgba(161, 206, 220, 0.15)', // Light blue tint
+    backgroundColor: 'rgba(161, 206, 220, 0.15)', 
     borderWidth: 1,
     borderColor: '#A1CEDC',
   },
