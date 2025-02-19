@@ -241,7 +241,7 @@ export default function IndexScreen() {
                   </View>
                 )}
               </ThemedView>
-            </View>
+            </TouchableOpacity>
           )}
         />
       </ThemedView>
