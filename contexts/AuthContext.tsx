@@ -171,6 +171,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     addNotification('Coach updated for challenge');
   };
 
+  deleteChallenge = async (challengeId: string) => {
+    setChallenges(challenges.filter(c => c.id !== challengeId));
+    addNotification('Challenge deleted');
+  };
+
   return (
     <AuthContext.Provider value={{
       isAuthenticated,

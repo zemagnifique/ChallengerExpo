@@ -63,11 +63,18 @@ export default function IndexScreen() {
                       </View>
                     )}
                     {user?.role === 'user' && item.userId === user.id && (
-                      <TouchableOpacity 
-                        style={styles.changeCoachButton}
-                        onPress={() => handleChangeCoach(item.id, 'newCoachId')}>
-                        <ThemedText style={styles.buttonText}>Change Coach</ThemedText>
-                      </TouchableOpacity>
+                      <View style={styles.challengerActions}>
+                        <TouchableOpacity 
+                          style={[styles.actionButton, styles.changeCoachButton]}
+                          onPress={() => handleChangeCoach(item.id, 'newCoachId')}>
+                          <ThemedText style={styles.buttonText}>Change Coach</ThemedText>
+                        </TouchableOpacity>
+                        <TouchableOpacity 
+                          style={[styles.actionButton, styles.deleteButton]}
+                          onPress={() => handleDeleteChallenge(item.id)}>
+                          <ThemedText style={styles.buttonText}>Delete</ThemedText>
+                        </TouchableOpacity>
+                      </View>
                     )}
                   </View>
                 )}
@@ -101,6 +108,14 @@ export default function IndexScreen() {
       await updateChallengeCoach(challengeId, newCoachId);
     } catch (error) {
       console.error("Error changing coach:", error);
+    }
+  };
+
+  const handleDeleteChallenge = async (challengeId) => {
+    try {
+      await deleteChallenge(challengeId);
+    } catch (error) {
+      console.error("Error deleting challenge:", error);
     }
   };
 
@@ -175,6 +190,14 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontWeight: '600',
+  },
+  challengerActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 10,
+  },
+  deleteButton: {
+    backgroundColor: '#f44336',
   },
   coachSection: {
     backgroundColor: 'rgba(161, 206, 220, 0.15)', // Light blue tint
