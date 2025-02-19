@@ -141,13 +141,16 @@ export default function ChatScreen() {
 
     const updatedMessages = challenge.messages.map(msg => {
       if (msg === message) {
-        return { ...msg, isValidated: !msg.isValidated };
+        if (msg.isValidated) {
+          return { ...msg, isValidated: false }; // Change back to proof status (loop icon)
+        } else {
+          return { ...msg, isValidated: true }; // Approve proof (blue checkmark)
+        }
       }
       return msg;
     });
     const updatedChallenge = { ...challenge, messages: updatedMessages };
     await updateChallenge(updatedChallenge);
-
   }
 
   const handleDoubleTap = async (message: any) => {
