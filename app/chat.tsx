@@ -266,7 +266,7 @@ export default function ChatScreen() {
             <View style={[
               styles.messageBubble,
               item.userId === user?.id ? 
-                [styles.ownMessage, { backgroundColor: item.userId === challenge?.coachId ? '#9FD5E5' : '#98D8A1' }] : 
+                [styles.ownMessage, { backgroundColor: item.userId === challenge?.coachId ? '#2B5876' : '#1E4D2B' }] : 
                 styles.otherMessage
             ]}>
               {item.text && <ThemedText style={styles.messageText}>{item.text}</ThemedText>}
