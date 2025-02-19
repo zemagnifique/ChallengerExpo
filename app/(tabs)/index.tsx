@@ -10,6 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Swipeable, GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export default function IndexScreen() {
+  const colorScheme = useColorScheme();
   const [filter, setFilter] = useState('all');
   const router = useRouter();
   const { challenges, user, updateChallengeStatus, updateChallengeCoach, deleteChallenge, archiveChallenge } = useAuth();
