@@ -24,7 +24,6 @@ export default function IndexScreen() {
           data={items}
           keyExtractor={(item) => item.createdAt.toString()}
           renderItem={({ item }) => (
-            {/* TouchableOpacity for challenge interaction */}
             <TouchableOpacity onPress={() => handleAcceptChallenge(item)}>
               <ThemedView style={styles.challengeCard}>
                 <ThemedText style={styles.challengeTitle}>{item.title}</ThemedText>
