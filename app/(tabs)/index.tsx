@@ -212,11 +212,41 @@ export default function IndexScreen() {
                 rightThreshold={40}
                 renderRightActions={(progress, dragX) => (
                   <View style={styles.swipeableButtons}>
-                    <TouchableOpacity
-                      style={[styles.actionButton, styles.deleteButton]}
-                      onPress={() => handleDeleteChallenge(item.id)}>
-                      <ThemedText style={styles.buttonText}>Delete</ThemedText>
-                    </TouchableOpacity>
+                    {item.coachId === user?.id ? (
+                      <>
+                        {item.status === 'pending' && (
+                          <>
+                            <TouchableOpacity
+                              style={[styles.actionButton, styles.acceptButton]}
+                              onPress={() => handleAcceptChallenge(item)}>
+                              <ThemedText style={styles.buttonText}>Accept</ThemedText>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                              style={[styles.actionButton, styles.rejectButton]}
+                              onPress={() => handleRejectChallenge(item)}>
+                              <ThemedText style={styles.buttonText}>Reject</ThemedText>
+                            </TouchableOpacity>
+                          </>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        {item.status === 'pending' && (
+                          <>
+                            <TouchableOpacity
+                              style={[styles.actionButton, styles.changeCoachButton]}
+                              onPress={() => handleChangeCoach(item.id, 'newCoachId')}>
+                              <ThemedText style={styles.buttonText}>Change Coach</ThemedText>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                              style={[styles.actionButton, styles.deleteButton]}
+                              onPress={() => handleDeleteChallenge(item.id)}>
+                              <ThemedText style={styles.buttonText}>Delete</ThemedText>
+                            </TouchableOpacity>
+                          </>
+                        )}
+                      </>
+                    )}
                   </View>
                 )}
               >
@@ -550,15 +580,29 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   swipeableButtons: {
-    width: 100,
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: 200,
+    gap: 8,
+    paddingHorizontal: 8,
+  },
+  actionButton: {
+    flex: 1,
+    height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
+    borderRadius: 8,
+  },
+  acceptButton: {
+    backgroundColor: '#4CAF50',
+  },
+  rejectButton: {
+    backgroundColor: '#f44336',
+  },
+  changeCoachButton: {
+    backgroundColor: '#2196F3',
   },
   deleteButton: {
     backgroundColor: '#f44336',
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
-    height: '100%',
   },
 });
