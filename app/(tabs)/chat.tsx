@@ -1,7 +1,8 @@
 
 import React from 'react';
 import { StyleSheet, View, TextInput, TouchableOpacity, FlatList } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { IconSymbol } from '@/components/ui/IconSymbol';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { useAuth } from '@/contexts/AuthContext';
@@ -27,6 +28,11 @@ export default function ChatScreen() {
   return (
     <ThemedView style={styles.container}>
       <View style={styles.header}>
+        <TouchableOpacity 
+          style={styles.backButton} 
+          onPress={() => router.back()}>
+          <IconSymbol name="chevron.left" size={24} color="#000" />
+        </TouchableOpacity>
         <ThemedText style={styles.title}>{challenge.title}</ThemedText>
         <ThemedText style={styles.subtitle}>
           {isCoach ? `Challenger: ${challenge.userId}` : `Coach: ${challenge.coachId}`}
@@ -112,6 +118,10 @@ export default function ChatScreen() {
 }
 
 const styles = StyleSheet.create({
+  backButton: {
+    padding: 8,
+    marginRight: 8,
+  },
   actionContainer: {
     marginTop: 16,
     borderTopWidth: 1,
