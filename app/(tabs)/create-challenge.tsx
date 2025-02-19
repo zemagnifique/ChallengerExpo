@@ -52,8 +52,7 @@ export default function CreateChallengeScreen() {
       coachId: selectedCoach,
       createdAt: new Date()
     };
-    console.log(challenge);
-    // Here you would typically save to your backend
+    addChallenge(challenge);
     router.back();
   };
 

@@ -14,12 +14,27 @@ const USERS: Record<string, { password: string; role: 'user' | 'coach' }> = {
   'coach1': { password: 'coach1', role: 'coach' }
 };
 
+type Challenge = {
+  title: string;
+  description: string;
+  startDate: Date;
+  endDate: Date;
+  frequency: string;
+  proofRequirements: string;
+  status: string;
+  userId: string;
+  coachId: string;
+  createdAt: Date;
+};
+
 type AuthContextType = {
   isAuthenticated: boolean;
   user: User | null;
+  challenges: Challenge[];
   login: (username: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
   getCoaches: () => User[];
+  addChallenge: (challenge: Challenge) => void;
 };
 
 const AuthContext = createContext<AuthContextType>({
@@ -33,6 +48,7 @@ const AuthContext = createContext<AuthContextType>({
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const [challenges, setChallenges] = useState<Challenge[]>([]);
 
   useEffect(() => {
     checkAuth();
@@ -70,8 +86,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .map(([id]) => ({ id, username: id, role: 'coach' as const }));
   };
 
+  const addChallenge = (challenge: Challenge) => {
+    setChallenges(prev => [...prev, challenge]);
+  };
+
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, logout, getCoaches }}>
+    <AuthContext.Provider value={{ isAuthenticated, user, challenges, login, logout, getCoaches, addChallenge }}>
       {children}
     </AuthContext.Provider>
   );
