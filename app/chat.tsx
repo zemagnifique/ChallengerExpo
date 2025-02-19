@@ -156,16 +156,31 @@ export default function ChatScreen() {
   }
 
   const handleDoubleTap = async (message: any) => {
-    if (message.userId !== user?.id || isCoach) return;
-
-    const updatedMessages = challenge.messages.map(msg => {
-      if (msg === message) {
-        return { ...msg, isProof: !msg.isProof };
+    const now = Date.now();
+    if (lastTap && (now - lastTap) < 300) {
+      if (isCoach && message.isProof && message.userId !== user?.id) {
+        // Coach validating a proof
+        const updatedMessages = challenge.messages.map(msg => {
+          if (msg.timestamp === message.timestamp && msg.userId === message.userId) {
+            return { ...msg, isValidated: !msg.isValidated };
+          }
+          return msg;
+        });
+        const updatedChallenge = { ...challenge, messages: updatedMessages };
+        await updateChallenge(updatedChallenge);
+      } else if (!isCoach && message.userId === user?.id) {
+        // Challenger marking their message as proof
+        const updatedMessages = challenge.messages.map(msg => {
+          if (msg.timestamp === message.timestamp && msg.userId === message.userId) {
+            return { ...msg, isProof: !msg.isProof };
+          }
+          return msg;
+        });
+        const updatedChallenge = { ...challenge, messages: updatedMessages };
+        await updateChallenge(updatedChallenge);
       }
-      return msg;
-    });
-    const updatedChallenge = { ...challenge, messages: updatedMessages };
-    await updateChallenge(updatedChallenge);
+    }
+    setLastTap(now);
   };
 
 
