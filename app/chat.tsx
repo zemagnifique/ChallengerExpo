@@ -192,7 +192,7 @@ export default function ChatScreen() {
     );
   }
 
-  const messages = challenge.messages || [];
+  const messages = (challenge?.messages ?? []);
   const isCoach = challenge.coachId === user?.id;
 
   return (

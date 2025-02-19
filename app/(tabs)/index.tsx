@@ -15,7 +15,7 @@ export default function IndexScreen() {
   const { challenges, user, updateChallengeStatus, updateChallengeCoach, deleteChallenge, archiveChallenge } = useAuth();
 
   const filteredChallenges = () => {
-    let filtered = challenges.filter(c => c.status !== 'rejected');
+    let filtered = (challenges ?? []).filter(c => c.status !== 'rejected');
     
     if (filter === 'archived') {
       return filtered.filter(c => c.archived);
