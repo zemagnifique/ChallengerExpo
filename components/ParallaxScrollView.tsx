@@ -31,7 +31,6 @@ export default function ParallaxScrollView({
   ListHeaderComponent,
 }: Props) {
   const colorScheme = useColorScheme() ?? 'light';
-  const colorScheme = useColorScheme() ?? 'light';
   const scrollRef = useAnimatedRef<Animated.FlatList>();
   const scrollOffset = useScrollViewOffset(scrollRef);
   const bottom = useBottomTabOverflow();
