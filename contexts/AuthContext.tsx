@@ -76,6 +76,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     checkAuth();
+    loadChallenges();
   }, []);
 
   const checkAuth = async () => {
@@ -100,20 +101,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     await AsyncStorage.removeItem('user');
+    await AsyncStorage.removeItem('challenges');
     setIsAuthenticated(false);
     setUser(null);
+    setChallenges([]);
   };
 
   const TEST_USERS = {
-  'user1': { id: 'user1', username: 'user1', isCoach: false },
-  'user2': { id: 'user2', username: 'user2', isCoach: true }
-};
+    'user1': { id: 'user1', username: 'user1', isCoach: false },
+    'user2': { id: 'user2', username: 'user2', isCoach: true }
+  };
 
-const getCoaches = () => {
-  return Object.entries(TEST_USERS)
-    .filter(([_, user]) => user.isCoach)
-    .map(([id, user]) => ({ id, username: user.username }));
-};
+  const getCoaches = () => {
+    return Object.entries(TEST_USERS)
+      .filter(([_, user]) => user.isCoach)
+      .map(([id, user]) => ({ id, username: user.username }));
+  };
 
   const addChallenge = (challenge: Challenge) => {
     const newChallenge = {
@@ -121,6 +124,7 @@ const getCoaches = () => {
       id: Date.now().toString(), // Ensure unique ID
     };
     setChallenges(prev => [...prev, newChallenge]);
+    saveChallenges([...prev, newChallenge]);
     // Add notification for the coach
     if (challenge.coachId) {
       const notification = {
@@ -155,9 +159,10 @@ const getCoaches = () => {
   const updateChallenge = (challenge: Challenge) => {
     setChallenges(prev =>
       prev.map(ch =>
-        ch.createdAt.toString() === challenge.createdAt.toString() ? challenge : ch
+        ch.id === challenge.id ? challenge : ch
       )
     );
+    saveChallenges(challenges);
   };
 
   const updateChallengeStatus = async (challengeId: string, status: string, reason?: string) => {
@@ -168,6 +173,7 @@ const getCoaches = () => {
       return c;
     });
     setChallenges(updatedChallenges);
+    saveChallenges(updatedChallenges);
     addNotification(`Challenge ${status === 'rejected' ? 'rejected' : 'updated to ' + status}`);
   };
 
@@ -179,12 +185,35 @@ const getCoaches = () => {
       return c;
     });
     setChallenges(updatedChallenges);
+    saveChallenges(updatedChallenges);
     addNotification('Coach updated for challenge');
   };
 
   const deleteChallenge = async (challengeId: string) => {
-    setChallenges(challenges.filter(c => c.id !== challengeId));
+    const updatedChallenges = challenges.filter(c => c.id !== challengeId);
+    setChallenges(updatedChallenges);
+    saveChallenges(updatedChallenges);
     addNotification('Challenge deleted');
+  };
+
+  const saveChallenges = async (challengesToSave: Challenge[]) => {
+    try {
+      await AsyncStorage.setItem('challenges', JSON.stringify(challengesToSave));
+    } catch (e) {
+      console.error("Error saving challenges:", e);
+    }
+  };
+
+
+  const loadChallenges = async () => {
+    try {
+      const challengesJson = await AsyncStorage.getItem('challenges');
+      if (challengesJson !== null) {
+        setChallenges(JSON.parse(challengesJson));
+      }
+    } catch (e) {
+      console.error("Error loading challenges:", e);
+    }
   };
 
   return (
