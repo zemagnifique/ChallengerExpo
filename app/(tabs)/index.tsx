@@ -62,7 +62,7 @@ export default function IndexScreen() {
                         </TouchableOpacity>
                       </View>
                     )}
-                    {user?.role === 'user' && item.userId === user.id && (
+                    {user?.role === 'user' && item.userId === user.id && item.status === 'pending' && (
                       <View style={styles.challengerActions}>
                         <TouchableOpacity 
                           style={[styles.actionButton, styles.changeCoachButton]}
@@ -73,6 +73,8 @@ export default function IndexScreen() {
                           style={[styles.actionButton, styles.deleteButton]}
                           onPress={() => handleDeleteChallenge(item.id)}>
                           <ThemedText style={styles.buttonText}>Delete</ThemedText>
+                        </TouchableOpacity>
+                      </View>
                         </TouchableOpacity>
                       </View>
                     )}
@@ -242,6 +244,24 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     borderTopWidth: 1,
     borderTopColor: 'rgba(255,255,255,0.15)',
+  },
+  actionButton: {
+    padding: 10,
+    borderRadius: 8,
+    minWidth: 100,
+    alignItems: 'center',
+  },
+  changeCoachButton: {
+    backgroundColor: '#2196F3',
+  },
+  deleteButton: {
+    backgroundColor: '#f44336',
+  },
+  challengerActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 16,
+    gap: 10,
   },
   createButton: {
     alignItems: 'center',
