@@ -11,147 +11,117 @@ import { Swipeable, GestureHandlerRootView } from 'react-native-gesture-handler'
 export default function IndexScreen() {
   const [filter, setFilter] = useState('all');
   const router = useRouter();
-  const { challenges, user, updateChallengeStatus, updateChallengeCoach } = useAuth();
+  const { challenges, user, updateChallengeStatus, updateChallengeCoach, deleteChallenge } = useAuth();
 
   const filteredChallenges = () => {
     if (filter === 'challenger') {
-      return {
-        pendingChallenges: challenges.filter(c => c.status === 'pending' && c.userId === user?.id),
-        activeChallenges: challenges.filter(c => c.status === 'active' && c.userId === user?.id),
-        coachPendingRequests: [],
-        coachActiveRequests: []
-      };
+      return challenges.filter(c => c.status !== 'rejected' && c.userId === user?.id);
     } else if (filter === 'coaching') {
-      return {
-        pendingChallenges: [],
-        activeChallenges: [],
-        coachPendingRequests: challenges.filter(c => c.status === 'pending' && c.coachId === user?.id),
-        coachActiveRequests: challenges.filter(c => c.status === 'active' && c.coachId === user?.id)
-      };
+      return challenges.filter(c => c.status !== 'rejected' && c.coachId === user?.id);
     } else {
-      return {
-        pendingChallenges: challenges.filter(c => c.status === 'pending' && c.userId === user?.id),
-        activeChallenges: challenges.filter(c => c.status === 'active' && c.userId === user?.id),
-        coachPendingRequests: challenges.filter(c => c.status === 'pending' && c.coachId === user?.id),
-        coachActiveRequests: challenges.filter(c => c.status === 'active' && c.coachId === user?.id)
-      };
+      return challenges.filter(c => c.status !== 'rejected');
     }
   };
 
-  const {
-    pendingChallenges,
-    activeChallenges,
-    coachPendingRequests,
-    coachActiveRequests
-  } = filteredChallenges();
+  const allChallenges = filteredChallenges();
 
-  const renderChallengeSection = (title, items, isCoachSection = false) => (
-    <ThemedView style={[styles.section, isCoachSection && styles.coachSection]}>
-      <ThemedText type="subtitle">{title}</ThemedText>
-      {items.length === 0 ? (
-        <ThemedText>No {title.toLowerCase()}</ThemedText>
-      ) : (
-        <FlatList
-          data={items}
-          keyExtractor={(item, index) => `${item.id}-${index}`}
-          renderItem={({ item }) => (
-            <Swipeable
-              renderRightActions={(progress, dragX) => {
-                const trans = dragX.interpolate({
-                  inputRange: [-100, 0],
-                  outputRange: [0, 100],
-                });
-                const isCoaching = item.coachId === user?.id;
-                return (
-                  <View style={styles.swipeableButtons}>
-                    {item.status === 'pending' && (
-                      <View>
-                        {isCoaching ? (
-                          <>
-                            <Animated.View style={[styles.swipeButton, { transform: [{ translateX: trans }] }]}>
-                              <TouchableOpacity
-                                style={[styles.actionButton, styles.acceptButton]}
-                                onPress={() => handleAcceptChallenge(item)}>
-                                <IconSymbol name="checkmark.circle.fill" size={24} color="#fff" />
-                                <ThemedText style={styles.buttonText}>Accept</ThemedText>
-                              </TouchableOpacity>
-                            </Animated.View>
-                            <Animated.View style={[styles.swipeButton, { transform: [{ translateX: trans }] }]}>
-                              <TouchableOpacity
-                                style={[styles.actionButton, styles.rejectButton]}
-                                onPress={() => handleRejectChallenge(item)}>
-                                <IconSymbol name="xmark.circle.fill" size={24} color="#fff" />
-                                <ThemedText style={styles.buttonText}>Reject</ThemedText>
-                              </TouchableOpacity>
-                            </Animated.View>
-                          </>
-                        ) : (
-                          <Animated.View style={[styles.swipeButton, { transform: [{ translateX: trans }] }]}>
-                            <TouchableOpacity
-                              style={[styles.actionButton, styles.changeCoachButton]}
-                              onPress={() => handleChangeCoach(item.id, 'newCoachId')}>
-                                <IconSymbol name="biceps" size={24} color="#fff" />
-                                <ThemedText style={styles.buttonText}>Change Coach</ThemedText>
-                            </TouchableOpacity>
-                          </Animated.View>
-                        )}
-                        <Animated.View style={[styles.swipeButton, { transform: [{ translateX: trans }] }]}>
-                          <TouchableOpacity
-                            style={[styles.actionButton, styles.deleteButton]}
-                            onPress={() => handleDeleteChallenge(item.id)}>
-                            <IconSymbol name="trash.fill" size={24} color="#fff" />
-                            <ThemedText style={styles.buttonText}>Delete</ThemedText>
-                          </TouchableOpacity>
-                        </Animated.View>
-                      </View>
-                    )}
-                  </View>
-                );
-              }}
-            >
-              <View style={styles.listItem}>
-                <View style={styles.avatarContainer}>
-                  <View style={[styles.avatar, item.coachId === user?.id ? styles.coachingAvatar : styles.challengeAvatar]}>
-                    <ThemedText style={styles.avatarText}>
-                      {item.title.charAt(0).toUpperCase()}
-                    </ThemedText>
-                  </View>
-                </View>
-                <View style={styles.contentContainer}>
-                  <View style={styles.titleRow}>
-                    <ThemedText style={styles.title}>
-                      {item.title}
-                      <ThemedText style={styles.typeLabel}>
-                        {item.coachId === user?.id ? ' (Coaching)' : ' (Challenge)'}
-                      </ThemedText>
-                    </ThemedText>
-                    <ThemedText style={styles.date}>
-                      {new Date(item.startDate).toLocaleDateString()}
-                    </ThemedText>
-                  </View>
-                  <View style={styles.previewRow}>
-                    <ThemedText numberOfLines={1} style={styles.preview}>
-                      {item.description || `Frequency: ${item.frequency}`}
-                    </ThemedText>
-                    {item.status === 'pending' && (
-                      <View style={styles.badge}>
-                        <ThemedText style={styles.badgeText}>Pending</ThemedText>
-                      </View>
-                    )}
-                  </View>
-                  <ThemedText style={styles.participantInfo}>
-                    {item.coachId === user?.id
-                      ? `Challenger: ${item.userId}`
-                      : `Coach: ${item.coachId}`}
-                  </ThemedText>
-                </View>
+  const renderChallengeSection = (item) => (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <Swipeable
+        friction={2}
+        rightThreshold={40}
+        renderRightActions={(progress, dragX) => (
+          <View style={styles.swipeableButtons}>
+            {item.coachId === user?.id ? (
+              <>
+                {item.status === 'pending' && (
+                  <>
+                    <TouchableOpacity
+                      style={[styles.actionButton, styles.acceptButton]}
+                      onPress={() => handleAcceptChallenge(item)}>
+                      <IconSymbol name="checkmark.circle.fill" size={24} color="#fff" />
+                      <ThemedText style={styles.buttonText}>Accept</ThemedText>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.actionButton, styles.rejectButton]}
+                      onPress={() => handleRejectChallenge(item)}>
+                      <IconSymbol name="xmark.circle.fill" size={24} color="#fff" />
+                      <ThemedText style={styles.buttonText}>Reject</ThemedText>
+                    </TouchableOpacity>
+                  </>
+                )}
+              </>
+            ) : (
+              <>
+                {item.status === 'pending' && (
+                  <>
+                    <TouchableOpacity
+                      style={[styles.actionButton, styles.changeCoachButton]}
+                      onPress={() => handleChangeCoach(item.id, 'newCoachId')}>
+                      <IconSymbol name="biceps" size={24} color="#fff" />
+                      <ThemedText style={styles.buttonText}>Change Coach</ThemedText>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.actionButton, styles.deleteButton]}
+                      onPress={() => handleDeleteChallenge(item.id)}>
+                      <IconSymbol name="trash.fill" size={24} color="#fff" />
+                      <ThemedText style={styles.buttonText}>Delete</ThemedText>
+                    </TouchableOpacity>
+                  </>
+                )}
+              </>
+            )}
+          </View>
+        )}
+      >
+        <TouchableOpacity
+          activeOpacity={1}
+          onPress={() => router.push(`/chat?challengeId=${item.id}`)}
+        >
+          <ThemedView
+            style={[
+              styles.listItem,
+              item.coachId === user?.id ? styles.coachingItem : styles.challengeItem,
+            ]}>
+            <View style={styles.avatarContainer}>
+              <View style={[styles.avatar, item.coachId === user?.id ? styles.coachingAvatar : styles.challengeAvatar]}>
+                <ThemedText style={styles.avatarText}>
+                  {item.title.charAt(0).toUpperCase()}
+                </ThemedText>
               </View>
-            </Swipeable>
-          )}
-          scrollEnabled={false}
-        />
-      )}
-    </ThemedView>
+            </View>
+            <View style={styles.contentContainer}>
+              <View style={styles.titleRow}>
+                <ThemedText style={styles.title}>
+                  {item.title}
+                  <ThemedText style={styles.typeLabel}>
+                    {item.coachId === user?.id ? ' (Coaching)' : ' (Challenge)'}
+                  </ThemedText>
+                </ThemedText>
+                <ThemedText style={styles.date}>
+                  {new Date(item.startDate).toLocaleDateString()}
+                </ThemedText>
+              </View>
+              <View style={styles.previewRow}>
+                <ThemedText numberOfLines={1} style={styles.preview}>
+                  {item.description || `Frequency: ${item.frequency}`}
+                </ThemedText>
+                {item.status === 'pending' && (
+                  <View style={styles.badge}>
+                    <ThemedText style={styles.badgeText}>Pending</ThemedText>
+                  </View>
+                )}
+              </View>
+              <ThemedText style={styles.participantInfo}>
+                {item.coachId === user?.id
+                  ? `Challenger: ${item.userId}`
+                  : `Coach: ${item.coachId}`}
+              </ThemedText>
+            </View>
+          </ThemedView>
+        </TouchableOpacity>
+      </Swipeable>
+    </GestureHandlerRootView>
   );
 
   const handleAcceptChallenge = async (challenge) => {
@@ -180,13 +150,11 @@ export default function IndexScreen() {
 
   const handleDeleteChallenge = async (challengeId) => {
     try {
-      // Assuming deleteChallenge function exists in your useAuth context
-      await deleteChallenge(challengeId); 
+      await deleteChallenge(challengeId);
     } catch (error) {
       console.error("Error deleting challenge:", error);
     }
   };
-
 
   return (
     <ParallaxScrollView
@@ -194,17 +162,17 @@ export default function IndexScreen() {
       <ThemedView style={styles.header}>
         <ThemedText style={styles.headerTitle}>Challenges</ThemedText>
         <View style={styles.filterContainer}>
-          <TouchableOpacity 
-            style={[styles.filterButton, filter === 'all' && styles.filterButtonActive]} 
+          <TouchableOpacity
+            style={[styles.filterButton, filter === 'all' && styles.filterButtonActive]}
             onPress={() => setFilter('all')}>
             <ThemedText style={filter === 'all' && styles.filterTextActive}>All</ThemedText>
           </TouchableOpacity>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.filterButton, filter === 'challenger' && styles.filterButtonActive]}
             onPress={() => setFilter('challenger')}>
             <ThemedText style={filter === 'challenger' && styles.filterTextActive}>My Challenges</ThemedText>
           </TouchableOpacity>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.filterButton, filter === 'coaching' && styles.filterButtonActive]}
             onPress={() => setFilter('coaching')}>
             <ThemedText style={filter === 'coaching' && styles.filterTextActive}>Coaching</ThemedText>
@@ -213,106 +181,10 @@ export default function IndexScreen() {
       </ThemedView>
       <ThemedView style={styles.container}>
         <FlatList
-          data={[...pendingChallenges, ...activeChallenges, ...coachPendingRequests, ...coachActiveRequests]}
+          data={allChallenges}
           keyExtractor={(item, index) => `${item.id}-${index}`}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
-          renderItem={({ item }) => (
-            <GestureHandlerRootView style={{ flex: 1 }}>
-              <Swipeable
-                friction={2}
-                rightThreshold={40}
-                renderRightActions={(progress, dragX) => (
-                  <View style={styles.swipeableButtons}>
-                    {item.coachId === user?.id ? (
-                      <>
-                        {item.status === 'pending' && (
-                          <>
-                            <TouchableOpacity
-                              style={[styles.actionButton, styles.acceptButton]}
-                              onPress={() => handleAcceptChallenge(item)}>
-                              <IconSymbol name="checkmark.circle.fill" size={24} color="#fff" />
-                              <ThemedText style={styles.buttonText}>Accept</ThemedText>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                              style={[styles.actionButton, styles.rejectButton]}
-                              onPress={() => handleRejectChallenge(item)}>
-                              <IconSymbol name="xmark.circle.fill" size={24} color="#fff" />
-                              <ThemedText style={styles.buttonText}>Reject</ThemedText>
-                            </TouchableOpacity>
-                          </>
-                        )}
-                      </>
-                    ) : (
-                      <>
-                        {item.status === 'pending' && (
-                          <>
-                            <TouchableOpacity
-                              style={[styles.actionButton, styles.changeCoachButton]}
-                              onPress={() => handleChangeCoach(item.id, 'newCoachId')}>
-                              <IconSymbol name="biceps" size={24} color="#fff" />
-                              <ThemedText style={styles.buttonText}>Change Coach</ThemedText>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                              style={[styles.actionButton, styles.deleteButton]}
-                              onPress={() => handleDeleteChallenge(item.id)}>
-                              <IconSymbol name="trash.fill" size={24} color="#fff" />
-                              <ThemedText style={styles.buttonText}>Delete</ThemedText>
-                            </TouchableOpacity>
-                          </>
-                        )}
-                      </>
-                    )}
-                  </View>
-                )}
-              >
-                <TouchableOpacity 
-                  activeOpacity={1}
-                  onPress={() => router.push(`/chat?challengeId=${item.id}`)}
-                >
-                  <ThemedView style={[
-                styles.listItem,
-                item.coachId === user?.id ? styles.coachingItem : styles.challengeItem,
-              ]}>
-                <View style={styles.avatarContainer}>
-                  <View style={[styles.avatar, item.coachId === user?.id ? styles.coachingAvatar : styles.challengeAvatar]}>
-                    <ThemedText style={styles.avatarText}>
-                      {item.title.charAt(0).toUpperCase()}
-                    </ThemedText>
-                  </View>
-                </View>
-                <View style={styles.contentContainer}>
-                  <View style={styles.titleRow}>
-                    <ThemedText style={styles.title}>
-                      {item.title}
-                      <ThemedText style={styles.typeLabel}>
-                        {item.coachId === user?.id ? ' (Coaching)' : ' (Challenge)'}
-                      </ThemedText>
-                    </ThemedText>
-                    <ThemedText style={styles.date}>
-                      {new Date(item.startDate).toLocaleDateString()}
-                    </ThemedText>
-                  </View>
-                  <View style={styles.previewRow}>
-                    <ThemedText numberOfLines={1} style={styles.preview}>
-                      {item.description || `Frequency: ${item.frequency}`}
-                    </ThemedText>
-                    {item.status === 'pending' && (
-                      <View style={styles.badge}>
-                        <ThemedText style={styles.badgeText}>Pending</ThemedText>
-                      </View>
-                    )}
-                  </View>
-                  <ThemedText style={styles.participantInfo}>
-                    {item.coachId === user?.id 
-                      ? `Challenger: ${item.userId}`
-                      : `Coach: ${item.coachId}`}
-                  </ThemedText>
-                </View>
-              </ThemedView>
-            </TouchableOpacity>
-          </Swipeable>
-        </GestureHandlerRootView>
-          )}
+          renderItem={({ item }) => renderChallengeSection(item)}
         />
       </ThemedView>
     </ParallaxScrollView>
@@ -558,7 +430,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   coachSection: {
-    backgroundColor: 'rgba(161, 206, 220, 0.15)', 
+    backgroundColor: 'rgba(161, 206, 220, 0.15)',
     borderWidth: 1,
     borderColor: '#A1CEDC',
   },
