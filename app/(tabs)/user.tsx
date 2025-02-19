@@ -1,6 +1,7 @@
 
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useAuth } from '@/contexts/AuthContext';
@@ -9,12 +10,11 @@ export default function UserScreen() {
   const { user, logout, notifications, markNotificationAsRead } = useAuth();
   const router = useRouter();
   
+  const { login } = useAuth();
+  
   const switchUser = async (userId: string) => {
     await logout();
-    const userInfo = { id: userId, username: userId };
-    await AsyncStorage.setItem('user', JSON.stringify(userInfo));
-    setIsAuthenticated(true);
-    setUser(userInfo);
+    await login(userId, userId);
   };
 
   const handleLogout = async () => {
