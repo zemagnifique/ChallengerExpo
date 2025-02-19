@@ -10,17 +10,41 @@ export default function IndexScreen() {
   const router = useRouter();
   const { challenges, user, updateChallengeStatus, updateChallengeCoach } = useAuth();
 
-  // Challenges where user is the challenger
-  const pendingChallenges = challenges.filter(c => c.status === 'pending' && c.userId === user?.id);
-  const activeChallenges = challenges.filter(c => c.status === 'active' && c.userId === user?.id);
-  
-  // Challenges where user is the coach
-  const coachPendingRequests = user?.role === 'coach' 
-    ? challenges.filter(c => c.status === 'pending' && c.coachId === user?.id)
-    : [];
-  const coachActiveRequests = user?.role === 'coach'
-    ? challenges.filter(c => c.status === 'active' && c.coachId === user?.id)
-    : [];
+  const filteredChallenges = () => {
+    if (filter === 'challenger') {
+      return {
+        pendingChallenges: challenges.filter(c => c.status === 'pending' && c.userId === user?.id),
+        activeChallenges: challenges.filter(c => c.status === 'active' && c.userId === user?.id),
+        coachPendingRequests: [],
+        coachActiveRequests: []
+      };
+    } else if (filter === 'coaching' && user?.role === 'coach') {
+      return {
+        pendingChallenges: [],
+        activeChallenges: [],
+        coachPendingRequests: challenges.filter(c => c.status === 'pending' && c.coachId === user?.id),
+        coachActiveRequests: challenges.filter(c => c.status === 'active' && c.coachId === user?.id)
+      };
+    } else {
+      return {
+        pendingChallenges: challenges.filter(c => c.status === 'pending' && c.userId === user?.id),
+        activeChallenges: challenges.filter(c => c.status === 'active' && c.userId === user?.id),
+        coachPendingRequests: user?.role === 'coach' 
+          ? challenges.filter(c => c.status === 'pending' && c.coachId === user?.id)
+          : [],
+        coachActiveRequests: user?.role === 'coach'
+          ? challenges.filter(c => c.status === 'active' && c.coachId === user?.id)
+          : []
+      };
+    }
+  };
+
+  const {
+    pendingChallenges,
+    activeChallenges,
+    coachPendingRequests,
+    coachActiveRequests
+  } = filteredChallenges();
 
   const renderChallengeSection = (title, items, isCoachSection = false) => (
     <ThemedView style={[styles.section, isCoachSection && styles.coachSection]}>
@@ -120,9 +144,33 @@ export default function IndexScreen() {
   };
 
 
+  const [filter, setFilter] = useState('all');
+
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}>
+      <ThemedView style={styles.header}>
+        <ThemedText style={styles.headerTitle}>Challenges</ThemedText>
+        <View style={styles.filterContainer}>
+          <TouchableOpacity 
+            style={[styles.filterButton, filter === 'all' && styles.filterButtonActive]} 
+            onPress={() => setFilter('all')}>
+            <ThemedText style={filter === 'all' && styles.filterTextActive}>All</ThemedText>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.filterButton, filter === 'challenger' && styles.filterButtonActive]}
+            onPress={() => setFilter('challenger')}>
+            <ThemedText style={filter === 'challenger' && styles.filterTextActive}>My Challenges</ThemedText>
+          </TouchableOpacity>
+          {user?.role === 'coach' && (
+            <TouchableOpacity 
+              style={[styles.filterButton, filter === 'coaching' && styles.filterButtonActive]}
+              onPress={() => setFilter('coaching')}>
+              <ThemedText style={filter === 'coaching' && styles.filterTextActive}>Coaching</ThemedText>
+            </TouchableOpacity>
+          )}
+        </View>
+      </ThemedView>
       <ThemedView style={styles.container}>
         {/* Challenger's view */}
         {renderChallengeSection('My Pending Challenges', pendingChallenges)}
@@ -145,6 +193,33 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     gap: 20,
+  },
+  header: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255,255,255,0.15)',
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 16,
+  },
+  filterContainer: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  filterButton: {
+    padding: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.15)',
+  },
+  filterButtonActive: {
+    backgroundColor: '#4CAF50',
+    borderColor: '#4CAF50',
+  },
+  filterTextActive: {
+    color: '#fff',
   },
   participantsContainer: {
     flexDirection: 'row',
