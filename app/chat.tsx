@@ -88,7 +88,7 @@ export default function ChatScreen() {
     let isSubscribed = true;
     const interval = setInterval(async () => {
       if (!isSubscribed) return;
-      
+
       const storedChallenges = await AsyncStorage.getItem('challenges');
       if (storedChallenges) {
         const parsedChallenges = JSON.parse(storedChallenges);
@@ -266,7 +266,7 @@ export default function ChatScreen() {
             <View style={[
               styles.messageBubble,
               item.userId === user?.id ? 
-                [styles.ownMessage, { backgroundColor: item.userId === challenge?.coachId ? '#2B5876' : '#1E4D2B' }] : 
+                [styles.ownMessage, { backgroundColor: item.userId === challenge?.coachId ? '#2B5876' : '#B71C1C' }] : 
                 styles.otherMessage
             ]}>
               {item.text && <ThemedText style={styles.messageText}>{item.text}</ThemedText>}

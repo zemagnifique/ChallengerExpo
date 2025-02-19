@@ -241,22 +241,22 @@ export default function IndexScreen() {
 
 const styles = StyleSheet.create({
   challengeAvatar: {
+    backgroundColor: '#FFEBEE',
+    borderColor: '#F44336',
+    borderWidth: 2,
+  },
+  coachingAvatar: {
     backgroundColor: '#E3F2FD',
     borderColor: '#2196F3',
     borderWidth: 2,
   },
-  coachingAvatar: {
-    backgroundColor: '#E8F5E9',
-    borderColor: '#4CAF50',
-    borderWidth: 2,
-  },
   challengeItem: {
     borderLeftWidth: 4,
-    borderLeftColor: '#2196F3',
+    borderLeftColor: '#F44336',
   },
   coachingItem: {
     borderLeftWidth: 4,
-    borderLeftColor: '#4CAF50',
+    borderLeftColor: '#2196F3',
   },
   typeLabel: {
     fontSize: 12,
@@ -377,8 +377,8 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.15)',
   },
   filterButtonActive: {
-    backgroundColor: '#4CAF50',
-    borderColor: '#4CAF50',
+    backgroundColor: '#F44336',
+    borderColor: '#F44336',
   },
   filterTextActive: {
     color: '#fff',
