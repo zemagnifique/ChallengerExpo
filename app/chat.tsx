@@ -27,6 +27,7 @@ type Challenge = {
     timestamp: Date;
     image?: string;
     isValidated?: boolean;
+    isProof?: boolean; // Added isProof property
   }>;
 };
 
@@ -68,7 +69,8 @@ export default function ChatScreen() {
       userId: user?.id || '',
       timestamp: new Date(),
       image: selectedImage,
-      isValidated: false // Initially not validated
+      isValidated: false, // Initially not validated
+      isProof: false // Initially not marked as proof
     };
 
     const updatedChallenge = {
@@ -121,7 +123,8 @@ export default function ChatScreen() {
         userId: user?.id || '',
         timestamp: new Date(),
         image: result.assets[0].uri,
-        isValidated: false // Initially not validated
+        isValidated: false, // Initially not validated
+        isProof: false // Initially not marked as proof
       };
 
       const updatedChallenge = {
@@ -146,6 +149,20 @@ export default function ChatScreen() {
     await updateChallenge(updatedChallenge);
 
   }
+
+  const handleDoubleTap = async (message: any) => {
+    if (message.userId !== user?.id || isCoach) return;
+
+    const updatedMessages = challenge.messages.map(msg => {
+      if (msg === message) {
+        return { ...msg, isProof: !msg.isProof };
+      }
+      return msg;
+    });
+    const updatedChallenge = { ...challenge, messages: updatedMessages };
+    await updateChallenge(updatedChallenge);
+  };
+
 
   if (!challenge) {
     return (
@@ -212,11 +229,14 @@ export default function ChatScreen() {
         onLayout={() => flatListRef.current?.scrollToEnd({animated: true})}
         renderItem={({ item }) => (
           <TouchableOpacity 
-            onPress={() => {
+            onLongPress={() => {
+              isCoach && handleLongPress(item);
+            }}
+            onPressIn={() => {
               const now = Date.now();
               const DOUBLE_PRESS_DELAY = 300;
               if (lastTap && (now - lastTap) < DOUBLE_PRESS_DELAY) {
-                isCoach && handleLongPress(item);
+                handleDoubleTap(item);
               } else {
                 setLastTap(now);
               }
@@ -240,9 +260,13 @@ export default function ChatScreen() {
               <ThemedText style={styles.messageTime}>
                 {new Date(item.timestamp).toLocaleTimeString()}
               </ThemedText>
-              {item.isValidated && (
+              {(item.isValidated || item.isProof) && (
                 <View style={styles.checkmarkContainer}>
-                  <IconSymbol name="checkmark.circle.fill" size={24} color="#4CAF50" />
+                  <IconSymbol 
+                    name="checkmark.circle.fill" 
+                    size={24} 
+                    color={item.isValidated ? '#2196F3' : '#4CAF50'} 
+                  />
                 </View>
               )}
             </View>
