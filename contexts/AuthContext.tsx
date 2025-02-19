@@ -102,7 +102,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     await AsyncStorage.removeItem('user');
-    await AsyncStorage.removeItem('challenges');
     setIsAuthenticated(false);
     setUser(null);
     setChallenges([]);
