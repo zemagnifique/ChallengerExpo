@@ -388,7 +388,8 @@ const styles = StyleSheet.create({
     paddingTop: 48,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(0,0,0,0.1)',
-    backgroundColor: user?.id === challenge?.userId ? '#F44336' : '#2196F3',
+    backgroundColor: ({ user, challenge }) => 
+      user?.id === challenge?.userId ? '#F44336' : '#2196F3',
   },
   headerContent: {
     marginLeft: 40,
