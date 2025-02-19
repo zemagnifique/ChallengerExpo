@@ -275,6 +275,8 @@ const styles = StyleSheet.create({
   listItem: {
     flexDirection: 'row',
     padding: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(128, 128, 128, 0.2)',
   },
   separator: {
     height: StyleSheet.hairlineWidth,
