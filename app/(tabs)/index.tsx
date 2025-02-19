@@ -72,6 +72,7 @@ export default function IndexScreen() {
                               <TouchableOpacity
                                 style={[styles.actionButton, styles.acceptButton]}
                                 onPress={() => handleAcceptChallenge(item)}>
+                                <IconSymbol name="chevron.right" size={16} color="#fff" />
                                 <ThemedText style={styles.buttonText}>Accept</ThemedText>
                               </TouchableOpacity>
                             </Animated.View>
@@ -79,6 +80,7 @@ export default function IndexScreen() {
                               <TouchableOpacity
                                 style={[styles.actionButton, styles.rejectButton]}
                                 onPress={() => handleRejectChallenge(item)}>
+                                <IconSymbol name="chevron.left" size={16} color="#fff" />
                                 <ThemedText style={styles.buttonText}>Reject</ThemedText>
                               </TouchableOpacity>
                             </Animated.View>
@@ -88,6 +90,7 @@ export default function IndexScreen() {
                             <TouchableOpacity
                               style={[styles.actionButton, styles.deleteButton]}
                               onPress={() => handleDeleteChallenge(item.id)}>
+                              <IconSymbol name="paperplane.fill" size={16} color="#fff" />
                               <ThemedText style={styles.buttonText}>Delete</ThemedText>
                             </TouchableOpacity>
                           </Animated.View>
@@ -219,11 +222,13 @@ export default function IndexScreen() {
                             <TouchableOpacity
                               style={[styles.actionButton, styles.acceptButton]}
                               onPress={() => handleAcceptChallenge(item)}>
+                              <IconSymbol name="chevron.right" size={16} color="#fff" />
                               <ThemedText style={styles.buttonText}>Accept</ThemedText>
                             </TouchableOpacity>
                             <TouchableOpacity
                               style={[styles.actionButton, styles.rejectButton]}
                               onPress={() => handleRejectChallenge(item)}>
+                              <IconSymbol name="chevron.left" size={16} color="#fff" />
                               <ThemedText style={styles.buttonText}>Reject</ThemedText>
                             </TouchableOpacity>
                           </>
@@ -236,11 +241,13 @@ export default function IndexScreen() {
                             <TouchableOpacity
                               style={[styles.actionButton, styles.changeCoachButton]}
                               onPress={() => handleChangeCoach(item.id, 'newCoachId')}>
+                              <IconSymbol name="house.fill" size={16} color="#fff" />
                               <ThemedText style={styles.buttonText}>Change Coach</ThemedText>
                             </TouchableOpacity>
                             <TouchableOpacity
                               style={[styles.actionButton, styles.deleteButton]}
                               onPress={() => handleDeleteChallenge(item.id)}>
+                              <IconSymbol name="paperplane.fill" size={16} color="#fff" />
                               <ThemedText style={styles.buttonText}>Delete</ThemedText>
                             </TouchableOpacity>
                           </>
@@ -477,16 +484,28 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   acceptButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: 'rgba(76, 175, 80, 0.8)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   rejectButton: {
-    backgroundColor: '#f44336',
+    backgroundColor: 'rgba(244, 67, 54, 0.8)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   changeCoachButton: {
-    backgroundColor: '#2196F3',
-    padding: 10,
-    borderRadius: 8,
+    backgroundColor: 'rgba(33, 150, 243, 0.8)',
+    flexDirection: 'row',
     alignItems: 'center',
+    gap: 8,
+  },
+  deleteButton: {
+    backgroundColor: 'rgba(244, 67, 54, 0.8)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   buttonText: {
     color: '#fff',
@@ -497,8 +516,43 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: 10,
   },
-  deleteButton: {
-    backgroundColor: '#f44336',
+  createButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#4CAF50',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    position: 'absolute',
+    bottom: 24,
+    right: 24,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    zIndex: 1,
+  },
+  swipeableButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: 200,
+    gap: 8,
+    paddingHorizontal: 8,
+  },
+  swipeButton: {
+    flex: 1,
+    height: 70,
+    justifyContent: 'center',
+  },
+  actionButton: {
+    flex: 1,
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 8,
+    paddingHorizontal: 16,
+
   },
   coachSection: {
     backgroundColor: 'rgba(161, 206, 220, 0.15)', 
@@ -544,65 +598,5 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: 'rgba(255,255,255,0.15)',
   },
-  actionButton: {
-    padding: 10,
-    borderRadius: 8,
-    minWidth: 100,
-    alignItems: 'center',
-  },
-  changeCoachButton: {
-    backgroundColor: '#2196F3',
-  },
-  deleteButton: {
-    backgroundColor: '#f44336',
-  },
-  challengerActions: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 16,
-    gap: 10,
-  },
-  createButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#4CAF50',
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    position: 'absolute',
-    bottom: 24,
-    right: 24,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    zIndex: 1,
-  },
-  swipeableButtons: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: 200,
-    gap: 8,
-    paddingHorizontal: 8,
-  },
-  actionButton: {
-    flex: 1,
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 8,
-  },
-  acceptButton: {
-    backgroundColor: '#4CAF50',
-  },
-  rejectButton: {
-    backgroundColor: '#f44336',
-  },
-  changeCoachButton: {
-    backgroundColor: '#2196F3',
-  },
-  deleteButton: {
-    backgroundColor: '#f44336',
-  },
+  
 });
