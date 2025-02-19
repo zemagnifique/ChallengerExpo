@@ -172,23 +172,96 @@ export default function IndexScreen() {
         </View>
       </ThemedView>
       <ThemedView style={styles.container}>
-        {/* Challenger's view */}
-        {renderChallengeSection('My Pending Challenges', pendingChallenges)}
-        {renderChallengeSection('My Active Challenges', activeChallenges)}
-        
-        {/* Coach's view */}
-        {user?.role === 'coach' && (
-          <>
-            {renderChallengeSection('Pending Coaching Requests', coachPendingRequests, true)}
-            {renderChallengeSection('Active Coaching Sessions', coachActiveRequests, true)}
-          </>
-        )}
+        <FlatList
+          data={[...pendingChallenges, ...activeChallenges, ...coachPendingRequests, ...coachActiveRequests]}
+          keyExtractor={(item) => item.createdAt.toString()}
+          renderItem={({ item }) => (
+            <View>
+              <ThemedView style={[
+                styles.challengeCard,
+                item.coachId === user?.id ? styles.coachingCard : styles.challengeCard,
+                item.status === 'pending' ? styles.pendingCard : styles.activeCard,
+              ]}>
+                <View style={styles.titleContainer}>
+                  <ThemedText style={styles.challengeTitle}>{item.title}</ThemedText>
+                  <ThemedText style={styles.typeLabel}>
+                    {item.coachId === user?.id ? 'Coaching' : 'Challenge'}
+                  </ThemedText>
+                </View>
+                <View style={styles.participantsContainer}>
+                  <ThemedText style={styles.participantText}>Challenger: {item.userId}</ThemedText>
+                  <ThemedText style={styles.participantText}>Coach: {item.coachId}</ThemedText>
+                </View>
+                <ThemedText>{item.description}</ThemedText>
+                <ThemedText>Frequency: {item.frequency}</ThemedText>
+                <View style={styles.dateContainer}>
+                  <ThemedText>Start: {new Date(item.startDate).toLocaleDateString()}</ThemedText>
+                  <ThemedText>End: {new Date(item.endDate).toLocaleDateString()}</ThemedText>
+                </View>
+                
+                {item.status === 'pending' && (
+                  <View style={styles.actionsContainer}>
+                    {user?.role === 'coach' && item.coachId === user.id && (
+                      <View style={styles.actionButtons}>
+                        <TouchableOpacity 
+                          style={[styles.actionButton, styles.acceptButton]} 
+                          onPress={() => handleAcceptChallenge(item)}>
+                          <ThemedText style={styles.buttonText}>Accept</ThemedText>
+                        </TouchableOpacity>
+                        <TouchableOpacity 
+                          style={[styles.actionButton, styles.rejectButton]}
+                          onPress={() => handleRejectChallenge(item)}>
+                          <ThemedText style={styles.buttonText}>Reject</ThemedText>
+                        </TouchableOpacity>
+                      </View>
+                    )}
+                    {user?.role === 'user' && item.userId === user.id && (
+                      <View style={styles.challengerActions}>
+                        <TouchableOpacity 
+                          style={[styles.actionButton, styles.changeCoachButton]}
+                          onPress={() => handleChangeCoach(item.id, 'newCoachId')}>
+                          <ThemedText style={styles.buttonText}>Change Coach</ThemedText>
+                        </TouchableOpacity>
+                        <TouchableOpacity 
+                          style={[styles.actionButton, styles.deleteButton]}
+                          onPress={() => handleDeleteChallenge(item.id)}>
+                          <ThemedText style={styles.buttonText}>Delete</ThemedText>
+                        </TouchableOpacity>
+                      </View>
+                    )}
+                  </View>
+                )}
+              </ThemedView>
+            </View>
+          )}
+        />
       </ThemedView>
     </ParallaxScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  titleContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  typeLabel: {
+    fontSize: 14,
+    opacity: 0.8,
+    fontStyle: 'italic',
+  },
+  coachingCard: {
+    borderColor: '#4CAF50',
+    borderWidth: 2,
+  },
+  pendingCard: {
+    borderStyle: 'dashed',
+  },
+  activeCard: {
+    borderStyle: 'solid',
+  },
   container: {
     flex: 1,
     padding: 16,
