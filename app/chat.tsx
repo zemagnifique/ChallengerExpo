@@ -92,8 +92,20 @@ export default function ChatScreen() {
       quality: 1,
     });
 
-    if (!result.cancelled) {
-      setSelectedImage(result.uri);
+    if (!result.cancelled && !result.canceled) {
+      const newMessage = {
+        text: '',
+        userId: user?.id || '',
+        timestamp: new Date(),
+        image: result.assets[0].uri
+      };
+
+      const updatedChallenge = {
+        ...challenge,
+        messages: [...(challenge.messages || []), newMessage]
+      };
+
+      await updateChallenge(updatedChallenge);
     }
   };
 
