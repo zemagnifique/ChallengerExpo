@@ -59,7 +59,7 @@ export default function IndexScreen() {
                   <TouchableOpacity
                     style={[styles.actionButton, styles.archiveButton]}
                     onPress={() => handleArchiveChallenge(item.id)}>
-                    <IconSymbol name="archivebox.fill" size={24} color="#fff" />
+                    <IconSymbol name="tray.and.arrow.down.fill" size={24} color="#fff" />
                     <ThemedText style={styles.buttonText}>Archive</ThemedText>
                   </TouchableOpacity>
                 )}
@@ -86,7 +86,7 @@ export default function IndexScreen() {
                   <TouchableOpacity
                     style={[styles.actionButton, styles.archiveButton]}
                     onPress={() => handleArchiveChallenge(item.id)}>
-                    <IconSymbol name="archivebox.fill" size={24} color="#fff" />
+                    <IconSymbol name="tray.and.arrow.down.fill" size={24} color="#fff" />
                     <ThemedText style={styles.buttonText}>Archive</ThemedText>
                   </TouchableOpacity>
                 )}

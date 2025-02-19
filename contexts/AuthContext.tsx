@@ -203,7 +203,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     addNotification('Challenge deleted');
   };
 
-  const archiveChallenge = (challengeId: string) => {
+  const archiveChallenge = async (challengeId: string) => {
     const updatedChallenges = challenges.map(c => {
       if (c.id === challengeId) {
         return { ...c, archived: true };
@@ -211,7 +211,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return c;
     });
     setChallenges(updatedChallenges);
-    saveChallenges(updatedChallenges);
+    await AsyncStorage.setItem('challenges', JSON.stringify(updatedChallenges));
+    addNotification('Challenge archived');
   };
 
   const saveChallenges = async (challengesToSave: Challenge[]) => {
