@@ -94,6 +94,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await AsyncStorage.setItem('user', JSON.stringify(user));
       setIsAuthenticated(true);
       setUser(user);
+      await loadChallenges();
       return true;
     }
     return false;

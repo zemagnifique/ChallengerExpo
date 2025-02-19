@@ -14,7 +14,10 @@ export default function UserScreen() {
   
   const switchUser = async (userId: string) => {
     await logout();
-    await login(userId, userId);
+    const success = await login(userId, userId);
+    if (!success) {
+      console.error('Failed to switch user');
+    }
   };
 
   const handleLogout = async () => {
