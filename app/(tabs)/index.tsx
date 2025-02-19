@@ -7,6 +7,7 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function IndexScreen() {
+  const [filter, setFilter] = useState('all');
   const router = useRouter();
   const { challenges, user, updateChallengeStatus, updateChallengeCoach } = useAuth();
 
@@ -143,8 +144,6 @@ export default function IndexScreen() {
     }
   };
 
-
-  const [filter, setFilter] = useState('all');
 
   return (
     <ParallaxScrollView
