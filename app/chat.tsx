@@ -133,6 +133,8 @@ export default function ChatScreen() {
   };
 
   const handleLongPress = async (message: any) => {
+    if (!isCoach || message.userId === user?.id) return;
+    
     const updatedMessages = challenge.messages.map(msg => {
       if (msg === message) {
         return { ...msg, isValidated: !msg.isValidated };
@@ -226,7 +228,11 @@ export default function ChatScreen() {
             <ThemedText style={styles.messageTime}>
               {new Date(item.timestamp).toLocaleTimeString()}
             </ThemedText>
-            {item.isValidated && <ThemedText style = {{color: 'green'}}>Validated</ThemedText>}
+            {item.isValidated && (
+              <View style={styles.checkmarkContainer}>
+                <IconSymbol name="checkmark.circle.fill" size={24} color="#4CAF50" />
+              </View>
+            )}
           </View>
           </TouchableOpacity>
         )}
@@ -405,6 +411,10 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginVertical: 8,
     alignSelf: 'center',
+  },
+  checkmarkContainer: {
+    marginTop: 4,
+    alignSelf: 'flex-end',
   },
   imagePreview: {
     position: 'relative',
