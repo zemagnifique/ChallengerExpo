@@ -1,11 +1,13 @@
 import React from 'react';
-import { StyleSheet, View, TextInput, TouchableOpacity, FlatList, Keyboard } from 'react-native';
+import { StyleSheet, View, TextInput, TouchableOpacity, FlatList, Keyboard, Image } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { useAuth } from '@/contexts/AuthContext';
 import { useThemeColor } from '@/hooks/useThemeColor';
+import * as ImagePicker from 'expo-image-picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function ChatScreen() {
   const { challengeId } = useLocalSearchParams();
@@ -14,6 +16,7 @@ export default function ChatScreen() {
   const [message, setMessage] = React.useState('');
   const [localStatus, setLocalStatus] = React.useState('');
   const [keyboardHeight, setKeyboardHeight] = React.useState(0);
+  const [selectedImage, setSelectedImage] = React.useState(null);
   const challenge = challenges.find(c => c.id === challengeId);
 
   React.useEffect(() => {
@@ -40,7 +43,8 @@ export default function ChatScreen() {
     const newMessage = {
       text: message,
       userId: user?.id || '',
-      timestamp: new Date()
+      timestamp: new Date(),
+      image: selectedImage
     };
 
     const updatedChallenge = {
@@ -50,6 +54,7 @@ export default function ChatScreen() {
 
     await updateChallenge(updatedChallenge);
     setMessage('');
+    setSelectedImage(null);
   };
 
   // Poll for new messages every 2 seconds
@@ -75,6 +80,19 @@ export default function ChatScreen() {
       router.back();
     } catch (error) {
       console.error('Error accepting challenge:', error);
+    }
+  };
+
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.cancelled) {
+      setSelectedImage(result.uri);
     }
   };
 
@@ -146,6 +164,7 @@ export default function ChatScreen() {
               styles.otherMessage
           ]}>
             <ThemedText style={styles.messageText}>{item.text}</ThemedText>
+            {item.image && <Image source={{ uri: item.image }} style={styles.messageImage} />}
             <ThemedText style={styles.messageTime}>
               {new Date(item.timestamp).toLocaleTimeString()}
             </ThemedText>
@@ -163,6 +182,9 @@ export default function ChatScreen() {
             placeholderTextColor="#666"
             multiline
           />
+          <TouchableOpacity style={styles.attachButton} onPress={pickImage}>
+            <IconSymbol name="paperclip" size={24} color={useThemeColor({}, 'text')} />
+          </TouchableOpacity>
           <TouchableOpacity 
             style={styles.sendButton}
             onPress={handleSendMessage}>
@@ -312,5 +334,32 @@ const styles = StyleSheet.create({
   sendButtonText: {
     color: '#fff',
     fontWeight: 'bold',
+  },
+  attachButton: {
+    padding: 8,
+    justifyContent: 'center',
+  },
+  messageImage: {
+    width: 200,
+    height: 150,
+    borderRadius: 8,
+    marginVertical: 4,
+  },
+  imagePreview: {
+    position: 'relative',
+    margin: 8,
+    marginTop: 0,
+  },
+  previewImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 8,
+  },
+  removeImage: {
+    position: 'absolute',
+    top: -8,
+    right: -8,
+    backgroundColor: 'white',
+    borderRadius: 12,
   },
 });
