@@ -453,7 +453,7 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   sendButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: user?.id === challenge?.userId ? '#F44336' : '#2196F3',
     padding: 12,
     borderRadius: 20,
     justifyContent: 'center',
