@@ -28,6 +28,11 @@ export default function IndexScreen() {
   const renderChallengeSection = (item) => (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Swipeable
+        ref={(ref) => {
+          if (ref && !rowRefs.has(item.id)) {
+            rowRefs.set(item.id, ref);
+          }
+        }}
         friction={2}
         rightThreshold={40}
         renderRightActions={(progress, dragX) => (
@@ -124,9 +129,12 @@ export default function IndexScreen() {
     </GestureHandlerRootView>
   );
 
+  const rowRefs = new Map();
+
   const handleAcceptChallenge = async (challenge) => {
     try {
       await updateChallengeStatus(challenge.id, 'active');
+      rowRefs.get(challenge.id)?.close();
     } catch (error) {
       console.error("Error accepting challenge:", error);
     }
@@ -135,6 +143,7 @@ export default function IndexScreen() {
   const handleRejectChallenge = async (challenge) => {
     try {
       await updateChallengeStatus(challenge.id, 'rejected');
+      rowRefs.get(challenge.id)?.close();
     } catch (error) {
       console.error("Error rejecting challenge:", error);
     }
@@ -143,6 +152,7 @@ export default function IndexScreen() {
   const handleChangeCoach = async (challengeId, newCoachId) => {
     try {
       await updateChallengeCoach(challengeId, newCoachId);
+      rowRefs.get(challengeId)?.close();
     } catch (error) {
       console.error("Error changing coach:", error);
     }
@@ -151,6 +161,7 @@ export default function IndexScreen() {
   const handleDeleteChallenge = async (challengeId) => {
     try {
       await deleteChallenge(challengeId);
+      rowRefs.get(challengeId)?.close();
     } catch (error) {
       console.error("Error deleting challenge:", error);
     }
