@@ -388,6 +388,7 @@ const styles = StyleSheet.create({
     paddingTop: 48,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(0,0,0,0.1)',
+    backgroundColor: challenge?.userId === user?.id ? '#F44336' : '#2196F3',
   },
   headerContent: {
     marginLeft: 40,
@@ -402,9 +403,11 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     marginLeft: 8,
+    color: '#FFFFFF',
   },
   subtitle: {
     fontSize: 14,
+    color: '#FFFFFF',
     opacity: 0.7,
   },
   messageList: {
