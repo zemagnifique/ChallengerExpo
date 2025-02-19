@@ -272,7 +272,7 @@ const styles = StyleSheet.create({
     maxWidth: '80%',
   },
   ownMessage: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: isCoach ? '#0a7ea4' : '#4CAF50',
     alignSelf: 'flex-end',
     borderBottomRightRadius: 4,
   },
