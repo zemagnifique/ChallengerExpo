@@ -35,27 +35,28 @@ export default function ChatScreen() {
           onPress={() => router.back()}>
           <IconSymbol name="chevron.left" size={24} color={useThemeColor('text')} />
         </TouchableOpacity>
-        <ThemedText style={styles.title}>{challenge.title}</ThemedText>
-        <ThemedText style={styles.subtitle}>
-          {isCoach ? `Challenger: ${challenge.userId}` : `Coach: ${challenge.coachId}`}
-        </ThemedText>
+        <View style={styles.headerContent}>
+          <ThemedText style={styles.title}>{challenge.title}</ThemedText>
+          {challenge.status === 'pending' && isCoach && (
+            <View style={styles.actionButtons}>
+              <TouchableOpacity 
+                style={[styles.actionButton, styles.acceptButton]} 
+                onPress={() => updateChallengeStatus(challenge.id, 'active')}>
+                <ThemedText style={styles.buttonText}>Accept</ThemedText>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.actionButton, styles.rejectButton]}
+                onPress={() => updateChallengeStatus(challenge.id, 'rejected')}>
+                <ThemedText style={styles.buttonText}>Reject</ThemedText>
+              </TouchableOpacity>
+            </View>
+          )}
+          <ThemedText style={styles.subtitle}>
+            {isCoach ? `Challenger: ${challenge.userId}` : `Coach: ${challenge.coachId}`}
+          </ThemedText>
+        </View>
         
-        {challenge.status === 'pending' && (
-          <View style={styles.actionContainer}>
-            {isCoach ? (
-              <View style={styles.actionButtons}>
-                <TouchableOpacity 
-                  style={[styles.actionButton, styles.acceptButton]} 
-                  onPress={() => updateChallengeStatus(challenge.id, 'active')}>
-                  <ThemedText style={styles.buttonText}>Accept</ThemedText>
-                </TouchableOpacity>
-                <TouchableOpacity 
-                  style={[styles.actionButton, styles.rejectButton]}
-                  onPress={() => updateChallengeStatus(challenge.id, 'rejected')}>
-                  <ThemedText style={styles.buttonText}>Reject</ThemedText>
-                </TouchableOpacity>
-              </View>
-            ) : (
+        {challenge.status === 'pending' && !isCoach && (
               <View style={styles.actionButtons}>
                 <TouchableOpacity 
                   style={[styles.actionButton, styles.changeCoachButton]}
@@ -174,12 +175,19 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
     padding: 16,
     paddingTop: 48,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(0,0,0,0.1)',
+  },
+  headerContent: {
+    marginLeft: 40,
+    marginTop: -30,
+  },
+  actionButtons: {
+    flexDirection: 'row',
+    gap: 10,
+    marginVertical: 8,
   },
   title: {
     fontSize: 20,
