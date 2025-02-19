@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
     position: 'sticky',
     top: 0,
     zIndex: 1000,
-    backgroundColor: headerBackgroundColor[colorScheme],
+    backgroundColor: Colors[colorScheme].background,
     paddingTop: 16,
     paddingHorizontal: 16,
   },
