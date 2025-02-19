@@ -275,7 +275,6 @@ const styles = StyleSheet.create({
   listItem: {
     flexDirection: 'row',
     padding: 12,
-    backgroundColor: '#fff',
   },
   separator: {
     height: StyleSheet.hairlineWidth,
