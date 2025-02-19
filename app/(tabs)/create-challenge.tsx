@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from 'react';
 import { StyleSheet, TextInput, TouchableOpacity, ScrollView, View, Platform } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
@@ -70,7 +69,7 @@ export default function CreateChallengeScreen() {
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}>
       <ScrollView style={styles.container}>
         <ThemedText type="title" style={styles.title}>Create Challenge</ThemedText>
-        
+
         <ThemedView style={styles.defaultChallenges}>
           <ThemedText type="subtitle">Quick Start Challenges</ThemedText>
           {DEFAULT_CHALLENGES.map((challenge, index) => (
@@ -203,37 +202,47 @@ export default function CreateChallengeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    padding: 20, // Added padding to container
   },
   title: {
-    marginBottom: 20,
+    marginBottom: 24,
     textAlign: 'center',
+    fontSize: 24,
+    fontWeight: '700',
   },
   defaultChallenges: {
     padding: 20,
-    gap: 10,
+    gap: 12,
+    marginBottom: 20,
   },
   challengeCard: {
-    padding: 15,
+    padding: 16,
     backgroundColor: 'rgba(255,255,255,0.1)',
-    borderRadius: 8,
-    marginTop: 10,
-  },
-  cardTitle: {
-    fontWeight: 'bold',
-    marginBottom: 5,
+    borderRadius: 12,
+    marginTop: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.15)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   form: {
     padding: 20,
-    gap: 10,
+    gap: 12,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    padding: 12,
+    borderColor: 'rgba(0,0,0,0.1)',
+    borderRadius: 12,
+    padding: 14,
     marginBottom: 16,
     fontSize: 16,
     backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
   },
   textArea: {
     height: 100,
