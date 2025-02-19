@@ -90,7 +90,7 @@ export default function IndexScreen() {
                             <TouchableOpacity
                               style={[styles.actionButton, styles.changeCoachButton]}
                               onPress={() => handleChangeCoach(item.id, 'newCoachId')}>
-                                <IconSymbol name="figure.walk.circle.fill" size={24} color="#fff" />
+                                <IconSymbol name="biceps" size={24} color="#fff" />
                                 <ThemedText style={styles.buttonText}>Change Coach</ThemedText>
                             </TouchableOpacity>
                           </Animated.View>
@@ -249,7 +249,7 @@ export default function IndexScreen() {
                             <TouchableOpacity
                               style={[styles.actionButton, styles.changeCoachButton]}
                               onPress={() => handleChangeCoach(item.id, 'newCoachId')}>
-                              <IconSymbol name="figure.walk.circle.fill" size={24} color="#fff" />
+                              <IconSymbol name="biceps" size={24} color="#fff" />
                               <ThemedText style={styles.buttonText}>Change Coach</ThemedText>
                             </TouchableOpacity>
                             <TouchableOpacity

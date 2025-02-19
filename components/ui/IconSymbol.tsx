@@ -20,6 +20,7 @@ const MAPPING = {
   'flame.fill': 'local-fire-department',
   'plus.circle.fill': 'add-circle',
   'person.fill': 'person',
+  'biceps': 'fitness-center',
 } as Partial<
   Record<
     import('expo-symbols').SymbolViewProps['name'],
