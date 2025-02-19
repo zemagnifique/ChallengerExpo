@@ -85,7 +85,10 @@ export default function ChatScreen() {
 
   // Poll for new messages every 2 seconds
   React.useEffect(() => {
+    let isSubscribed = true;
     const interval = setInterval(async () => {
+      if (!isSubscribed) return;
+      
       const storedChallenges = await AsyncStorage.getItem('challenges');
       if (storedChallenges) {
         const parsedChallenges = JSON.parse(storedChallenges);
@@ -96,8 +99,11 @@ export default function ChatScreen() {
       }
     }, 2000);
 
-    return () => clearInterval(interval);
-  }, [challengeId, challenge?.messages]);
+    return () => {
+      isSubscribed = false;
+      clearInterval(interval);
+    };
+  }, [challengeId]);
 
   const handleAcceptChallenge = async () => {
     try {
