@@ -422,12 +422,13 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 4,
   },
   otherMessage: {
-    backgroundColor: '#E8E8E8',
+    backgroundColor: '#1C1C1E',
     alignSelf: 'flex-start',
     borderBottomLeftRadius: 4,
   },
   messageText: {
     fontSize: 16,
+    color: '#FFFFFF',
   },
   messageTime: {
     fontSize: 12,
