@@ -1,5 +1,5 @@
-import React from 'react';
-import { StyleSheet, View, TextInput, TouchableOpacity, FlatList, Keyboard, Image, LongPressGestureHandler, State } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, View, TextInput, TouchableOpacity, FlatList, Keyboard, Image } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { ThemedView } from '@/components/ThemedView';
@@ -39,6 +39,7 @@ export default function ChatScreen() {
   const [localStatus, setLocalStatus] = React.useState('');
   const [keyboardHeight, setKeyboardHeight] = React.useState(0);
   const [selectedImage, setSelectedImage] = React.useState(null);
+  const [lastTap, setLastTap] = useState(null); // Added state for double tap detection
   const challenge = challenges.find(c => c.id === challengeId);
 
   React.useEffect(() => {
@@ -134,7 +135,7 @@ export default function ChatScreen() {
 
   const handleLongPress = async (message: any) => {
     if (!isCoach || message.userId === user?.id) return;
-    
+
     const updatedMessages = challenge.messages.map(msg => {
       if (msg === message) {
         return { ...msg, isValidated: !msg.isValidated };
@@ -210,30 +211,41 @@ export default function ChatScreen() {
         onContentSizeChange={() => flatListRef.current?.scrollToEnd({animated: true})}
         onLayout={() => flatListRef.current?.scrollToEnd({animated: true})}
         renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => {}} delayLongPress={200} onDoublePress={() => isCoach && handleLongPress(item)}>
-          <View style={[
-            styles.messageBubble,
-            item.userId === user?.id ? 
-              [styles.ownMessage, { backgroundColor: item.userId === challenge?.coachId ? '#9FD5E5' : '#98D8A1' }] : 
-              styles.otherMessage
-          ]}>
-            {item.text && <ThemedText style={styles.messageText}>{item.text}</ThemedText>}
-            {item.image && (
-              <Image 
-                source={{ uri: item.image }} 
-                style={styles.messageImage}
-                resizeMode="contain"
-              />
-            )}
-            <ThemedText style={styles.messageTime}>
-              {new Date(item.timestamp).toLocaleTimeString()}
-            </ThemedText>
-            {item.isValidated && (
-              <View style={styles.checkmarkContainer}>
-                <IconSymbol name="checkmark.circle.fill" size={24} color="#4CAF50" />
-              </View>
-            )}
-          </View>
+          <TouchableOpacity 
+            onPress={() => {
+              const now = Date.now();
+              const DOUBLE_PRESS_DELAY = 300;
+              if (lastTap && (now - lastTap) < DOUBLE_PRESS_DELAY) {
+                isCoach && handleLongPress(item);
+              } else {
+                setLastTap(now);
+              }
+            }}
+            delayLongPress={200}
+          >
+            <View style={[
+              styles.messageBubble,
+              item.userId === user?.id ? 
+                [styles.ownMessage, { backgroundColor: item.userId === challenge?.coachId ? '#9FD5E5' : '#98D8A1' }] : 
+                styles.otherMessage
+            ]}>
+              {item.text && <ThemedText style={styles.messageText}>{item.text}</ThemedText>}
+              {item.image && (
+                <Image 
+                  source={{ uri: item.image }} 
+                  style={styles.messageImage}
+                  resizeMode="contain"
+                />
+              )}
+              <ThemedText style={styles.messageTime}>
+                {new Date(item.timestamp).toLocaleTimeString()}
+              </ThemedText>
+              {item.isValidated && (
+                <View style={styles.checkmarkContainer}>
+                  <IconSymbol name="checkmark.circle.fill" size={24} color="#4CAF50" />
+                </View>
+              )}
+            </View>
           </TouchableOpacity>
         )}
       />
