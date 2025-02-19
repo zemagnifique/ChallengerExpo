@@ -24,7 +24,8 @@ export default function IndexScreen() {
           data={items}
           keyExtractor={(item) => item.createdAt.toString()}
           renderItem={({ item }) => (
-            <TouchableOpacity onPress={() => handleAcceptChallenge(item)}> {/* Added TouchableOpacity */}
+            {/* TouchableOpacity for challenge interaction */}
+            <TouchableOpacity onPress={() => handleAcceptChallenge(item)}>
               <ThemedView style={styles.challengeCard}>
                 <ThemedText style={styles.challengeTitle}>{item.title}</ThemedText>
                 <ThemedText>{item.description}</ThemedText>
@@ -34,7 +35,7 @@ export default function IndexScreen() {
                   <ThemedText>End: {new Date(item.endDate).toLocaleDateString()}</ThemedText>
                 </View>
               </ThemedView>
-            </TouchableOpacity> {/* Added closing tag */}
+            </TouchableOpacity>
           )}
           scrollEnabled={false}
         />
