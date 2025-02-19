@@ -210,7 +210,7 @@ export default function ChatScreen() {
         onContentSizeChange={() => flatListRef.current?.scrollToEnd({animated: true})}
         onLayout={() => flatListRef.current?.scrollToEnd({animated: true})}
         renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => isCoach && handleLongPress(item)}>
+          <TouchableOpacity onPress={() => {}} delayLongPress={200} onDoublePress={() => isCoach && handleLongPress(item)}>
           <View style={[
             styles.messageBubble,
             item.userId === user?.id ? 
