@@ -207,22 +207,22 @@ export default function IndexScreen() {
         <TouchableOpacity
           style={[styles.filterButton, filter === 'all' && styles.filterButtonActive]}
           onPress={() => setFilter('all')}>
-          <ThemedText style={filter === 'all' && styles.filterTextActive}>All</ThemedText>
+          <ThemedText style={filter === 'all' && (colorScheme === 'dark' ? styles.filterTextActive : styles.filterTextActiveLight)}>All</ThemedText>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.filterButton, filter === 'challenger' && styles.filterButtonActive]}
           onPress={() => setFilter('challenger')}>
-          <ThemedText style={filter === 'challenger' && styles.filterTextActive}>My Challenges</ThemedText>
+          <ThemedText style={filter === 'challenger' && (colorScheme === 'dark' ? styles.filterTextActive : styles.filterTextActiveLight)}>My Challenges</ThemedText>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.filterButton, filter === 'coaching' && styles.filterButtonActive]}
           onPress={() => setFilter('coaching')}>
-          <ThemedText style={filter === 'coaching' && styles.filterTextActive}>Coaching</ThemedText>
+          <ThemedText style={filter === 'coaching' && (colorScheme === 'dark' ? styles.filterTextActive : styles.filterTextActiveLight)}>Coaching</ThemedText>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.filterButton, filter === 'archived' && styles.filterButtonActive]}
           onPress={() => setFilter('archived')}>
-          <ThemedText style={filter === 'archived' && styles.filterTextActive}>Archived</ThemedText>
+          <ThemedText style={filter === 'archived' && (colorScheme === 'dark' ? styles.filterTextActive : styles.filterTextActiveLight)}>Archived</ThemedText>
         </TouchableOpacity>
       </View>
     </ThemedView>
@@ -379,7 +379,10 @@ const styles = StyleSheet.create({
     borderColor: '#4CAF50',
   },
   filterTextActive: {
-    color: useColorScheme() === 'dark' ? '#fff' : '#000',
+    color: '#fff',
+  },
+  filterTextActiveLight: {
+    color: '#000',
   },
   participantsContainer: {
     flexDirection: 'row',
