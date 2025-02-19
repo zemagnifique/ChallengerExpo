@@ -8,9 +8,9 @@ import { useAuth } from '@/contexts/AuthContext';
 
 export default function IndexScreen() {
   const router = useRouter();
-  const { challenges, user } = useAuth();
+  const { challenges, user, updateChallengeStatus } = useAuth(); // Added updateChallengeStatus
 
-  const pendingChallenges = challenges.filter(c => c.status === 'pending' && c.userId === user?.id);
+  const pendingChallenges = challenges.filter(c => c.status === 'pending' && c.coachId === user?.id); // Updated filter
   const activeChallenges = challenges.filter(c => c.status === 'active' && c.userId === user?.id);
   const coachingChallenges = challenges.filter(c => c.coachId === user?.id);
 
@@ -24,15 +24,17 @@ export default function IndexScreen() {
           data={items}
           keyExtractor={(item) => item.createdAt.toString()}
           renderItem={({ item }) => (
-            <ThemedView style={styles.challengeCard}>
-              <ThemedText style={styles.challengeTitle}>{item.title}</ThemedText>
-              <ThemedText>{item.description}</ThemedText>
-              <ThemedText>Frequency: {item.frequency}</ThemedText>
-              <View style={styles.dateContainer}>
-                <ThemedText>Start: {new Date(item.startDate).toLocaleDateString()}</ThemedText>
-                <ThemedText>End: {new Date(item.endDate).toLocaleDateString()}</ThemedText>
-              </View>
-            </ThemedView>
+            <TouchableOpacity onPress={() => handleAcceptChallenge(item)}> {/* Added TouchableOpacity */}
+              <ThemedView style={styles.challengeCard}>
+                <ThemedText style={styles.challengeTitle}>{item.title}</ThemedText>
+                <ThemedText>{item.description}</ThemedText>
+                <ThemedText>Frequency: {item.frequency}</ThemedText>
+                <View style={styles.dateContainer}>
+                  <ThemedText>Start: {new Date(item.startDate).toLocaleDateString()}</ThemedText>
+                  <ThemedText>End: {new Date(item.endDate).toLocaleDateString()}</ThemedText>
+                </View>
+              </ThemedView>
+            </TouchableOpacity> {/* Added closing tag */}
           )}
           scrollEnabled={false}
         />
@@ -40,11 +42,22 @@ export default function IndexScreen() {
     </ThemedView>
   );
 
+  const handleAcceptChallenge = async (challenge) => {
+    try {
+      await updateChallengeStatus(challenge.id, 'active'); // Placeholder for API call
+      // Update local state after successful API call
+    } catch (error) {
+      console.error("Error accepting challenge:", error);
+      // Handle error appropriately
+    }
+  };
+
+
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}>
       <ThemedView style={styles.container}>
-        {renderChallengeSection('Pending Challenges', pendingChallenges)}
+        {renderChallengeSection('Pending Coaching Challenges', pendingChallenges)} {/*Renamed Section*/}
         {renderChallengeSection('Active Challenges', activeChallenges)}
         {renderChallengeSection('Coaching Challenges', coachingChallenges)}
       </ThemedView>

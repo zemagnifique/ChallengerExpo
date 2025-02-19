@@ -45,6 +45,7 @@ type AuthContextType = {
   addChallenge: (challenge: Challenge) => void;
   addNotification: (message: string) => void;
   markNotificationAsRead: (id: string) => void;
+  updateChallenge: (challenge: Challenge) => void;
 };
 
 const AuthContext = createContext<AuthContextType>({
@@ -122,6 +123,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     );
   };
 
+  const updateChallenge = (challenge: Challenge) => {
+    setChallenges(prev => 
+      prev.map(ch => 
+        ch.createdAt.toString() === challenge.createdAt.toString() ? challenge : ch
+      )
+    );
+  };
+
   return (
     <AuthContext.Provider value={{ 
       isAuthenticated, 
@@ -133,7 +142,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       getCoaches, 
       addChallenge,
       addNotification,
-      markNotificationAsRead 
+      markNotificationAsRead,
+      updateChallenge 
     }}>
       {children}
     </AuthContext.Provider>
