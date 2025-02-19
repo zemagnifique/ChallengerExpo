@@ -1,6 +1,6 @@
 
-import { useState } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, ScrollView, View } from 'react-native';
+import { useState, useCallback } from 'react';
+import { StyleSheet, TextInput, TouchableOpacity, ScrollView, View, Platform } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
@@ -32,7 +32,7 @@ export default function CreateChallengeScreen() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(new Date(Date.now() + 180 * 24 * 60 * 60 * 1000)); // 6 months
+  const [endDate, setEndDate] = useState(new Date(Date.now() + 180 * 24 * 60 * 60 * 1000));
   const [frequency, setFrequency] = useState('Daily');
   const [proofRequirements, setProofRequirements] = useState('');
   const router = useRouter();
@@ -48,6 +48,14 @@ export default function CreateChallengeScreen() {
     setFrequency(challenge.frequency);
     setProofRequirements(challenge.proofRequirements);
   };
+
+  const formatDate = useCallback((date) => {
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  }, []);
 
   return (
     <ParallaxScrollView
@@ -90,18 +98,36 @@ export default function CreateChallengeScreen() {
           />
 
           <ThemedText>Start Date</ThemedText>
-          <DateTimePicker
-            value={startDate}
-            onChange={(event, date) => date && setStartDate(date)}
-            mode="date"
-          />
+          {Platform.OS === 'web' ? (
+            <input
+              type="date"
+              value={startDate.toISOString().split('T')[0]}
+              onChange={(e) => setStartDate(new Date(e.target.value))}
+              style={styles.webDateInput}
+            />
+          ) : (
+            <DateTimePicker
+              value={startDate}
+              onChange={(event, date) => date && setStartDate(date)}
+              mode="date"
+            />
+          )}
 
           <ThemedText>End Date</ThemedText>
-          <DateTimePicker
-            value={endDate}
-            onChange={(event, date) => date && setEndDate(date)}
-            mode="date"
-          />
+          {Platform.OS === 'web' ? (
+            <input
+              type="date"
+              value={endDate.toISOString().split('T')[0]}
+              onChange={(e) => setEndDate(new Date(e.target.value))}
+              style={styles.webDateInput}
+            />
+          ) : (
+            <DateTimePicker
+              value={endDate}
+              onChange={(event, date) => date && setEndDate(date)}
+              mode="date"
+            />
+          )}
 
           <ThemedText>Frequency</ThemedText>
           <View style={styles.frequencyContainer}>
@@ -214,5 +240,15 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  webDateInput: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 16,
+    fontSize: 16,
+    backgroundColor: '#fff',
+    width: '100%',
   },
 });
