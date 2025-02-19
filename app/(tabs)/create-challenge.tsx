@@ -105,7 +105,7 @@ export default function CreateChallengeScreen() {
             numberOfLines={4}
           />
 
-          <ThemedText>Start Date</ThemedText>
+          <ThemedText>Start Date: {startDate.toLocaleDateString()}</ThemedText>
           {Platform.OS === 'web' ? (
             <input
               type="date"
@@ -114,15 +114,19 @@ export default function CreateChallengeScreen() {
               style={styles.webDateInput}
             />
           ) : (
-            <input
-              type="date"
-              value={startDate.toISOString().split('T')[0]}
-              onChange={(e) => setStartDate(new Date(e.target.value))}
-              style={styles.webDateInput}
-            />
+            <TouchableOpacity 
+              style={styles.input}
+              onPress={() => {
+                const currentDate = startDate || new Date();
+                const tempDate = new Date(currentDate);
+                tempDate.setDate(tempDate.getDate() + 180);
+                setEndDate(tempDate);
+              }}>
+              <ThemedText>{startDate.toLocaleDateString()}</ThemedText>
+            </TouchableOpacity>
           )}
 
-          <ThemedText>End Date</ThemedText>
+          <ThemedText>End Date: {endDate.toLocaleDateString()}</ThemedText>
           {Platform.OS === 'web' ? (
             <input
               type="date"
@@ -131,12 +135,14 @@ export default function CreateChallengeScreen() {
               style={styles.webDateInput}
             />
           ) : (
-            <input
-              type="date"
-              value={endDate.toISOString().split('T')[0]}
-              onChange={(e) => setEndDate(new Date(e.target.value))}
-              style={styles.webDateInput}
-            />
+            <TouchableOpacity 
+              style={styles.input}
+              onPress={() => {
+                const currentDate = endDate || new Date();
+                setEndDate(currentDate);
+              }}>
+              <ThemedText>{endDate.toLocaleDateString()}</ThemedText>
+            </TouchableOpacity>
           )}
 
           <ThemedText>Frequency</ThemedText>
