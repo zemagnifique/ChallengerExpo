@@ -183,7 +183,7 @@ export default function IndexScreen() {
                 item.coachId === user?.id ? styles.coachingItem : styles.challengeItem,
               ]}>
                 <View style={styles.avatarContainer}>
-                  <View style={styles.avatar}>
+                  <View style={[styles.avatar, item.coachId === user?.id ? styles.coachingAvatar : styles.challengeAvatar]}>
                     <ThemedText style={styles.avatarText}>
                       {item.title.charAt(0).toUpperCase()}
                     </ThemedText>
@@ -191,7 +191,12 @@ export default function IndexScreen() {
                 </View>
                 <View style={styles.contentContainer}>
                   <View style={styles.titleRow}>
-                    <ThemedText style={styles.title}>{item.title}</ThemedText>
+                    <ThemedText style={styles.title}>
+                      {item.title}
+                      <ThemedText style={styles.typeLabel}>
+                        {item.coachId === user?.id ? ' (Coaching)' : ' (Challenge)'}
+                      </ThemedText>
+                    </ThemedText>
                     <ThemedText style={styles.date}>
                       {new Date(item.startDate).toLocaleDateString()}
                     </ThemedText>
@@ -206,6 +211,11 @@ export default function IndexScreen() {
                       </View>
                     )}
                   </View>
+                  <ThemedText style={styles.participantInfo}>
+                    {item.coachId === user?.id 
+                      ? `Challenger: ${item.userId}`
+                      : `Coach: ${item.coachId}`}
+                  </ThemedText>
                 </View>
                 
                 {item.status === 'pending' && (
@@ -250,6 +260,34 @@ export default function IndexScreen() {
 }
 
 const styles = StyleSheet.create({
+  challengeAvatar: {
+    backgroundColor: '#E3F2FD',
+    borderColor: '#2196F3',
+    borderWidth: 2,
+  },
+  coachingAvatar: {
+    backgroundColor: '#E8F5E9',
+    borderColor: '#4CAF50',
+    borderWidth: 2,
+  },
+  challengeItem: {
+    borderLeftWidth: 4,
+    borderLeftColor: '#2196F3',
+  },
+  coachingItem: {
+    borderLeftWidth: 4,
+    borderLeftColor: '#4CAF50',
+  },
+  typeLabel: {
+    fontSize: 12,
+    color: '#666',
+    fontStyle: 'italic',
+  },
+  participantInfo: {
+    fontSize: 12,
+    color: '#666',
+    marginTop: 4,
+  },
   container: {
     flex: 1,
     backgroundColor: '#fff',
@@ -335,7 +373,6 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    padding: 16,
     gap: 20,
   },
   header: {
