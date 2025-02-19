@@ -94,7 +94,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await AsyncStorage.setItem('user', JSON.stringify(user));
       setIsAuthenticated(true);
       setUser(user);
-      await loadChallenges();
+      await loadChallenges(); // Load challenges after user is set
       return true;
     }
     return false;
@@ -201,18 +201,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const saveChallenges = async (challengesToSave: Challenge[]) => {
     try {
-      await AsyncStorage.setItem('challenges', JSON.stringify(challengesToSave));
+      const storedChallenges = await AsyncStorage.getItem('challenges');
+      const existingChallenges = storedChallenges ? JSON.parse(storedChallenges) : [];
+      const mergedChallenges = [...existingChallenges, ...challengesToSave.filter(c => !existingChallenges.find(ec => ec.id === c.id))];
+      await AsyncStorage.setItem('challenges', JSON.stringify(mergedChallenges));
     } catch (e) {
       console.error("Error saving challenges:", e);
     }
   };
 
-
   const loadChallenges = async () => {
     try {
       const challengesJson = await AsyncStorage.getItem('challenges');
       if (challengesJson !== null) {
-        setChallenges(JSON.parse(challengesJson));
+        const parsedChallenges = JSON.parse(challengesJson);
+        setChallenges(parsedChallenges);
       }
     } catch (e) {
       console.error("Error loading challenges:", e);
