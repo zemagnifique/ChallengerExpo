@@ -1,3 +1,4 @@
+
 import type { PropsWithChildren, ReactElement } from 'react';
 import { StyleSheet } from 'react-native';
 import { Colors } from '@/constants/Colors';
@@ -34,6 +35,29 @@ export default function ParallaxScrollView({
   const scrollRef = useAnimatedRef<Animated.FlatList>();
   const scrollOffset = useScrollViewOffset(scrollRef);
   const bottom = useBottomTabOverflow();
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      paddingTop: 50,
+    },
+    header: {
+      height: 'auto',
+      position: 'sticky',
+      top: 0,
+      zIndex: 1000,
+      backgroundColor: Colors[colorScheme].background,
+      paddingTop: 16,
+      paddingHorizontal: 16,
+    },
+    content: {
+      flex: 1,
+      paddingVertical: 16,
+      gap: 16,
+      overflow: 'hidden',
+    },
+  });
+
   const headerAnimatedStyle = useAnimatedStyle(() => {
     return {
       transform: [
@@ -79,25 +103,3 @@ export default function ParallaxScrollView({
     </ThemedView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingTop: 50,
-  },
-  header: {
-    height: 'auto',
-    position: 'sticky',
-    top: 0,
-    zIndex: 1000,
-    backgroundColor: Colors[colorScheme].background,
-    paddingTop: 16,
-    paddingHorizontal: 16,
-  },
-  content: {
-    flex: 1,
-    paddingVertical: 16,
-    gap: 16,
-    overflow: 'hidden',
-  },
-});
