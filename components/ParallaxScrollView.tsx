@@ -1,3 +1,4 @@
+
 import type { PropsWithChildren, ReactElement } from 'react';
 import { StyleSheet } from 'react-native';
 import Animated, {
@@ -16,15 +17,21 @@ const HEADER_HEIGHT = 0;
 type Props = PropsWithChildren<{
   headerImage: ReactElement;
   headerBackgroundColor: { dark: string; light: string };
+  data?: any[];
+  renderItem?: any;
+  ListHeaderComponent?: React.ComponentType<any> | React.ReactElement | null;
 }>;
 
 export default function ParallaxScrollView({
   children,
   headerImage,
   headerBackgroundColor,
+  data,
+  renderItem,
+  ListHeaderComponent,
 }: Props) {
   const colorScheme = useColorScheme() ?? 'light';
-  const scrollRef = useAnimatedRef<Animated.ScrollView>();
+  const scrollRef = useAnimatedRef<Animated.FlatList>();
   const scrollOffset = useScrollViewOffset(scrollRef);
   const bottom = useBottomTabOverflow();
   const headerAnimatedStyle = useAnimatedStyle(() => {
@@ -44,23 +51,31 @@ export default function ParallaxScrollView({
     };
   });
 
+  const Header = () => (
+    <>
+      <Animated.View
+        style={[
+          styles.header,
+          { backgroundColor: headerBackgroundColor[colorScheme] },
+          headerAnimatedStyle,
+        ]}>
+        {headerImage}
+      </Animated.View>
+      {ListHeaderComponent && <ListHeaderComponent />}
+      {children && <ThemedView style={styles.content}>{children}</ThemedView>}
+    </>
+  );
+
   return (
     <ThemedView style={styles.container}>
-      <Animated.ScrollView
+      <Animated.FlatList
         ref={scrollRef}
+        data={data || []}
+        renderItem={renderItem}
+        ListHeaderComponent={Header}
         scrollEventThrottle={16}
-        scrollIndicatorInsets={{ bottom }}
-        contentContainerStyle={{ paddingBottom: bottom }}>
-        <Animated.View
-          style={[
-            styles.header,
-            { backgroundColor: headerBackgroundColor[colorScheme] },
-            headerAnimatedStyle,
-          ]}>
-          {headerImage}
-        </Animated.View>
-        <ThemedView style={styles.content}>{children}</ThemedView>
-      </Animated.ScrollView>
+        contentContainerStyle={{ paddingBottom: bottom }}
+      />
     </ThemedView>
   );
 }

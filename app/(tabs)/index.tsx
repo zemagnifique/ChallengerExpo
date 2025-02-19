@@ -199,43 +199,41 @@ export default function IndexScreen() {
     }
   };
 
+  const HeaderComponent = () => (
+    <ThemedView style={styles.header}>
+      <ThemedText style={styles.headerTitle}>Challenges</ThemedText>
+      <View style={styles.filterContainer}>
+        <TouchableOpacity
+          style={[styles.filterButton, filter === 'all' && styles.filterButtonActive]}
+          onPress={() => setFilter('all')}>
+          <ThemedText style={filter === 'all' && styles.filterTextActive}>All</ThemedText>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.filterButton, filter === 'challenger' && styles.filterButtonActive]}
+          onPress={() => setFilter('challenger')}>
+          <ThemedText style={filter === 'challenger' && styles.filterTextActive}>My Challenges</ThemedText>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.filterButton, filter === 'coaching' && styles.filterButtonActive]}
+          onPress={() => setFilter('coaching')}>
+          <ThemedText style={filter === 'coaching' && styles.filterTextActive}>Coaching</ThemedText>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.filterButton, filter === 'archived' && styles.filterButtonActive]}
+          onPress={() => setFilter('archived')}>
+          <ThemedText style={filter === 'archived' && styles.filterTextActive}>Archived</ThemedText>
+        </TouchableOpacity>
+      </View>
+    </ThemedView>
+  );
+
   return (
     <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}>
-      <ThemedView style={styles.header}>
-        <ThemedText style={styles.headerTitle}>Challenges</ThemedText>
-        <View style={styles.filterContainer}>
-          <TouchableOpacity
-            style={[styles.filterButton, filter === 'all' && styles.filterButtonActive]}
-            onPress={() => setFilter('all')}>
-            <ThemedText style={filter === 'all' && styles.filterTextActive}>All</ThemedText>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.filterButton, filter === 'challenger' && styles.filterButtonActive]}
-            onPress={() => setFilter('challenger')}>
-            <ThemedText style={filter === 'challenger' && styles.filterTextActive}>My Challenges</ThemedText>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.filterButton, filter === 'coaching' && styles.filterButtonActive]}
-            onPress={() => setFilter('coaching')}>
-            <ThemedText style={filter === 'coaching' && styles.filterTextActive}>Coaching</ThemedText>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.filterButton, filter === 'archived' && styles.filterButtonActive]}
-            onPress={() => setFilter('archived')}>
-            <ThemedText style={filter === 'archived' && styles.filterTextActive}>Archived</ThemedText>
-          </TouchableOpacity>
-        </View>
-      </ThemedView>
-      <ThemedView style={styles.container}>
-        <FlatList
-          data={allChallenges}
-          keyExtractor={(item, index) => `${item.id}-${index}`}
-          ItemSeparatorComponent={() => <View style={styles.separator} />}
-          renderItem={({ item }) => renderChallengeSection(item)}
-        />
-      </ThemedView>
-    </ParallaxScrollView>
+      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
+      data={allChallenges}
+      renderItem={({ item }) => renderChallengeSection(item)}
+      ListHeaderComponent={HeaderComponent}
+    />
   );
 }
 
