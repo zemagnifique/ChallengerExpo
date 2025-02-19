@@ -5,7 +5,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { useRouter } from 'expo-router';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import { useAuth } from '@/contexts/AuthContext';
 
 const DEFAULT_CHALLENGES = [
   {
@@ -35,10 +35,25 @@ export default function CreateChallengeScreen() {
   const [endDate, setEndDate] = useState(new Date(Date.now() + 180 * 24 * 60 * 60 * 1000));
   const [frequency, setFrequency] = useState('Daily');
   const [proofRequirements, setProofRequirements] = useState('');
+  const [selectedCoach, setSelectedCoach] = useState('');
   const router = useRouter();
+  const { getCoaches, user } = useAuth();
 
   const handleSubmit = () => {
-    console.log({ title, description, startDate, endDate, frequency, proofRequirements });
+    const challenge = {
+      title,
+      description,
+      startDate,
+      endDate,
+      frequency,
+      proofRequirements,
+      status: 'pending',
+      userId: user?.id,
+      coachId: selectedCoach,
+      createdAt: new Date()
+    };
+    console.log(challenge);
+    // Here you would typically save to your backend
     router.back();
   };
 
@@ -49,13 +64,7 @@ export default function CreateChallengeScreen() {
     setProofRequirements(challenge.proofRequirements);
   };
 
-  const formatDate = useCallback((date) => {
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  }, []);
+  const coaches = getCoaches();
 
   return (
     <ParallaxScrollView
@@ -106,10 +115,11 @@ export default function CreateChallengeScreen() {
               style={styles.webDateInput}
             />
           ) : (
-            <DateTimePicker
-              value={startDate}
-              onChange={(event, date) => date && setStartDate(date)}
-              mode="date"
+            <input
+              type="date"
+              value={startDate.toISOString().split('T')[0]}
+              onChange={(e) => setStartDate(new Date(e.target.value))}
+              style={styles.webDateInput}
             />
           )}
 
@@ -122,10 +132,11 @@ export default function CreateChallengeScreen() {
               style={styles.webDateInput}
             />
           ) : (
-            <DateTimePicker
-              value={endDate}
-              onChange={(event, date) => date && setEndDate(date)}
-              mode="date"
+            <input
+              type="date"
+              value={endDate.toISOString().split('T')[0]}
+              onChange={(e) => setEndDate(new Date(e.target.value))}
+              style={styles.webDateInput}
             />
           )}
 
@@ -155,10 +166,27 @@ export default function CreateChallengeScreen() {
             placeholderTextColor="#666"
           />
 
+          <ThemedText>Assign Coach</ThemedText>
+          <View style={styles.coachContainer}>
+            {coaches.map((coach) => (
+              <TouchableOpacity
+                key={coach.id}
+                style={[
+                  styles.coachButton,
+                  selectedCoach === coach.id && styles.coachButtonActive
+                ]}
+                onPress={() => setSelectedCoach(coach.id)}>
+                <ThemedText style={selectedCoach === coach.id && styles.coachTextActive}>
+                  {coach.username}
+                </ThemedText>
+              </TouchableOpacity>
+            ))}
+          </View>
+
           <TouchableOpacity 
-            style={[styles.button, !title && styles.buttonDisabled]}
+            style={[styles.button, (!title || !selectedCoach) && styles.buttonDisabled]}
             onPress={handleSubmit}
-            disabled={!title}>
+            disabled={!title || !selectedCoach}>
             <ThemedText style={styles.buttonText}>Create Challenge</ThemedText>
           </TouchableOpacity>
         </ThemedView>
@@ -224,6 +252,27 @@ const styles = StyleSheet.create({
     borderColor: '#4CAF50',
   },
   frequencyTextActive: {
+    color: '#fff',
+  },
+  coachContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+    marginBottom: 16,
+  },
+  coachButton: {
+    padding: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    minWidth: 100,
+    alignItems: 'center',
+  },
+  coachButtonActive: {
+    backgroundColor: '#4CAF50',
+    borderColor: '#4CAF50',
+  },
+  coachTextActive: {
     color: '#fff',
   },
   button: {
