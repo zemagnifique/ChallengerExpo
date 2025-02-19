@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { StyleSheet, TouchableOpacity, FlatList, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, FlatList, View, Animated } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
+import { Swipeable } from 'react-native-gesture-handler';
 
 export default function IndexScreen() {
   const [filter, setFilter] = useState('all');
@@ -54,54 +55,87 @@ export default function IndexScreen() {
           data={items}
           keyExtractor={(item, index) => `${item.id}-${index}`}
           renderItem={({ item }) => (
-            <View>
-              <ThemedView style={styles.challengeCard}>
-                <ThemedText style={styles.challengeTitle}>{item.title}</ThemedText>
-                <View style={styles.participantsContainer}>
-                  <ThemedText style={styles.participantText}>Challenger: {item.userId}</ThemedText>
-                  <ThemedText style={styles.participantText}>Coach: {item.coachId}</ThemedText>
-                </View>
-                <ThemedText>{item.description}</ThemedText>
-                <ThemedText>Frequency: {item.frequency}</ThemedText>
-                <View style={styles.dateContainer}>
-                  <ThemedText>Start: {new Date(item.startDate).toLocaleDateString()}</ThemedText>
-                  <ThemedText>End: {new Date(item.endDate).toLocaleDateString()}</ThemedText>
-                </View>
-
-                {item.status === 'pending' && (
-                  <View style={styles.actionsContainer}>
-                    {item.coachId === user?.id && (
-                      <View style={styles.actionButtons}>
-                        <TouchableOpacity 
-                          style={[styles.actionButton, styles.acceptButton]} 
-                          onPress={() => handleAcceptChallenge(item)}>
-                          <ThemedText style={styles.buttonText}>Accept</ThemedText>
-                        </TouchableOpacity>
-                        <TouchableOpacity 
-                          style={[styles.actionButton, styles.rejectButton]}
-                          onPress={() => handleRejectChallenge(item)}>
-                          <ThemedText style={styles.buttonText}>Reject</ThemedText>
-                        </TouchableOpacity>
-                      </View>
-                    )}
-                    {item.userId === user.id && (
-                      <View style={styles.challengerActions}>
-                        <TouchableOpacity 
-                          style={[styles.actionButton, styles.changeCoachButton]}
-                          onPress={() => handleChangeCoach(item.id, 'newCoachId')}>
-                          <ThemedText style={styles.buttonText}>Change Coach</ThemedText>
-                        </TouchableOpacity>
-                        <TouchableOpacity 
-                          style={[styles.actionButton, styles.deleteButton]}
-                          onPress={() => handleDeleteChallenge(item.id)}>
-                          <ThemedText style={styles.buttonText}>Delete</ThemedText>
-                        </TouchableOpacity>
+            <Swipeable
+              renderRightActions={(progress, dragX) => {
+                const trans = dragX.interpolate({
+                  inputRange: [-100, 0],
+                  outputRange: [0, 100],
+                });
+                const isCoaching = item.coachId === user?.id;
+                return (
+                  <View style={styles.swipeableButtons}>
+                    {item.status === 'pending' && (
+                      <View>
+                        {isCoaching ? (
+                          <>
+                            <Animated.View style={[styles.swipeButton, { transform: [{ translateX: trans }] }]}>
+                              <TouchableOpacity
+                                style={[styles.actionButton, styles.acceptButton]}
+                                onPress={() => handleAcceptChallenge(item)}>
+                                <ThemedText style={styles.buttonText}>Accept</ThemedText>
+                              </TouchableOpacity>
+                            </Animated.View>
+                            <Animated.View style={[styles.swipeButton, { transform: [{ translateX: trans }] }]}>
+                              <TouchableOpacity
+                                style={[styles.actionButton, styles.rejectButton]}
+                                onPress={() => handleRejectChallenge(item)}>
+                                <ThemedText style={styles.buttonText}>Reject</ThemedText>
+                              </TouchableOpacity>
+                            </Animated.View>
+                          </>
+                        ) : (
+                          <Animated.View style={[styles.swipeButton, { transform: [{ translateX: trans }] }]}>
+                            <TouchableOpacity
+                              style={[styles.actionButton, styles.deleteButton]}
+                              onPress={() => handleDeleteChallenge(item.id)}>
+                              <ThemedText style={styles.buttonText}>Delete</ThemedText>
+                            </TouchableOpacity>
+                          </Animated.View>
+                        )}
                       </View>
                     )}
                   </View>
-                )}
-              </ThemedView>
-            </View>
+                );
+              }}
+            >
+              <View style={styles.listItem}>
+                <View style={styles.avatarContainer}>
+                  <View style={[styles.avatar, item.coachId === user?.id ? styles.coachingAvatar : styles.challengeAvatar]}>
+                    <ThemedText style={styles.avatarText}>
+                      {item.title.charAt(0).toUpperCase()}
+                    </ThemedText>
+                  </View>
+                </View>
+                <View style={styles.contentContainer}>
+                  <View style={styles.titleRow}>
+                    <ThemedText style={styles.title}>
+                      {item.title}
+                      <ThemedText style={styles.typeLabel}>
+                        {item.coachId === user?.id ? ' (Coaching)' : ' (Challenge)'}
+                      </ThemedText>
+                    </ThemedText>
+                    <ThemedText style={styles.date}>
+                      {new Date(item.startDate).toLocaleDateString()}
+                    </ThemedText>
+                  </View>
+                  <View style={styles.previewRow}>
+                    <ThemedText numberOfLines={1} style={styles.preview}>
+                      {item.description || `Frequency: ${item.frequency}`}
+                    </ThemedText>
+                    {item.status === 'pending' && (
+                      <View style={styles.badge}>
+                        <ThemedText style={styles.badgeText}>Pending</ThemedText>
+                      </View>
+                    )}
+                  </View>
+                  <ThemedText style={styles.participantInfo}>
+                    {item.coachId === user?.id
+                      ? `Challenger: ${item.userId}`
+                      : `Coach: ${item.coachId}`}
+                  </ThemedText>
+                </View>
+              </View>
+            </Swipeable>
           )}
           scrollEnabled={false}
         />
@@ -135,7 +169,8 @@ export default function IndexScreen() {
 
   const handleDeleteChallenge = async (challengeId) => {
     try {
-      await deleteChallenge(challengeId);
+      // Assuming deleteChallenge function exists in your useAuth context
+      await deleteChallenge(challengeId); 
     } catch (error) {
       console.error("Error deleting challenge:", error);
     }
@@ -212,38 +247,6 @@ export default function IndexScreen() {
                   </ThemedText>
                 </View>
 
-                {item.status === 'pending' && (
-                  <View style={styles.actionsContainer}>
-                    {item.coachId === user?.id && (
-                      <View style={styles.actionButtons}>
-                        <TouchableOpacity 
-                          style={[styles.actionButton, styles.acceptButton]} 
-                          onPress={() => handleAcceptChallenge(item)}>
-                          <ThemedText style={styles.buttonText}>Accept</ThemedText>
-                        </TouchableOpacity>
-                        <TouchableOpacity 
-                          style={[styles.actionButton, styles.rejectButton]}
-                          onPress={() => handleRejectChallenge(item)}>
-                          <ThemedText style={styles.buttonText}>Reject</ThemedText>
-                        </TouchableOpacity>
-                      </View>
-                    )}
-                    {item.userId === user.id && (
-                      <View style={styles.challengerActions}>
-                        <TouchableOpacity 
-                          style={[styles.actionButton, styles.changeCoachButton]}
-                          onPress={() => handleChangeCoach(item.id, 'newCoachId')}>
-                          <ThemedText style={styles.buttonText}>Change Coach</ThemedText>
-                        </TouchableOpacity>
-                        <TouchableOpacity 
-                          style={[styles.actionButton, styles.deleteButton]}
-                          onPress={() => handleDeleteChallenge(item.id)}>
-                          <ThemedText style={styles.buttonText}>Delete</ThemedText>
-                        </TouchableOpacity>
-                      </View>
-                    )}
-                  </View>
-                )}
               </ThemedView>
             </TouchableOpacity>
           )}
@@ -527,5 +530,14 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 6,
     zIndex: 1,
+  },
+  swipeableButtons: {
+    flexDirection: 'row',
+  },
+  swipeButton: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+    paddingHorizontal: 20,
   },
 });
