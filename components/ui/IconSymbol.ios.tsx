@@ -1,6 +1,11 @@
 import { SymbolView, SymbolViewProps, SymbolWeight } from 'expo-symbols';
 import { StyleProp, ViewStyle } from 'react-native';
 
+// Map custom names to SF Symbols
+const SYMBOL_MAPPING: Record<string, SymbolViewProps['name']> = {
+  'biceps': 'figure.strengthtraining',
+};
+
 export function IconSymbol({
   name,
   size = 24,
@@ -19,7 +24,7 @@ export function IconSymbol({
       weight={weight}
       tintColor={color}
       resizeMode="scaleAspectFit"
-      name={name}
+      name={SYMBOL_MAPPING[name] || name}
       style={[
         {
           width: size,
