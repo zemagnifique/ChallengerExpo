@@ -48,12 +48,6 @@ export default function IndexScreen() {
         {renderChallengeSection('Pending Challenges', pendingChallenges)}
         {renderChallengeSection('Active Challenges', activeChallenges)}
         {renderChallengeSection('Coaching Challenges', coachingChallenges)}
-
-        <TouchableOpacity 
-          style={styles.createButton}
-          onPress={() => router.push('/create-challenge')}>
-          <IconSymbol name="plus" size={32} color="#fff" />
-        </TouchableOpacity>
       </ThemedView>
     </ParallaxScrollView>
   );
