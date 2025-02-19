@@ -10,9 +10,10 @@ export default function ChallengesScreen() {
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}>
       <ThemedView style={styles.container}>
-        <TouchableOpacity style={styles.createButton}>
-          <IconSymbol name="plus.circle.fill" size={24} color="#fff" />
-          <ThemedText style={styles.buttonText}>Create Challenge</ThemedText>
+        <TouchableOpacity 
+          style={styles.createButton}
+          onPress={() => router.push('/create-challenge')}>
+          <IconSymbol name="plus" size={32} color="#fff" />
         </TouchableOpacity>
 
         <ThemedView style={styles.challengesList}>
@@ -31,16 +32,20 @@ const styles = StyleSheet.create({
     gap: 20,
   },
   createButton: {
-    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: '#4CAF50',
-    padding: 15,
-    borderRadius: 10,
-    gap: 10,
-  },
-  buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
   },
   challengesList: {
     padding: 15,
