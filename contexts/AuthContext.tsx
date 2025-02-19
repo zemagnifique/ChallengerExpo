@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -22,6 +21,7 @@ type Notification = {
 };
 
 type Challenge = {
+  id: string; // Added ID to Challenge type
   title: string;
   description: string;
   startDate: Date;
@@ -46,6 +46,7 @@ type AuthContextType = {
   addNotification: (message: string) => void;
   markNotificationAsRead: (id: string) => void;
   updateChallenge: (challenge: Challenge) => void;
+  updateChallengeStatus: (challengeId: string, status: string) => void; // Added updateChallengeStatus
 };
 
 const AuthContext = createContext<AuthContextType>({
@@ -54,6 +55,11 @@ const AuthContext = createContext<AuthContextType>({
   login: async () => false,
   logout: async () => {},
   getCoaches: () => [],
+  addChallenge: () => {},
+  addNotification: () => {},
+  markNotificationAsRead: () => {},
+  updateChallenge: () => {},
+  updateChallengeStatus: () => {} //Added this line
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -116,34 +122,46 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const markNotificationAsRead = (id: string) => {
-    setNotifications(prev => 
-      prev.map(notif => 
+    setNotifications(prev =>
+      prev.map(notif =>
         notif.id === id ? { ...notif, read: true } : notif
       )
     );
   };
 
   const updateChallenge = (challenge: Challenge) => {
-    setChallenges(prev => 
-      prev.map(ch => 
+    setChallenges(prev =>
+      prev.map(ch =>
         ch.createdAt.toString() === challenge.createdAt.toString() ? challenge : ch
       )
     );
   };
 
+  const updateChallengeStatus = async (challengeId: string, status: string) => {
+    const updatedChallenges = challenges.map(c => {
+      if (c.id === challengeId) {
+        return { ...c, status };
+      }
+      return c;
+    });
+    setChallenges(updatedChallenges);
+    addNotification(`Challenge status updated to ${status}`);
+  };
+
   return (
-    <AuthContext.Provider value={{ 
-      isAuthenticated, 
-      user, 
-      challenges, 
+    <AuthContext.Provider value={{
+      isAuthenticated,
+      user,
+      challenges,
       notifications,
-      login, 
-      logout, 
-      getCoaches, 
+      login,
+      logout,
+      getCoaches,
       addChallenge,
       addNotification,
       markNotificationAsRead,
-      updateChallenge 
+      updateChallenge,
+      updateChallengeStatus
     }}>
       {children}
     </AuthContext.Provider>
