@@ -19,6 +19,7 @@ export default function ChatScreen() {
     try {
       await updateChallengeStatus(challengeId as string, 'active');
       setLocalStatus('active');
+      router.back();
     } catch (error) {
       console.error('Error accepting challenge:', error);
     }

@@ -176,7 +176,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return c;
     });
     setChallenges(updatedChallenges);
-    saveChallenges(updatedChallenges);
+    await AsyncStorage.setItem('challenges', JSON.stringify(updatedChallenges));
     addNotification(`Challenge ${status === 'rejected' ? 'rejected' : 'updated to ' + status}`);
   };
 
