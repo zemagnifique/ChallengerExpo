@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { StyleSheet, TouchableOpacity, FlatList, View, Animated } from 'react-native';
+import { useColorScheme } from '@/hooks/useColorScheme';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
