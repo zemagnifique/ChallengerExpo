@@ -6,7 +6,7 @@ import { ThemedView } from '@/components/ThemedView';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function UserScreen() {
-  const { user, logout } = useAuth();
+  const { user, logout, notifications, markNotificationAsRead } = useAuth();
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -19,6 +19,26 @@ export default function UserScreen() {
       <ThemedText type="title">Profile</ThemedText>
       <ThemedText style={styles.username}>{user?.username}</ThemedText>
       <ThemedText>Role: {user?.role}</ThemedText>
+      
+      <ThemedView style={styles.notificationsContainer}>
+        <ThemedText type="subtitle">Notifications</ThemedText>
+        {notifications.length === 0 ? (
+          <ThemedText>No notifications</ThemedText>
+        ) : (
+          notifications.map(notification => (
+            <TouchableOpacity
+              key={notification.id}
+              style={[styles.notification, notification.read && styles.notificationRead]}
+              onPress={() => markNotificationAsRead(notification.id)}>
+              <ThemedText style={styles.notificationText}>{notification.message}</ThemedText>
+              <ThemedText style={styles.notificationDate}>
+                {new Date(notification.createdAt).toLocaleDateString()}
+              </ThemedText>
+            </TouchableOpacity>
+          ))
+        )}
+      </ThemedView>
+
       <TouchableOpacity style={styles.button} onPress={handleLogout}>
         <ThemedText style={styles.buttonText}>Logout</ThemedText>
       </TouchableOpacity>
@@ -34,6 +54,29 @@ const styles = StyleSheet.create({
   username: {
     fontSize: 24,
     marginVertical: 10,
+  },
+  notificationsContainer: {
+    marginTop: 20,
+    gap: 10,
+  },
+  notification: {
+    padding: 15,
+    borderRadius: 8,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    marginVertical: 5,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.15)',
+  },
+  notificationRead: {
+    opacity: 0.6,
+  },
+  notificationText: {
+    fontSize: 16,
+    marginBottom: 5,
+  },
+  notificationDate: {
+    fontSize: 12,
+    opacity: 0.7,
   },
   button: {
     backgroundColor: '#ff6b6b',

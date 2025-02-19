@@ -14,6 +14,13 @@ const USERS: Record<string, { password: string; role: 'user' | 'coach' }> = {
   'coach1': { password: 'coach1', role: 'coach' }
 };
 
+type Notification = {
+  id: string;
+  message: string;
+  read: boolean;
+  createdAt: Date;
+};
+
 type Challenge = {
   title: string;
   description: string;
@@ -31,10 +38,13 @@ type AuthContextType = {
   isAuthenticated: boolean;
   user: User | null;
   challenges: Challenge[];
+  notifications: Notification[];
   login: (username: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
   getCoaches: () => User[];
   addChallenge: (challenge: Challenge) => void;
+  addNotification: (message: string) => void;
+  markNotificationAsRead: (id: string) => void;
 };
 
 const AuthContext = createContext<AuthContextType>({
@@ -49,6 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [challenges, setChallenges] = useState<Challenge[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
 
   useEffect(() => {
     checkAuth();
@@ -88,10 +99,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const addChallenge = (challenge: Challenge) => {
     setChallenges(prev => [...prev, challenge]);
+    if (challenge.coachId) {
+      addNotification(`New coaching request: ${challenge.title}`);
+    }
+  };
+
+  const addNotification = (message: string) => {
+    const notification = {
+      id: Date.now().toString(),
+      message,
+      read: false,
+      createdAt: new Date()
+    };
+    setNotifications(prev => [notification, ...prev]);
+  };
+
+  const markNotificationAsRead = (id: string) => {
+    setNotifications(prev => 
+      prev.map(notif => 
+        notif.id === id ? { ...notif, read: true } : notif
+      )
+    );
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, challenges, login, logout, getCoaches, addChallenge }}>
+    <AuthContext.Provider value={{ 
+      isAuthenticated, 
+      user, 
+      challenges, 
+      notifications,
+      login, 
+      logout, 
+      getCoaches, 
+      addChallenge,
+      addNotification,
+      markNotificationAsRead 
+    }}>
       {children}
     </AuthContext.Provider>
   );
