@@ -6,7 +6,7 @@ import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
-import { Swipeable } from 'react-native-gesture-handler';
+import { Swipeable, GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export default function IndexScreen() {
   const [filter, setFilter] = useState('all');
@@ -206,6 +206,7 @@ export default function IndexScreen() {
           keyExtractor={(item, index) => `${item.id}-${index}`}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
           renderItem={({ item }) => (
+            <GestureHandlerRootView>
             <TouchableOpacity onPress={() => router.push(`/chat?challengeId=${item.id}`)}>
               <ThemedView style={[
                 styles.listItem,
@@ -249,6 +250,7 @@ export default function IndexScreen() {
 
               </ThemedView>
             </TouchableOpacity>
+            </GestureHandlerRootView>
           )}
         />
       </ThemedView>
