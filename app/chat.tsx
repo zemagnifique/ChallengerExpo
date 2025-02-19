@@ -263,7 +263,7 @@ export default function ChatScreen() {
               {(item.isValidated || item.isProof) && (
                 <View style={styles.checkmarkContainer}>
                   <IconSymbol 
-                    name="checkmark.circle.fill" 
+                    name={item.isProof ? "arrow.triangle.2.circlepath" : "checkmark.circle.fill"}
                     size={24} 
                     color={item.isValidated ? '#2196F3' : '#4CAF50'} 
                   />
