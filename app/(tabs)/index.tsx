@@ -208,27 +208,22 @@ export default function IndexScreen() {
           renderItem={({ item }) => (
             <GestureHandlerRootView style={{ flex: 1 }}>
               <Swipeable
-                renderRightActions={(progress, dragX) => {
-                  const trans = dragX.interpolate({
-                    inputRange: [-100, 0],
-                    outputRange: [0, 100],
-                  });
-                  return (
-                    <View style={styles.swipeableButtons}>
-                      {item.status === 'pending' && (
-                        <Animated.View style={[styles.swipeButton, { transform: [{ translateX: trans }] }]}>
-                          <TouchableOpacity
-                            style={[styles.actionButton, styles.deleteButton]}
-                            onPress={() => handleDeleteChallenge(item.id)}>
-                            <ThemedText style={styles.buttonText}>Delete</ThemedText>
-                          </TouchableOpacity>
-                        </Animated.View>
-                      )}
-                    </View>
-                  );
-                }}
+                friction={2}
+                rightThreshold={40}
+                renderRightActions={(progress, dragX) => (
+                  <View style={styles.swipeableButtons}>
+                    <TouchableOpacity
+                      style={[styles.actionButton, styles.deleteButton]}
+                      onPress={() => handleDeleteChallenge(item.id)}>
+                      <ThemedText style={styles.buttonText}>Delete</ThemedText>
+                    </TouchableOpacity>
+                  </View>
+                )}
               >
-                <TouchableOpacity onPress={() => router.push(`/chat?challengeId=${item.id}`)}>
+                <TouchableOpacity 
+                  activeOpacity={1}
+                  onPress={() => router.push(`/chat?challengeId=${item.id}`)}
+                >
                   <ThemedView style={[
                 styles.listItem,
                 item.coachId === user?.id ? styles.coachingItem : styles.challengeItem,
@@ -555,12 +550,15 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   swipeableButtons: {
-    flexDirection: 'row',
-  },
-  swipeButton: {
-    flex: 1,
+    width: 100,
     justifyContent: 'center',
-    alignItems: 'flex-end',
-    paddingHorizontal: 20,
+    alignItems: 'center',
+  },
+  deleteButton: {
+    backgroundColor: '#f44336',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+    height: '100%',
   },
 });
