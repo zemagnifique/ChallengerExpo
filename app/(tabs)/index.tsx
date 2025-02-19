@@ -75,8 +75,6 @@ export default function IndexScreen() {
                           <ThemedText style={styles.buttonText}>Delete</ThemedText>
                         </TouchableOpacity>
                       </View>
-                        </TouchableOpacity>
-                      </View>
                     )}
                   </View>
                 )}
