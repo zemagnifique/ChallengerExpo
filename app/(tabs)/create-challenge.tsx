@@ -37,7 +37,7 @@ export default function CreateChallengeScreen() {
   const [proofRequirements, setProofRequirements] = useState('');
   const [selectedCoach, setSelectedCoach] = useState('');
   const router = useRouter();
-  const { getCoaches, user } = useAuth();
+  const { getCoaches, user, addChallenge } = useAuth();
 
   const handleSubmit = () => {
     const challenge = {
