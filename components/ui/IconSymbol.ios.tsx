@@ -3,7 +3,7 @@ import { StyleProp, ViewStyle } from 'react-native';
 
 // Map custom names to SF Symbols
 const SYMBOL_MAPPING: Record<string, SymbolViewProps['name']> = {
-  'biceps': 'figure.arms.flex',
+  'biceps': 'figure.strengthtraining.traditional',
 };
 
 export function IconSymbol({
