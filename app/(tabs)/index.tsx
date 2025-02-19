@@ -58,7 +58,7 @@ export default function IndexScreen() {
                 {item.status === 'active' && (
                   <TouchableOpacity
                     style={[styles.actionButton, styles.archiveButton]}
-                    onPress={() => archiveChallenge(item.id)}>
+                    onPress={() => handleArchiveChallenge(item.id)}>
                     <IconSymbol name="archivebox.fill" size={24} color="#fff" />
                     <ThemedText style={styles.buttonText}>Archive</ThemedText>
                   </TouchableOpacity>
@@ -85,7 +85,7 @@ export default function IndexScreen() {
                 {item.status === 'active' && (
                   <TouchableOpacity
                     style={[styles.actionButton, styles.archiveButton]}
-                    onPress={() => archiveChallenge(item.id)}>
+                    onPress={() => handleArchiveChallenge(item.id)}>
                     <IconSymbol name="archivebox.fill" size={24} color="#fff" />
                     <ThemedText style={styles.buttonText}>Archive</ThemedText>
                   </TouchableOpacity>
@@ -183,7 +183,7 @@ export default function IndexScreen() {
     }
   };
 
-  const archiveChallenge = async (challengeId) => {
+  const handleArchiveChallenge = async (challengeId) => {
     try {
       console.log(`Archiving challenge with ID: ${challengeId}`);
       rowRefs.get(challengeId)?.close();
