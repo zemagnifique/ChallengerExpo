@@ -10,6 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 export default function ChatScreen() {
   const { challengeId } = useLocalSearchParams();
   const { challenges, user } = useAuth();
+  const router = useRouter();
   const [message, setMessage] = React.useState('');
   
   const challenge = challenges.find(c => c.id === challengeId);
