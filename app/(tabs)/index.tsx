@@ -72,7 +72,7 @@ export default function IndexScreen() {
                               <TouchableOpacity
                                 style={[styles.actionButton, styles.acceptButton]}
                                 onPress={() => handleAcceptChallenge(item)}>
-                                <IconSymbol name="checkmark.circle.fill" size={16} color="#fff" />
+                                <IconSymbol name="checkmark.circle.fill" size={24} color="#fff" />
                                 <ThemedText style={styles.buttonText}>Accept</ThemedText>
                               </TouchableOpacity>
                             </Animated.View>
@@ -80,7 +80,7 @@ export default function IndexScreen() {
                               <TouchableOpacity
                                 style={[styles.actionButton, styles.rejectButton]}
                                 onPress={() => handleRejectChallenge(item)}>
-                                <IconSymbol name="xmark.circle.fill" size={16} color="#fff" />
+                                <IconSymbol name="xmark.circle.fill" size={24} color="#fff" />
                                 <ThemedText style={styles.buttonText}>Reject</ThemedText>
                               </TouchableOpacity>
                             </Animated.View>
@@ -88,13 +88,21 @@ export default function IndexScreen() {
                         ) : (
                           <Animated.View style={[styles.swipeButton, { transform: [{ translateX: trans }] }]}>
                             <TouchableOpacity
-                              style={[styles.actionButton, styles.deleteButton]}
-                              onPress={() => handleDeleteChallenge(item.id)}>
-                                <IconSymbol name="trash.fill" size={16} color="#fff" />
-                                <ThemedText style={styles.buttonText}>Delete</ThemedText>
+                              style={[styles.actionButton, styles.changeCoachButton]}
+                              onPress={() => handleChangeCoach(item.id, 'newCoachId')}>
+                                <IconSymbol name="figure.walk.circle.fill" size={24} color="#fff" />
+                                <ThemedText style={styles.buttonText}>Change Coach</ThemedText>
                             </TouchableOpacity>
                           </Animated.View>
                         )}
+                        <Animated.View style={[styles.swipeButton, { transform: [{ translateX: trans }] }]}>
+                          <TouchableOpacity
+                            style={[styles.actionButton, styles.deleteButton]}
+                            onPress={() => handleDeleteChallenge(item.id)}>
+                            <IconSymbol name="trash.fill" size={24} color="#fff" />
+                            <ThemedText style={styles.buttonText}>Delete</ThemedText>
+                          </TouchableOpacity>
+                        </Animated.View>
                       </View>
                     )}
                   </View>
@@ -222,13 +230,13 @@ export default function IndexScreen() {
                             <TouchableOpacity
                               style={[styles.actionButton, styles.acceptButton]}
                               onPress={() => handleAcceptChallenge(item)}>
-                              <IconSymbol name="checkmark.circle.fill" size={16} color="#fff" />
+                              <IconSymbol name="checkmark.circle.fill" size={24} color="#fff" />
                               <ThemedText style={styles.buttonText}>Accept</ThemedText>
                             </TouchableOpacity>
                             <TouchableOpacity
                               style={[styles.actionButton, styles.rejectButton]}
                               onPress={() => handleRejectChallenge(item)}>
-                              <IconSymbol name="xmark.circle.fill" size={16} color="#fff" />
+                              <IconSymbol name="xmark.circle.fill" size={24} color="#fff" />
                               <ThemedText style={styles.buttonText}>Reject</ThemedText>
                             </TouchableOpacity>
                           </>
@@ -241,13 +249,13 @@ export default function IndexScreen() {
                             <TouchableOpacity
                               style={[styles.actionButton, styles.changeCoachButton]}
                               onPress={() => handleChangeCoach(item.id, 'newCoachId')}>
-                              <IconSymbol name="figure.walk.circle.fill" size={16} color="#fff" />
+                              <IconSymbol name="figure.walk.circle.fill" size={24} color="#fff" />
                               <ThemedText style={styles.buttonText}>Change Coach</ThemedText>
                             </TouchableOpacity>
                             <TouchableOpacity
                               style={[styles.actionButton, styles.deleteButton]}
                               onPress={() => handleDeleteChallenge(item.id)}>
-                              <IconSymbol name="trash.fill" size={16} color="#fff" />
+                              <IconSymbol name="trash.fill" size={24} color="#fff" />
                               <ThemedText style={styles.buttonText}>Delete</ThemedText>
                             </TouchableOpacity>
                           </>
@@ -483,7 +491,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 8,
-    paddingHorizontal: 12,
     gap: 4,
   },
   acceptButton: {
@@ -511,9 +518,8 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   buttonText: {
-    color: '#fff',
     fontSize: 12,
-    fontWeight: '500',
+    color: '#fff',
   },
   challengerActions: {
     flexDirection: 'row',
