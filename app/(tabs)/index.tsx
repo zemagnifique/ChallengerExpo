@@ -10,9 +10,9 @@ export default function IndexScreen() {
   const router = useRouter();
   const { challenges, user, updateChallengeStatus, updateChallengeCoach } = useAuth();
 
-  const pendingChallenges = challenges.filter(c => c.status === 'pending' && c.coachId === user?.id);
-  const activeChallenges = challenges.filter(c => c.status === 'active' && c.userId === user?.id);
-  const coachingChallenges = challenges.filter(c => c.coachId === user?.id);
+  const pendingChallenges = challenges.filter(c => c.status === 'pending' && (user?.role === 'coach' ? c.coachId === user?.id : c.userId === user?.id));
+  const activeChallenges = challenges.filter(c => c.status === 'active' && (c.userId === user?.id || c.coachId === user?.id));
+  const coachingChallenges = user?.role === 'coach' ? challenges.filter(c => c.coachId === user?.id) : [];
 
   const renderChallengeSection = (title, items) => (
     <ThemedView style={styles.section}>

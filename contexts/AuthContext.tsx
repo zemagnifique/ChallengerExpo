@@ -105,9 +105,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const addChallenge = (challenge: Challenge) => {
-    setChallenges(prev => [...prev, challenge]);
+    const newChallenge = {
+      ...challenge,
+      id: Date.now().toString(), // Ensure unique ID
+    };
+    setChallenges(prev => [...prev, newChallenge]);
+    // Add notification for the coach
     if (challenge.coachId) {
-      addNotification(`New coaching request: ${challenge.title}`);
+      const notification = {
+        id: Date.now().toString(),
+        message: `New coaching request: ${challenge.title}`,
+        read: false,
+        createdAt: new Date(),
+        userId: challenge.coachId // Ensure notification goes to coach
+      };
+      setNotifications(prev => [notification, ...prev]);
     }
   };
 
