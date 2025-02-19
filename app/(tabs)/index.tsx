@@ -171,7 +171,7 @@ export default function IndexScreen() {
           keyExtractor={(item, index) => `${item.id}-${index}`}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
           renderItem={({ item }) => (
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => router.push(`/chat?challengeId=${item.id}`)}>
               <ThemedView style={[
                 styles.listItem,
                 item.coachId === user?.id ? styles.coachingItem : styles.challengeItem,

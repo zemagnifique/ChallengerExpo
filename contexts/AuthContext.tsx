@@ -20,7 +20,7 @@ type Notification = {
 };
 
 type Challenge = {
-  id: string; // Added ID to Challenge type
+  id: string;
   title: string;
   description: string;
   startDate: Date;
@@ -31,6 +31,11 @@ type Challenge = {
   userId: string;
   coachId: string;
   createdAt: Date;
+  messages?: Array<{
+    text: string;
+    userId: string;
+    timestamp: Date;
+  }>;
 };
 
 type AuthContextType = {
