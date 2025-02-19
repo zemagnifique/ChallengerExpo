@@ -175,28 +175,37 @@ export default function IndexScreen() {
         <FlatList
           data={[...pendingChallenges, ...activeChallenges, ...coachPendingRequests, ...coachActiveRequests]}
           keyExtractor={(item) => item.createdAt.toString()}
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
           renderItem={({ item }) => (
-            <View>
+            <TouchableOpacity>
               <ThemedView style={[
-                styles.challengeCard,
-                item.coachId === user?.id ? styles.coachingCard : styles.challengeCard,
-                item.status === 'pending' ? styles.pendingCard : styles.activeCard,
+                styles.listItem,
+                item.coachId === user?.id ? styles.coachingItem : styles.challengeItem,
               ]}>
-                <View style={styles.titleContainer}>
-                  <ThemedText style={styles.challengeTitle}>{item.title}</ThemedText>
-                  <ThemedText style={styles.typeLabel}>
-                    {item.coachId === user?.id ? 'Coaching' : 'Challenge'}
-                  </ThemedText>
+                <View style={styles.avatarContainer}>
+                  <View style={styles.avatar}>
+                    <ThemedText style={styles.avatarText}>
+                      {item.title.charAt(0).toUpperCase()}
+                    </ThemedText>
+                  </View>
                 </View>
-                <View style={styles.participantsContainer}>
-                  <ThemedText style={styles.participantText}>Challenger: {item.userId}</ThemedText>
-                  <ThemedText style={styles.participantText}>Coach: {item.coachId}</ThemedText>
-                </View>
-                <ThemedText>{item.description}</ThemedText>
-                <ThemedText>Frequency: {item.frequency}</ThemedText>
-                <View style={styles.dateContainer}>
-                  <ThemedText>Start: {new Date(item.startDate).toLocaleDateString()}</ThemedText>
-                  <ThemedText>End: {new Date(item.endDate).toLocaleDateString()}</ThemedText>
+                <View style={styles.contentContainer}>
+                  <View style={styles.titleRow}>
+                    <ThemedText style={styles.title}>{item.title}</ThemedText>
+                    <ThemedText style={styles.date}>
+                      {new Date(item.startDate).toLocaleDateString()}
+                    </ThemedText>
+                  </View>
+                  <View style={styles.previewRow}>
+                    <ThemedText numberOfLines={1} style={styles.preview}>
+                      {item.description || `Frequency: ${item.frequency}`}
+                    </ThemedText>
+                    {item.status === 'pending' && (
+                      <View style={styles.badge}>
+                        <ThemedText style={styles.badgeText}>Pending</ThemedText>
+                      </View>
+                    )}
+                  </View>
                 </View>
                 
                 {item.status === 'pending' && (
@@ -241,11 +250,73 @@ export default function IndexScreen() {
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  listItem: {
+    flexDirection: 'row',
+    padding: 12,
+    backgroundColor: '#fff',
+  },
+  separator: {
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: '#E0E0E0',
+    marginLeft: 76,
+  },
+  avatarContainer: {
+    marginRight: 16,
+  },
+  avatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#E8EAF6',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  avatarText: {
+    fontSize: 24,
+    fontWeight: '500',
+  },
+  contentContainer: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  titleRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 4,
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  date: {
+    fontSize: 12,
+    color: '#666',
+  },
+  previewRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  preview: {
+    fontSize: 14,
+    color: '#666',
+    flex: 1,
+    marginRight: 8,
+  },
+  badge: {
+    backgroundColor: '#E8F5E9',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 12,
+  },
+  badgeText: {
+    fontSize: 12,
+    color: '#2E7D32',
   },
   typeLabel: {
     fontSize: 14,
