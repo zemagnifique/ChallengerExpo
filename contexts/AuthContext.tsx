@@ -36,6 +36,7 @@ type Challenge = {
     userId: string;
     timestamp: Date;
   }>;
+  archived?: boolean; // Added archived field
 };
 
 type AuthContextType = {
@@ -53,6 +54,7 @@ type AuthContextType = {
   updateChallengeStatus: (challengeId: string, status: string) => void;
   updateChallengeCoach: (challengeId: string, newCoachId: string) => Promise<void>;
   deleteChallenge: (challengeId: string) => Promise<void>;
+  archiveChallenge: (challengeId: string) => void; // Added archiveChallenge method
 };
 
 const AuthContext = createContext<AuthContextType>({
@@ -65,7 +67,9 @@ const AuthContext = createContext<AuthContextType>({
   addNotification: () => {},
   markNotificationAsRead: () => {},
   updateChallenge: () => {},
-  updateChallengeStatus: () => {} //Added this line
+  updateChallengeStatus: () => {},
+  updateChallengeCoach: async () => {},
+  deleteChallenge: async () => {}
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -199,6 +203,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     addNotification('Challenge deleted');
   };
 
+  const archiveChallenge = (challengeId: string) => {
+    const updatedChallenges = challenges.map(c => {
+      if (c.id === challengeId) {
+        return { ...c, archived: true };
+      }
+      return c;
+    });
+    setChallenges(updatedChallenges);
+    saveChallenges(updatedChallenges);
+  };
+
   const saveChallenges = async (challengesToSave: Challenge[]) => {
     try {
       const storedChallenges = await AsyncStorage.getItem('challenges');
@@ -237,7 +252,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       updateChallenge,
       updateChallengeStatus,
       updateChallengeCoach,
-      deleteChallenge
+      deleteChallenge,
+      archiveChallenge
     }}>
       {children}
     </AuthContext.Provider>

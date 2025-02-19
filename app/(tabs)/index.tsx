@@ -11,7 +11,7 @@ import { Swipeable, GestureHandlerRootView } from 'react-native-gesture-handler'
 export default function IndexScreen() {
   const [filter, setFilter] = useState('all');
   const router = useRouter();
-  const { challenges, user, updateChallengeStatus, updateChallengeCoach, deleteChallenge } = useAuth();
+  const { challenges, user, updateChallengeStatus, updateChallengeCoach, deleteChallenge, archiveChallenge } = useAuth();
 
   const filteredChallenges = () => {
     if (filter === 'challenger') {
@@ -55,6 +55,14 @@ export default function IndexScreen() {
                     </TouchableOpacity>
                   </>
                 )}
+                {item.status === 'active' && (
+                  <TouchableOpacity
+                    style={[styles.actionButton, styles.archiveButton]}
+                    onPress={() => archiveChallenge(item.id)}>
+                    <IconSymbol name="archivebox.fill" size={24} color="#fff" />
+                    <ThemedText style={styles.buttonText}>Archive</ThemedText>
+                  </TouchableOpacity>
+                )}
               </>
             ) : (
               <>
@@ -73,6 +81,14 @@ export default function IndexScreen() {
                       <ThemedText style={styles.buttonText}>Delete</ThemedText>
                     </TouchableOpacity>
                   </>
+                )}
+                {item.status === 'active' && (
+                  <TouchableOpacity
+                    style={[styles.actionButton, styles.archiveButton]}
+                    onPress={() => archiveChallenge(item.id)}>
+                    <IconSymbol name="archivebox.fill" size={24} color="#fff" />
+                    <ThemedText style={styles.buttonText}>Archive</ThemedText>
+                  </TouchableOpacity>
                 )}
               </>
             )}
@@ -164,6 +180,15 @@ export default function IndexScreen() {
       rowRefs.get(challengeId)?.close();
     } catch (error) {
       console.error("Error deleting challenge:", error);
+    }
+  };
+
+  const archiveChallenge = async (challengeId) => {
+    try {
+      console.log(`Archiving challenge with ID: ${challengeId}`);
+      rowRefs.get(challengeId)?.close();
+    } catch (error) {
+      console.error("Error archiving challenge:", error);
     }
   };
 
@@ -487,5 +512,11 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: 'rgba(255,255,255,0.15)',
   },
-
+  archiveButton: {
+    backgroundColor: 'rgba(128, 128, 128, 0.8)',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: 4,
+    height: '100%',
+  },
 });
