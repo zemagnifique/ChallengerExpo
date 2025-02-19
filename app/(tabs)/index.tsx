@@ -33,30 +33,45 @@ export default function IndexScreen() {
           keyExtractor={(item) => item.createdAt.toString()}
           renderItem={({ item }) => (
             <View>
-              <TouchableOpacity onPress={() => handleAcceptChallenge(item)}>
-                <ThemedView style={styles.challengeCard}>
-                  <ThemedText style={styles.challengeTitle}>{item.title}</ThemedText>
-                  <ThemedText>{item.description}</ThemedText>
-                  <ThemedText>Frequency: {item.frequency}</ThemedText>
-                  <View style={styles.dateContainer}>
-                    <ThemedText>Start: {new Date(item.startDate).toLocaleDateString()}</ThemedText>
-                    <ThemedText>End: {new Date(item.endDate).toLocaleDateString()}</ThemedText>
-                  </View>
-                </ThemedView>
-              </TouchableOpacity>
-              {item.status === 'pending' && user?.role === 'coach' && (
-                <TouchableOpacity onPress={() => handleRejectChallenge(item)}>
-                  <ThemedText>Reject</ThemedText>
-                </TouchableOpacity>
-              )}
-              {item.status === 'pending' && user?.role === 'user' && item.userId === user?.id && (
-                <View>
-                  <ThemedText>Change Coach:</ThemedText>
-                  <TouchableOpacity onPress={() => handleChangeCoach(item.id, 'newCoachId')}>
-                    <ThemedText>Assign New Coach</ThemedText>
-                  </TouchableOpacity>
+              <ThemedView style={styles.challengeCard}>
+                <ThemedText style={styles.challengeTitle}>{item.title}</ThemedText>
+                <View style={styles.participantsContainer}>
+                  <ThemedText style={styles.participantText}>Challenger: {item.userId}</ThemedText>
+                  <ThemedText style={styles.participantText}>Coach: {item.coachId}</ThemedText>
                 </View>
-              )}
+                <ThemedText>{item.description}</ThemedText>
+                <ThemedText>Frequency: {item.frequency}</ThemedText>
+                <View style={styles.dateContainer}>
+                  <ThemedText>Start: {new Date(item.startDate).toLocaleDateString()}</ThemedText>
+                  <ThemedText>End: {new Date(item.endDate).toLocaleDateString()}</ThemedText>
+                </View>
+                
+                {item.status === 'pending' && (
+                  <View style={styles.actionsContainer}>
+                    {user?.role === 'coach' && item.coachId === user.id && (
+                      <View style={styles.actionButtons}>
+                        <TouchableOpacity 
+                          style={[styles.actionButton, styles.acceptButton]} 
+                          onPress={() => handleAcceptChallenge(item)}>
+                          <ThemedText style={styles.buttonText}>Accept</ThemedText>
+                        </TouchableOpacity>
+                        <TouchableOpacity 
+                          style={[styles.actionButton, styles.rejectButton]}
+                          onPress={() => handleRejectChallenge(item)}>
+                          <ThemedText style={styles.buttonText}>Reject</ThemedText>
+                        </TouchableOpacity>
+                      </View>
+                    )}
+                    {user?.role === 'user' && item.userId === user.id && (
+                      <TouchableOpacity 
+                        style={styles.changeCoachButton}
+                        onPress={() => handleChangeCoach(item.id, 'newCoachId')}>
+                        <ThemedText style={styles.buttonText}>Change Coach</ThemedText>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                )}
+              </ThemedView>
             </View>
           )}
           scrollEnabled={false}
@@ -115,6 +130,51 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     gap: 20,
+  },
+  participantsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+    padding: 8,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderRadius: 8,
+  },
+  participantText: {
+    fontSize: 14,
+    opacity: 0.9,
+  },
+  actionsContainer: {
+    marginTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255,255,255,0.15)',
+    paddingTop: 16,
+  },
+  actionButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 10,
+  },
+  actionButton: {
+    flex: 1,
+    padding: 10,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  acceptButton: {
+    backgroundColor: '#4CAF50',
+  },
+  rejectButton: {
+    backgroundColor: '#f44336',
+  },
+  changeCoachButton: {
+    backgroundColor: '#2196F3',
+    padding: 10,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: '600',
   },
   coachSection: {
     backgroundColor: 'rgba(161, 206, 220, 0.15)', // Light blue tint
