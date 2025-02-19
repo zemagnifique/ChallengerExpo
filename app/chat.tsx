@@ -137,14 +137,14 @@ export default function ChatScreen() {
   };
 
   const handleLongPress = async (message: any) => {
-    if (!isCoach || message.userId === user?.id) return;
+    if (!isCoach || message.userId === user?.id || !message.isProof) return;
 
     const updatedMessages = challenge.messages.map(msg => {
       if (msg === message) {
         return { ...msg, isValidated: !msg.isValidated };
       }
       return msg;
-    })
+    });
     const updatedChallenge = { ...challenge, messages: updatedMessages };
     await updateChallenge(updatedChallenge);
 
