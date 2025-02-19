@@ -140,12 +140,8 @@ export default function ChatScreen() {
     if (!isCoach || message.userId === user?.id || !message.isProof) return;
 
     const updatedMessages = challenge.messages.map(msg => {
-      if (msg === message) {
-        if (msg.isValidated) {
-          return { ...msg, isValidated: false }; // Change back to proof status (loop icon)
-        } else {
-          return { ...msg, isValidated: true }; // Approve proof (blue checkmark)
-        }
+      if (msg.timestamp === message.timestamp && msg.userId === message.userId) {
+        return { ...msg, isValidated: !msg.isValidated, isProof: true };
       }
       return msg;
     });
