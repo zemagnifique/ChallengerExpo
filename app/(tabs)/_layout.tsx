@@ -1,9 +1,7 @@
 
-import { Tabs, useRouter } from 'expo-router';
-import React, { useEffect } from 'react';
+import { Tabs } from 'expo-router';
 import { Platform } from 'react-native';
 import { useAuth } from '@/contexts/AuthContext';
-
 import { HapticTab } from '@/components/HapticTab';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import TabBarBackground from '@/components/ui/TabBarBackground';
@@ -12,13 +10,6 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 
 export default function TabLayout() {
   const { isAuthenticated } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.replace('/login');
-    }
-  }, [isAuthenticated]);
   const colorScheme = useColorScheme();
 
   return (
@@ -50,10 +41,10 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="coach"
+        name="create-challenge"
         options={{
-          title: 'Coach',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.fill" color={color} />,
+          title: 'Create',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="plus.circle.fill" color={color} />,
         }}
       />
     </Tabs>
