@@ -123,8 +123,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       ...challenge,
       id: Date.now().toString(), // Ensure unique ID
     };
-    setChallenges(prev => [...prev, newChallenge]);
-    saveChallenges([...prev, newChallenge]);
+    setChallenges(prev => {
+      const updatedChallenges = [...prev, newChallenge];
+      saveChallenges(updatedChallenges);
+      return updatedChallenges;
+    });
     // Add notification for the coach
     if (challenge.coachId) {
       const notification = {
