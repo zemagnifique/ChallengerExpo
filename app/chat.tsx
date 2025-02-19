@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, TextInput, TouchableOpacity, FlatList } from 'react-native';
+import { StyleSheet, View, TextInput, TouchableOpacity, FlatList, Keyboard } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { ThemedView } from '@/components/ThemedView';
@@ -13,7 +13,44 @@ export default function ChatScreen() {
   const router = useRouter();
   const [message, setMessage] = React.useState('');
   const [localStatus, setLocalStatus] = React.useState('');
+  const [keyboardHeight, setKeyboardHeight] = React.useState(0);
   const challenge = challenges.find(c => c.id === challengeId);
+
+  React.useEffect(() => {
+    const keyboardWillShow = (e: any) => {
+      setKeyboardHeight(e.endCoordinates.height);
+    };
+
+    const keyboardWillHide = () => {
+      setKeyboardHeight(0);
+    };
+
+    const showSubscription = Keyboard.addListener('keyboardWillShow', keyboardWillShow);
+    const hideSubscription = Keyboard.addListener('keyboardWillHide', keyboardWillHide);
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
+
+  const handleSendMessage = () => {
+    if (!message.trim()) return;
+    
+    const newMessage = {
+      text: message,
+      userId: user?.id || '',
+      timestamp: new Date()
+    };
+
+    const updatedChallenge = {
+      ...challenge,
+      messages: [...(challenge.messages || []), newMessage]
+    };
+
+    updateChallenge(updatedChallenge);
+    setMessage('');
+  };
 
   const handleAcceptChallenge = async () => {
     try {
@@ -99,15 +136,18 @@ export default function ChatScreen() {
       />
 
       {challenge.status === 'active' ? (
-        <View style={styles.inputContainer}>
+        <View style={[styles.inputContainer, { marginBottom: keyboardHeight }]}>
           <TextInput
             style={styles.input}
             value={message}
             onChangeText={setMessage}
             placeholder="Type a message..."
             placeholderTextColor="#666"
+            multiline
           />
-          <TouchableOpacity style={styles.sendButton}>
+          <TouchableOpacity 
+            style={styles.sendButton}
+            onPress={handleSendMessage}>
             <ThemedText style={styles.sendButtonText}>Send</ThemedText>
           </TouchableOpacity>
         </View>
