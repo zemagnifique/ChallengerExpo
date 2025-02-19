@@ -10,6 +10,7 @@ import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function ChatScreen() {
+  const flatListRef = React.useRef(null);
   const { challengeId } = useLocalSearchParams();
   const { challenges, user, updateChallengeStatus, updateChallenge } = useAuth();
   const router = useRouter();
@@ -153,9 +154,12 @@ export default function ChatScreen() {
       </View>
 
       <FlatList
+        ref={flatListRef}
         style={styles.messageList}
         data={messages}
         keyExtractor={(item, index) => index.toString()}
+        onContentSizeChange={() => flatListRef.current?.scrollToEnd({animated: true})}
+        onLayout={() => flatListRef.current?.scrollToEnd({animated: true})}
         renderItem={({ item }) => (
           <View style={[
             styles.messageBubble,
