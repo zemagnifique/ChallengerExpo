@@ -206,9 +206,30 @@ export default function IndexScreen() {
           keyExtractor={(item, index) => `${item.id}-${index}`}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
           renderItem={({ item }) => (
-            <GestureHandlerRootView>
-            <TouchableOpacity onPress={() => router.push(`/chat?challengeId=${item.id}`)}>
-              <ThemedView style={[
+            <GestureHandlerRootView style={{ flex: 1 }}>
+              <Swipeable
+                renderRightActions={(progress, dragX) => {
+                  const trans = dragX.interpolate({
+                    inputRange: [-100, 0],
+                    outputRange: [0, 100],
+                  });
+                  return (
+                    <View style={styles.swipeableButtons}>
+                      {item.status === 'pending' && (
+                        <Animated.View style={[styles.swipeButton, { transform: [{ translateX: trans }] }]}>
+                          <TouchableOpacity
+                            style={[styles.actionButton, styles.deleteButton]}
+                            onPress={() => handleDeleteChallenge(item.id)}>
+                            <ThemedText style={styles.buttonText}>Delete</ThemedText>
+                          </TouchableOpacity>
+                        </Animated.View>
+                      )}
+                    </View>
+                  );
+                }}
+              >
+                <TouchableOpacity onPress={() => router.push(`/chat?challengeId=${item.id}`)}>
+                  <ThemedView style={[
                 styles.listItem,
                 item.coachId === user?.id ? styles.coachingItem : styles.challengeItem,
               ]}>
@@ -247,10 +268,10 @@ export default function IndexScreen() {
                       : `Coach: ${item.coachId}`}
                   </ThemedText>
                 </View>
-
               </ThemedView>
             </TouchableOpacity>
-            </GestureHandlerRootView>
+          </Swipeable>
+        </GestureHandlerRootView>
           )}
         />
       </ThemedView>
