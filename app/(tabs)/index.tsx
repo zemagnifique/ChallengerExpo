@@ -55,13 +55,12 @@ export default function IndexScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    paddingTop: 12,
-    gap: 24,
+    padding: 16,
+    gap: 20,
   },
   section: {
     padding: 20,
-    borderRadius: 16,
+    borderRadius: 20,
     backgroundColor: 'rgba(255,255,255,0.08)',
     gap: 16,
     shadowColor: '#000',
