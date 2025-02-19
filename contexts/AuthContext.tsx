@@ -46,7 +46,9 @@ type AuthContextType = {
   addNotification: (message: string) => void;
   markNotificationAsRead: (id: string) => void;
   updateChallenge: (challenge: Challenge) => void;
-  updateChallengeStatus: (challengeId: string, status: string) => void; // Added updateChallengeStatus
+  updateChallengeStatus: (challengeId: string, status: string) => void;
+  updateChallengeCoach: (challengeId: string, newCoachId: string) => Promise<void>;
+  deleteChallenge: (challengeId: string) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType>({
