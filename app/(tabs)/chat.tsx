@@ -31,6 +31,38 @@ export default function ChatScreen() {
         <ThemedText style={styles.subtitle}>
           {isCoach ? `Challenger: ${challenge.userId}` : `Coach: ${challenge.coachId}`}
         </ThemedText>
+        
+        {challenge.status === 'pending' && (
+          <View style={styles.actionContainer}>
+            {isCoach ? (
+              <View style={styles.actionButtons}>
+                <TouchableOpacity 
+                  style={[styles.actionButton, styles.acceptButton]} 
+                  onPress={() => updateChallengeStatus(challenge.id, 'active')}>
+                  <ThemedText style={styles.buttonText}>Accept</ThemedText>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  style={[styles.actionButton, styles.rejectButton]}
+                  onPress={() => updateChallengeStatus(challenge.id, 'rejected')}>
+                  <ThemedText style={styles.buttonText}>Reject</ThemedText>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <View style={styles.actionButtons}>
+                <TouchableOpacity 
+                  style={[styles.actionButton, styles.changeCoachButton]}
+                  onPress={() => handleChangeCoach(challenge.id, 'newCoachId')}>
+                  <ThemedText style={styles.buttonText}>Change Coach</ThemedText>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  style={[styles.actionButton, styles.deleteButton]}
+                  onPress={() => deleteChallenge(challenge.id)}>
+                  <ThemedText style={styles.buttonText}>Delete</ThemedText>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+        )}
       </View>
 
       <FlatList
@@ -50,23 +82,82 @@ export default function ChatScreen() {
         )}
       />
 
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          value={message}
-          onChangeText={setMessage}
-          placeholder="Type a message..."
-          placeholderTextColor="#666"
-        />
-        <TouchableOpacity style={styles.sendButton}>
-          <ThemedText style={styles.sendButtonText}>Send</ThemedText>
-        </TouchableOpacity>
-      </View>
+      {challenge.status === 'active' ? (
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            value={message}
+            onChangeText={setMessage}
+            placeholder="Type a message..."
+            placeholderTextColor="#666"
+          />
+          <TouchableOpacity style={styles.sendButton}>
+            <ThemedText style={styles.sendButtonText}>Send</ThemedText>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <View style={[styles.inputContainer, styles.disabledInput]}>
+          <TextInput
+            style={[styles.input, styles.disabledTextInput]}
+            value="Chat available after challenge is accepted"
+            editable={false}
+          />
+          <TouchableOpacity style={[styles.sendButton, styles.disabledButton]} disabled>
+            <ThemedText style={[styles.sendButtonText, styles.disabledButtonText]}>Send</ThemedText>
+          </TouchableOpacity>
+        </View>
+      )}
     </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
+  actionContainer: {
+    marginTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,0.1)',
+    paddingTop: 16,
+  },
+  actionButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 10,
+  },
+  actionButton: {
+    flex: 1,
+    padding: 10,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  acceptButton: {
+    backgroundColor: '#4CAF50',
+  },
+  rejectButton: {
+    backgroundColor: '#f44336',
+  },
+  changeCoachButton: {
+    backgroundColor: '#2196F3',
+  },
+  deleteButton: {
+    backgroundColor: '#f44336',
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  disabledInput: {
+    opacity: 0.7,
+    backgroundColor: '#f5f5f5',
+  },
+  disabledTextInput: {
+    color: '#666',
+  },
+  disabledButton: {
+    backgroundColor: '#ccc',
+  },
+  disabledButtonText: {
+    color: '#666',
+  },
   container: {
     flex: 1,
   },
