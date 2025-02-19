@@ -36,12 +36,12 @@ export default function IndexScreen() {
                   </View>
                 </ThemedView>
               </TouchableOpacity>
-              {item.status === 'pending' && (
+              {item.status === 'pending' && user?.role === 'coach' && (
                 <TouchableOpacity onPress={() => handleRejectChallenge(item)}>
                   <ThemedText>Reject</ThemedText>
                 </TouchableOpacity>
               )}
-              {item.status === 'pending' && (
+              {item.status === 'pending' && user?.role === 'user' && item.userId === user?.id && (
                 <View>
                   <ThemedText>Change Coach:</ThemedText>
                   <TouchableOpacity onPress={() => handleChangeCoach(item.id, 'newCoachId')}>
