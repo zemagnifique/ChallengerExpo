@@ -56,7 +56,7 @@ export default function IndexScreen() {
       ) : (
         <FlatList
           data={items}
-          keyExtractor={(item) => item.createdAt.toString()}
+          keyExtractor={(item, index) => `${item.id}-${index}`}
           renderItem={({ item }) => (
             <View>
               <ThemedView style={styles.challengeCard}>
@@ -71,7 +71,7 @@ export default function IndexScreen() {
                   <ThemedText>Start: {new Date(item.startDate).toLocaleDateString()}</ThemedText>
                   <ThemedText>End: {new Date(item.endDate).toLocaleDateString()}</ThemedText>
                 </View>
-                
+
                 {item.status === 'pending' && (
                   <View style={styles.actionsContainer}>
                     {user?.role === 'coach' && item.coachId === user.id && (
@@ -174,7 +174,7 @@ export default function IndexScreen() {
       <ThemedView style={styles.container}>
         <FlatList
           data={[...pendingChallenges, ...activeChallenges, ...coachPendingRequests, ...coachActiveRequests]}
-          keyExtractor={(item) => item.createdAt.toString()}
+          keyExtractor={(item, index) => `${item.id}-${index}`}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
           renderItem={({ item }) => (
             <TouchableOpacity>
@@ -217,7 +217,7 @@ export default function IndexScreen() {
                       : `Coach: ${item.coachId}`}
                   </ThemedText>
                 </View>
-                
+
                 {item.status === 'pending' && (
                   <View style={styles.actionsContainer}>
                     {user?.role === 'coach' && item.coachId === user.id && (
