@@ -9,13 +9,12 @@ export default function UserScreen() {
   const { user, logout, notifications, markNotificationAsRead } = useAuth();
   const router = useRouter();
   
-  const switchUser = (userId) => {
-    // Simulate logout
-    logout();
-    // Set the active test user
-    localStorage.setItem('testUser', userId);
-    // Reload to apply changes
-    window.location.reload();
+  const switchUser = async (userId: string) => {
+    await logout();
+    const userInfo = { id: userId, username: userId };
+    await AsyncStorage.setItem('user', JSON.stringify(userInfo));
+    setIsAuthenticated(true);
+    setUser(userInfo);
   };
 
   const handleLogout = async () => {
