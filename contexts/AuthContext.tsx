@@ -104,10 +104,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
   };
 
-  const getCoaches = () => {
-    return Object.entries(USERS)
-      .map(([id]) => ({ id, username: id }));
-  };
+  const TEST_USERS = {
+  'user1': { id: 'user1', username: 'user1', isCoach: false },
+  'user2': { id: 'user2', username: 'user2', isCoach: true }
+};
+
+const getCoaches = () => {
+  return Object.entries(TEST_USERS)
+    .filter(([_, user]) => user.isCoach)
+    .map(([id, user]) => ({ id, username: user.username }));
+};
 
   const addChallenge = (challenge: Challenge) => {
     const newChallenge = {

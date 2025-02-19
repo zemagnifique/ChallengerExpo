@@ -8,6 +8,15 @@ import { useAuth } from '@/contexts/AuthContext';
 export default function UserScreen() {
   const { user, logout, notifications, markNotificationAsRead } = useAuth();
   const router = useRouter();
+  
+  const switchUser = (userId) => {
+    // Simulate logout
+    logout();
+    // Set the active test user
+    localStorage.setItem('testUser', userId);
+    // Reload to apply changes
+    window.location.reload();
+  };
 
   const handleLogout = async () => {
     await logout();
@@ -38,7 +47,17 @@ export default function UserScreen() {
         )}
       </ThemedView>
 
-      <TouchableOpacity style={styles.button} onPress={handleLogout}>
+      <ThemedView style={styles.testControls}>
+        <ThemedText type="subtitle">Test Controls</ThemedText>
+        <TouchableOpacity style={styles.button} onPress={() => switchUser('user1')}>
+          <ThemedText style={styles.buttonText}>Switch to User 1</ThemedText>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={() => switchUser('user2')}>
+          <ThemedText style={styles.buttonText}>Switch to User 2</ThemedText>
+        </TouchableOpacity>
+      </ThemedView>
+      
+      <TouchableOpacity style={[styles.button, styles.logoutButton]} onPress={handleLogout}>
         <ThemedText style={styles.buttonText}>Logout</ThemedText>
       </TouchableOpacity>
     </ThemedView>
@@ -46,6 +65,16 @@ export default function UserScreen() {
 }
 
 const styles = StyleSheet.create({
+  testControls: {
+    marginTop: 20,
+    padding: 15,
+    borderRadius: 8,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    gap: 10,
+  },
+  logoutButton: {
+    backgroundColor: '#ff6b6b',
+  },
   container: {
     flex: 1,
     padding: 20,
