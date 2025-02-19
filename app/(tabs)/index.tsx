@@ -10,12 +10,20 @@ export default function IndexScreen() {
   const router = useRouter();
   const { challenges, user, updateChallengeStatus, updateChallengeCoach } = useAuth();
 
-  const pendingChallenges = challenges.filter(c => c.status === 'pending' && (user?.role === 'coach' ? c.coachId === user?.id : c.userId === user?.id));
-  const activeChallenges = challenges.filter(c => c.status === 'active' && (c.userId === user?.id || c.coachId === user?.id));
-  const coachingChallenges = user?.role === 'coach' ? challenges.filter(c => c.coachId === user?.id) : [];
+  // Challenges where user is the challenger
+  const pendingChallenges = challenges.filter(c => c.status === 'pending' && c.userId === user?.id);
+  const activeChallenges = challenges.filter(c => c.status === 'active' && c.userId === user?.id);
+  
+  // Challenges where user is the coach
+  const coachPendingRequests = user?.role === 'coach' 
+    ? challenges.filter(c => c.status === 'pending' && c.coachId === user?.id)
+    : [];
+  const coachActiveRequests = user?.role === 'coach'
+    ? challenges.filter(c => c.status === 'active' && c.coachId === user?.id)
+    : [];
 
-  const renderChallengeSection = (title, items) => (
-    <ThemedView style={styles.section}>
+  const renderChallengeSection = (title, items, isCoachSection = false) => (
+    <ThemedView style={[styles.section, isCoachSection && styles.coachSection]}>
       <ThemedText type="subtitle">{title}</ThemedText>
       {items.length === 0 ? (
         <ThemedText>No {title.toLowerCase()}</ThemedText>
@@ -86,9 +94,17 @@ export default function IndexScreen() {
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}>
       <ThemedView style={styles.container}>
-        {renderChallengeSection('Pending Coaching Challenges', pendingChallenges)}
-        {renderChallengeSection('Active Challenges', activeChallenges)}
-        {renderChallengeSection('Coaching Challenges', coachingChallenges)}
+        {/* Challenger's view */}
+        {renderChallengeSection('My Pending Challenges', pendingChallenges)}
+        {renderChallengeSection('My Active Challenges', activeChallenges)}
+        
+        {/* Coach's view */}
+        {user?.role === 'coach' && (
+          <>
+            {renderChallengeSection('Pending Coaching Requests', coachPendingRequests, true)}
+            {renderChallengeSection('Active Coaching Sessions', coachActiveRequests, true)}
+          </>
+        )}
       </ThemedView>
     </ParallaxScrollView>
   );
@@ -99,6 +115,11 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     gap: 20,
+  },
+  coachSection: {
+    backgroundColor: 'rgba(161, 206, 220, 0.15)', // Light blue tint
+    borderWidth: 1,
+    borderColor: '#A1CEDC',
   },
   section: {
     padding: 20,
