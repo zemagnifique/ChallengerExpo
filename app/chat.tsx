@@ -36,7 +36,7 @@ export default function ChatScreen() {
 
   const handleSendMessage = async () => {
     if (!message.trim()) return;
-    
+
     const newMessage = {
       text: message,
       userId: user?.id || '',
@@ -142,7 +142,7 @@ export default function ChatScreen() {
           <View style={[
             styles.messageBubble,
             item.userId === user?.id ? 
-              [styles.ownMessage, { backgroundColor: item.userId === challenge?.coachId ? '#0a7ea4' : '#4CAF50' }] : 
+              [styles.ownMessage, { backgroundColor: item.userId === challenge?.coachId ? '#9FD5E5' : '#98D8A1' }] : 
               styles.otherMessage
           ]}>
             <ThemedText style={styles.messageText}>{item.text}</ThemedText>

@@ -340,7 +340,7 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
   coachingCard: {
-    borderColor: '#4CAF50',
+    borderColor: '#98D8A1',
     borderWidth: 2,
   },
   pendingCard: {
