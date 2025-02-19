@@ -9,7 +9,7 @@ import { useThemeColor } from '@/hooks/useThemeColor';
 
 export default function ChatScreen() {
   const { challengeId } = useLocalSearchParams();
-  const { challenges, user } = useAuth();
+  const { challenges, user, updateChallengeStatus } = useAuth();
   const router = useRouter();
   const [message, setMessage] = React.useState('');
 
