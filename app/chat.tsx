@@ -141,7 +141,9 @@ export default function ChatScreen() {
         renderItem={({ item }) => (
           <View style={[
             styles.messageBubble,
-            item.userId === user?.id ? styles.ownMessage : styles.otherMessage
+            item.userId === user?.id ? 
+              [styles.ownMessage, { backgroundColor: item.userId === challenge?.coachId ? '#0a7ea4' : '#4CAF50' }] : 
+              styles.otherMessage
           ]}>
             <ThemedText style={styles.messageText}>{item.text}</ThemedText>
             <ThemedText style={styles.messageTime}>
@@ -272,7 +274,6 @@ const styles = StyleSheet.create({
     maxWidth: '80%',
   },
   ownMessage: {
-    backgroundColor: item.userId === challenge?.coachId ? '#0a7ea4' : '#4CAF50',
     alignSelf: 'flex-end',
     borderBottomRightRadius: 4,
   },
