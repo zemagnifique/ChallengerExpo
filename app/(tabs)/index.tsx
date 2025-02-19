@@ -8,9 +8,9 @@ import { useAuth } from '@/contexts/AuthContext';
 
 export default function IndexScreen() {
   const router = useRouter();
-  const { challenges, user, updateChallengeStatus } = useAuth(); // Added updateChallengeStatus
+  const { challenges, user, updateChallengeStatus, updateChallengeCoach } = useAuth();
 
-  const pendingChallenges = challenges.filter(c => c.status === 'pending' && c.coachId === user?.id); // Updated filter
+  const pendingChallenges = challenges.filter(c => c.status === 'pending' && c.coachId === user?.id);
   const activeChallenges = challenges.filter(c => c.status === 'active' && c.userId === user?.id);
   const coachingChallenges = challenges.filter(c => c.coachId === user?.id);
 
@@ -24,17 +24,32 @@ export default function IndexScreen() {
           data={items}
           keyExtractor={(item) => item.createdAt.toString()}
           renderItem={({ item }) => (
-            <TouchableOpacity onPress={() => handleAcceptChallenge(item)}>
-              <ThemedView style={styles.challengeCard}>
-                <ThemedText style={styles.challengeTitle}>{item.title}</ThemedText>
-                <ThemedText>{item.description}</ThemedText>
-                <ThemedText>Frequency: {item.frequency}</ThemedText>
-                <View style={styles.dateContainer}>
-                  <ThemedText>Start: {new Date(item.startDate).toLocaleDateString()}</ThemedText>
-                  <ThemedText>End: {new Date(item.endDate).toLocaleDateString()}</ThemedText>
+            <View>
+              <TouchableOpacity onPress={() => handleAcceptChallenge(item)}>
+                <ThemedView style={styles.challengeCard}>
+                  <ThemedText style={styles.challengeTitle}>{item.title}</ThemedText>
+                  <ThemedText>{item.description}</ThemedText>
+                  <ThemedText>Frequency: {item.frequency}</ThemedText>
+                  <View style={styles.dateContainer}>
+                    <ThemedText>Start: {new Date(item.startDate).toLocaleDateString()}</ThemedText>
+                    <ThemedText>End: {new Date(item.endDate).toLocaleDateString()}</ThemedText>
+                  </View>
+                </ThemedView>
+              </TouchableOpacity>
+              {item.status === 'pending' && (
+                <TouchableOpacity onPress={() => handleRejectChallenge(item)}>
+                  <ThemedText>Reject</ThemedText>
+                </TouchableOpacity>
+              )}
+              {item.status === 'pending' && (
+                <View>
+                  <ThemedText>Change Coach:</ThemedText>
+                  <TouchableOpacity onPress={() => handleChangeCoach(item.id, 'newCoachId')}>
+                    <ThemedText>Assign New Coach</ThemedText>
+                  </TouchableOpacity>
                 </View>
-              </ThemedView>
-            </TouchableOpacity>
+              )}
+            </View>
           )}
           scrollEnabled={false}
         />
@@ -44,11 +59,25 @@ export default function IndexScreen() {
 
   const handleAcceptChallenge = async (challenge) => {
     try {
-      await updateChallengeStatus(challenge.id, 'active'); // Placeholder for API call
-      // Update local state after successful API call
+      await updateChallengeStatus(challenge.id, 'active');
     } catch (error) {
       console.error("Error accepting challenge:", error);
-      // Handle error appropriately
+    }
+  };
+
+  const handleRejectChallenge = async (challenge) => {
+    try {
+      await updateChallengeStatus(challenge.id, 'rejected');
+    } catch (error) {
+      console.error("Error rejecting challenge:", error);
+    }
+  };
+
+  const handleChangeCoach = async (challengeId, newCoachId) => {
+    try {
+      await updateChallengeCoach(challengeId, newCoachId);
+    } catch (error) {
+      console.error("Error changing coach:", error);
     }
   };
 
@@ -57,7 +86,7 @@ export default function IndexScreen() {
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}>
       <ThemedView style={styles.container}>
-        {renderChallengeSection('Pending Coaching Challenges', pendingChallenges)} {/*Renamed Section*/}
+        {renderChallengeSection('Pending Coaching Challenges', pendingChallenges)}
         {renderChallengeSection('Active Challenges', activeChallenges)}
         {renderChallengeSection('Coaching Challenges', coachingChallenges)}
       </ThemedView>

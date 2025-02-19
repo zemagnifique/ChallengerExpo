@@ -137,15 +137,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     );
   };
 
-  const updateChallengeStatus = async (challengeId: string, status: string) => {
+  const updateChallengeStatus = async (challengeId: string, status: string, reason?: string) => {
     const updatedChallenges = challenges.map(c => {
       if (c.id === challengeId) {
-        return { ...c, status };
+        return { ...c, status, rejectionReason: reason };
       }
       return c;
     });
     setChallenges(updatedChallenges);
-    addNotification(`Challenge status updated to ${status}`);
+    addNotification(`Challenge ${status === 'rejected' ? 'rejected' : 'updated to ' + status}`);
+  };
+
+  updateChallengeCoach = async (challengeId: string, newCoachId: string) => {
+    const updatedChallenges = challenges.map(c => {
+      if (c.id === challengeId) {
+        return { ...c, coachId: newCoachId, status: 'pending' };
+      }
+      return c;
+    });
+    setChallenges(updatedChallenges);
+    addNotification('Coach updated for challenge');
   };
 
   return (
