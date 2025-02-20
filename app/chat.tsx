@@ -352,13 +352,19 @@ export default function ChatScreen() {
                     ? [
                         styles.ownMessage,
                         {
-                          backgroundColor:
-                            item.userId === challenge?.coachId
-                              ? "#2B5876"
-                              : "#B71C1C",
+                          backgroundColor: user?.id === challenge?.coachId
+                            ? "#2B5876"
+                            : "#B71C1C",
                         },
                       ]
-                    : styles.otherMessage,
+                    : [
+                        styles.otherMessage,
+                        {
+                          backgroundColor: item.userId === challenge?.coachId
+                            ? "#2B5876"
+                            : "#B71C1C",
+                        },
+                      ],
                 ]}
               >
                 {item.text && (
