@@ -290,7 +290,7 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: useThemeColor({}, 'background'),
+    backgroundColor: '#E8EAF6',
     justifyContent: 'center',
     alignItems: 'center',
   },
