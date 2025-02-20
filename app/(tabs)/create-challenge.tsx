@@ -35,7 +35,7 @@ export default function CreateChallengeScreen() {
   const [endDate, setEndDate] = useState(new Date(Date.now() + 180 * 24 * 60 * 60 * 1000));
   const [frequency, setFrequency] = useState('Daily');
   const [proofRequirements, setProofRequirements] = useState('');
-  const [selectedCoach, setSelectedCoach] = useState('');
+  const [selectedCoach, setSelectedCoach] = useState<number | null>(null);
   const router = useRouter();
   const { getCoaches, user, addChallenge } = useAuth();
 
@@ -63,7 +63,10 @@ export default function CreateChallengeScreen() {
     setProofRequirements(challenge.proofRequirements);
   };
 
-  const coaches = getCoaches();
+  const coaches = getCoaches().map(coach => ({
+    ...coach,
+    id: parseInt(coach.id)  // Convert string ID to number
+  }));
 
   return (
     <ParallaxScrollView
@@ -178,10 +181,10 @@ export default function CreateChallengeScreen() {
                 key={coach.id}
                 style={[
                   styles.coachButton,
-                  selectedCoach === coach.id && styles.coachButtonActive
+                  selectedCoach === parseInt(coach.id) && styles.coachButtonActive
                 ]}
-                onPress={() => setSelectedCoach(coach.id)}>
-                <ThemedText style={selectedCoach === coach.id && styles.coachTextActive}>
+                onPress={() => setSelectedCoach(parseInt(coach.id))}>
+                <ThemedText style={selectedCoach === parseInt(coach.id) && styles.coachTextActive}>
                   {coach.username}
                 </ThemedText>
               </TouchableOpacity>
