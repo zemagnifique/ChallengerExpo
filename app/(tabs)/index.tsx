@@ -14,14 +14,14 @@ export default function IndexScreen() {
   const colorScheme = useColorScheme();
   const [filter, setFilter] = useState('all');
   const router = useRouter();
-  const { challenges, user, updateChallengeStatus, updateChallengeCoach, deleteChallenge, archiveChallenge } = useAuth();
+  const { challenges = [], user, updateChallengeStatus, updateChallengeCoach, deleteChallenge, archiveChallenge } = useAuth();
 
   const filteredChallenges = () => {
-    if (!challenges) return [];
-    let filtered = challenges.filter(c => c.status !== 'rejected');
+    if (!challenges || !Array.isArray(challenges)) return [];
+    let filtered = challenges.filter(c => c && c.status !== 'rejected');
 
     if (filter === 'archived') {
-      return filtered.filter(c => c.archived);
+      return filtered.filter(c => c && c.archived);
     }
 
     filtered = filtered.filter(c => !c.archived);
