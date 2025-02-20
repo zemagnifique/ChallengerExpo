@@ -48,6 +48,14 @@ externalPort = 6800
 localPort = 8090
 externalPort = 8000
 
+[[ports]]
+localPort = 8091
+externalPort = 8008
+
+[[ports]]
+localPort = 8092
+externalPort = 8080
+
 [workflows]
 runButton = "Dev"
 
@@ -105,4 +113,4 @@ author = 39794279
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm run start & node app/api/index.ts"
+args = "npx expo start --web"
