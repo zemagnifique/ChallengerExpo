@@ -16,9 +16,28 @@ app.get('/health', (req, res) => {
 
 app.use('/api/db', dbRouter);
 
-const server = app.listen(8082, '0.0.0.0', () => {
-  console.log('API server running on port 8082');
-});
+const startServer = (port) => {
+  try {
+    const server = app.listen(port, '0.0.0.0', () => {
+      console.log(`API server running on port ${port}`);
+    });
+
+    server.on('error', (error) => {
+      if (error.code === 'EADDRINUSE') {
+        console.log(`Port ${port} is busy, trying ${port + 1}`);
+        startServer(port + 1);
+      }
+    });
+
+    process.on('SIGTERM', () => {
+      server.close();
+    });
+  } catch (error) {
+    console.error('Server error:', error);
+  }
+};
+
+startServer(8082);
 
 process.on('SIGTERM', () => {
   server.close();
