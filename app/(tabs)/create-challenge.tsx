@@ -82,11 +82,6 @@ export default function CreateChallengeScreen() {
     setProofRequirements(challenge.proofRequirements);
   };
 
-  const coaches = getCoaches().map(coach => ({
-    ...coach,
-    id: parseInt(coach.id)  // Convert string ID to number
-  }));
-
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}>
