@@ -1,10 +1,5 @@
-const { Platform } = require('react-native');
-const { Buffer: BufferPolyfill } = require('buffer');
-
-const globalBuffer = global.Buffer || BufferPolyfill;
-if (typeof global !== 'undefined' && Platform.OS === 'web') {
-  global.Buffer = globalBuffer;
-}
+const { Buffer } = require('buffer');
+global.Buffer = Buffer;
 
 const createFetchPool = () => ({
   query: async (text, params) => {
