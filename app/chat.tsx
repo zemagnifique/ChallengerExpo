@@ -83,16 +83,16 @@ export default function ChatScreen() {
     setMessage('');
     setSelectedImage(null);
 
-    // Show suggestion tooltip based on user role
+    const isCoach = challenge.coachId === user?.id; // Moved isCoach initialization here
     const updatedMessages = [...updatedChallenge.messages];
     const lastMessage = updatedMessages[updatedMessages.length - 1];
-    
+
     if (!isCoach && !newMessage.isProof) {
       lastMessage.suggestionText = 'Double tap to submit as proof';
     } else if (isCoach && lastMessage.isProof && !lastMessage.isValidated) {
       lastMessage.suggestionText = 'Double tap to approve proof';
     }
-    
+
     updateChallenge({
       ...updatedChallenge,
       messages: updatedMessages
@@ -209,7 +209,7 @@ export default function ChatScreen() {
   }
 
   const messages = (challenge?.messages ?? []);
-  const isCoach = challenge.coachId === user?.id;
+  const isCoach = challenge.coachId === user?.id; // Moved isCoach initialization here
 
   return (
     <ThemedView style={styles.container}>
