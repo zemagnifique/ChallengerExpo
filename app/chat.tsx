@@ -308,7 +308,7 @@ export default function ChatScreen() {
             <IconSymbol name="paperclip" size={24} color={useThemeColor({}, 'text')} />
           </TouchableOpacity>
           <TouchableOpacity 
-            style={styles.sendButton}
+            style={[styles.sendButton, { backgroundColor: challenge?.coachId === user?.id ? '#2196F3' : '#F44336' }]}
             onPress={handleSendMessage}>
             <ThemedText style={styles.sendButtonText}>Send</ThemedText>
           </TouchableOpacity>
@@ -451,7 +451,6 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   sendButton: {
-    backgroundColor: challenge?.coachId === user?.id ? '#2196F3' : '#F44336',
     padding: 12,
     borderRadius: 20,
     justifyContent: 'center',
