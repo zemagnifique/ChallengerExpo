@@ -1,6 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StorageAPI } from '@/api/storage';
+import { ApiClient } from '@/api/client';
 import { User, Challenge, Notification } from '@/types';
 
 type User = {
