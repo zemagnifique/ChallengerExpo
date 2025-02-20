@@ -233,7 +233,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const fetchedChallenges = await ApiClient.getChallenges();
       if (Array.isArray(fetchedChallenges)) {
-        setChallenges(fetchedChallenges);
+        // Convert numeric IDs to strings
+        const processedChallenges = fetchedChallenges.map(challenge => ({
+          ...challenge,
+          id: challenge.id.toString()
+        }));
+        setChallenges(processedChallenges);
       } else {
         console.error("Invalid challenges data:", fetchedChallenges);
       }
