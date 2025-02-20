@@ -10,11 +10,13 @@ const getApiUrl = () => {
     return `${protocol}//${hostname}:${port}`;
   }
   
-  // For mobile, use the Replit domain
-  return `${process.env.REPLIT_DEV_DOMAIN || window?.location?.origin || `http://0.0.0.0:${port}`}`;
+  // For mobile, use the full Replit domain
+  return `https://${process.env.REPL_SLUG || 'my-repl'}.${process.env.REPL_OWNER || 'repl.dev'}`;
 };
 
 const API_URL = getApiUrl();
+
+console.log('Current API_URL:', API_URL);
 
 export const ApiClient = {
   getChallenges: async () => {
