@@ -7,6 +7,7 @@ import {
   FlatList,
   Keyboard,
   Image,
+  ViewToken,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { IconSymbol } from "@/components/ui/IconSymbol";
@@ -44,7 +45,7 @@ type Challenge = {
 };
 
 export default function ChatScreen() {
-  const flatListRef = React.useRef<FlatList>(null);
+  const flatListRef = React.useRef<FlatList<any>>(null); // Added generic type to FlatList
   const { challengeId } = useLocalSearchParams<{ challengeId: string }>();
   console.log('Challenge ID:', challengeId);
   const { challenges, user, updateChallengeStatus, updateChallenge } =
