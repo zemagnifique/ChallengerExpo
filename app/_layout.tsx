@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { Buffer } from 'buffer';
+import 'react-native-web';
 import 'react-native-polyfill-globals/auto';
 
 if (typeof window !== 'undefined') {
