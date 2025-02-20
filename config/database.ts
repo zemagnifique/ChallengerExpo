@@ -1,5 +1,5 @@
 
-import { Pool } from 'pg';
+const { Pool } = require('pg');
 
 const pool = new Pool({
   host: '0.0.0.0',
@@ -17,4 +17,4 @@ pool.on('connect', () => {
   console.log('Database connected successfully');
 });
 
-export default pool;
+module.exports = pool;
