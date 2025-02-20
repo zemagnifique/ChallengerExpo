@@ -1,12 +1,8 @@
 
 const { Pool } = require('pg');
 
-interface DatabasePool {
-  query: (text: string, params?: any[]) => Promise<any>;
-}
-
-const createFetchPool = (): DatabasePool => ({
-  query: async (text: string, params?: any[]) => {
+const createFetchPool = () => ({
+  query: async (text, params) => {
     const response = await fetch('http://0.0.0.0:8082/api/db', {
       method: 'POST',
       headers: {
@@ -24,6 +20,6 @@ const createFetchPool = (): DatabasePool => ({
   },
 });
 
-const pool: DatabasePool = createFetchPool();
+const pool = createFetchPool();
 
-module.exports = { default: pool };
+module.exports = pool;

@@ -1,8 +1,7 @@
 
 const express = require('express');
 const router = express.Router();
-const database = require('../../config/database.ts');
-const pool = database.default;
+const pool = require('../../config/database');
 
 router.post('/', async (req, res) => {
   const { text, params } = req.body;
