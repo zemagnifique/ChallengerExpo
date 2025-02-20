@@ -1,5 +1,5 @@
 
-const API_URL = `https://${process.env.REPLIT_DEV_DOMAIN}/api`;
+const API_URL = `${window.location.protocol}//${window.location.hostname}:3001/api`;
 
 export const ApiClient = {
   getChallenges: async () => {
