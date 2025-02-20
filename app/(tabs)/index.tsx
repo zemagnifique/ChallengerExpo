@@ -46,7 +46,7 @@ export default function IndexScreen() {
         rightThreshold={40}
         renderRightActions={(progress, dragX) => (
           <View style={styles.swipeableButtons}>
-            {item.coachId === user?.id ? (
+            {parseInt(item.coach_id) === parseInt(user?.id) ? (
               <>
                 {item.status === 'pending' && (
                   <>
