@@ -113,17 +113,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (username: string, password: string) => {
     try {
-      // Try database first
+      console.log('Attempting login for user:', username);
       const userInfo = await DatabaseModels.getUser(username);
+      console.log('User info from database:', userInfo);
+
       if (userInfo && userInfo.password === password) {
         const user = { id: userInfo.id, username: userInfo.username };
+        console.log('Login successful, setting user:', user);
         await AsyncStorage.setItem('user', JSON.stringify(user));
         setIsAuthenticated(true);
         setUser(user);
         await loadChallenges();
         return true;
       }
-      
+
       // Fallback to AsyncStorage for development
       const storedUser = await AsyncStorage.getItem('user');
       if (storedUser) {
@@ -133,7 +136,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await loadChallenges();
         return true;
       }
-      
+
       return false;
     } catch (error) {
       console.error('Login error:', error);

@@ -1,28 +1,20 @@
-const createFetchPool = () => ({
-  query: async (text, params) => {
-    console.log('Database: Executing query:', text);
-    try {
-      console.log('Database: Sending request to API');
-      const response = await fetch(`http://0.0.0.0:8082/api/db`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ text, params }),
-      });
-      console.log('Database: Response status:', response.status);
-      if (!response.ok) {
-        throw new Error(`Database connection failed: ${response.status}`);
-      }
-      const result = await response.json();
-      console.log('Database: Query result:', result);
-      return result;
-    } catch (error) {
-      console.error('Database error:', error);
-      return null;
-    }
-  },
+
+import { Pool } from 'pg';
+
+const pool = new Pool({
+  host: '0.0.0.0',
+  port: 8082,
+  user: process.env.POSTGRES_USER,
+  password: process.env.POSTGRES_PASSWORD,
+  database: process.env.POSTGRES_DB,
 });
 
-const pool = createFetchPool();
-module.exports = pool;
+pool.on('error', (err) => {
+  console.error('Unexpected error on idle client', err);
+});
+
+pool.on('connect', () => {
+  console.log('Database connected successfully');
+});
+
+export default pool;
