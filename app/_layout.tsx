@@ -5,8 +5,8 @@ import { Slot } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { useRouter } from 'expo-router';
-import { Platform } from 'react-native';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { Platform } from 'react-native-web';
+import { useColorScheme } from '@/hooks/useColorScheme.web';
 import { AuthProvider } from '@/contexts/AuthContext';
 import 'react-native-polyfill-globals/auto';
 
