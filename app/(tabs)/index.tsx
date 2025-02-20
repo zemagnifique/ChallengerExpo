@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { StyleSheet, TouchableOpacity, FlatList, View, Animated } from 'react-native';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { useThemeColor } from '@/hooks/useThemeColor';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
@@ -14,19 +13,16 @@ export default function IndexScreen() {
   const colorScheme = useColorScheme();
   const [filter, setFilter] = useState('all');
   const router = useRouter();
-  const { challenges = [], user, updateChallengeStatus, updateChallengeCoach, deleteChallenge, archiveChallenge } = useAuth();
+  const { challenges, user, updateChallengeStatus, updateChallengeCoach, deleteChallenge, archiveChallenge } = useAuth();
 
   const filteredChallenges = () => {
-    const challengesList = challenges || [];
-    if (!Array.isArray(challengesList)) return [];
-    
-    let filtered = challengesList.filter(c => c && c.status !== 'rejected');
+    let filtered = (challenges ?? []).filter(c => c.status !== 'rejected');
 
     if (filter === 'archived') {
-      return filtered.filter(c => c && c.archived);
+      return filtered.filter(c => c.archived);
     }
 
-    filtered = filtered.filter(c => c && !c.archived);
+    filtered = filtered.filter(c => !c.archived);
 
     if (filter === 'challenger') {
       return filtered.filter(c => c.userId === user?.id);
