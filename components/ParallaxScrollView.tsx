@@ -1,6 +1,6 @@
 
 import type { PropsWithChildren, ReactElement } from 'react';
-import { Platform, StyleSheet } from 'react-native-web';
+import { Platform, StyleSheet } from 'react-native';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import Animated, {
@@ -8,6 +8,7 @@ import Animated, {
   useAnimatedRef,
   useAnimatedStyle,
   useScrollViewOffset,
+  withTiming,
 } from 'react-native-reanimated';
 
 import { ThemedView } from '@/components/ThemedView';
