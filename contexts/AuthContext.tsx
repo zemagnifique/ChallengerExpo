@@ -95,16 +95,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const login = async (username: string, password: string) => {
-    const userInfo = USERS[username];
-    if (userInfo && userInfo.password === password) {
-      const user = { id: username, username };
-      await AsyncStorage.setItem('user', JSON.stringify(user));
+    try {
+      const userData = await ApiClient.login(username, password);
+      await AsyncStorage.setItem('user', JSON.stringify(userData));
       setIsAuthenticated(true);
-      setUser(user);
-      await loadChallenges(); // Load challenges after user is set
+      setUser(userData);
+      await loadChallenges();
       return true;
+    } catch (error) {
+      console.error('Login failed:', error);
+      return false;
     }
-    return false;
   };
 
   const logout = async () => {

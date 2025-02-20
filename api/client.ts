@@ -19,6 +19,25 @@ const API_URL = getApiUrl();
 console.log('Current API_URL:', API_URL);
 
 export const ApiClient = {
+  login: async (username: string, password: string) => {
+    try {
+      const response = await fetch(`${API_URL}/api/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Invalid credentials');
+      }
+      
+      return response.json();
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
+    }
+  },
+
   getChallenges: async () => {
     try {
       console.log('Fetching challenges from:', `${API_URL}/api/challenges`);

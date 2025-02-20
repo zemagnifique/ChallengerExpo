@@ -6,6 +6,13 @@ const { Pool } = require('pg');
 const app = express();
 const PORT = 3001;
 
+// Hardcoded users for initial testing
+const USERS = {
+  'user1': { id: 'user1', username: 'user1', password: 'user1' },
+  'user2': { id: 'user2', username: 'user2', password: 'user2' },
+  'user3': { id: 'user3', username: 'user3', password: 'user3' }
+};
+
 // Configure PostgreSQL connection
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL
@@ -20,6 +27,20 @@ app.use(cors({
 }));
 
 app.use(express.json());
+
+// Login endpoint
+app.post('/api/login', (req, res) => {
+  const { username, password } = req.body;
+  const user = USERS[username];
+
+  if (user && user.password === password) {
+    // Remove password before sending user data
+    const { password, ...userWithoutPassword } = user;
+    res.json(userWithoutPassword);
+  } else {
+    res.status(401).json({ error: 'Invalid credentials' });
+  }
+});
 
 // Get all challenges
 app.get('/api/challenges', async (req, res) => {
