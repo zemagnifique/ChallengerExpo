@@ -4,6 +4,7 @@ import { useFonts } from 'expo-font';
 import { Slot } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
+import { useRouter } from 'expo-router';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { AuthProvider } from '@/contexts/AuthContext';
 import 'react-native-polyfill-globals/auto';
@@ -53,8 +54,21 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <AuthProvider>
-        <Slot />
+        <RootLayoutNav />
       </AuthProvider>
     </ThemeProvider>
   );
+}
+
+function RootLayoutNav() {
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isAuthenticated && router.pathname !== '/login') {
+      router.replace('/login');
+    }
+  }, [isAuthenticated]);
+
+  return <Slot />;
 }
