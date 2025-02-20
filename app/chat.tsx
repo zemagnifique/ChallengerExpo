@@ -83,22 +83,23 @@ export default function ChatScreen() {
   }, []);
 
   const handleSendMessage = async () => {
-    if (!message.trim()) return;
+    if (!message.trim() && !selectedImage) return;
 
     try {
       const newMessage = await ApiClient.sendMessage(challengeId as string, {
         userId: user?.id || "",
-        text: message,
+        text: message.trim(),
         imageUrl: selectedImage,
         isProof: false
       });
 
-      const updatedChallenge = {
+      // Fetch messages again to ensure consistency
+      const messages = await ApiClient.getMessages(challengeId as string);
+      updateChallenge({
         ...challenge,
-        messages: [...(challenge.messages || []), newMessage],
-      };
-
-      await updateChallenge(updatedChallenge);
+        messages
+      });
+      
       setMessage("");
       setSelectedImage(null);
     } catch (error) {

@@ -76,10 +76,21 @@ app.post('/api/challenges', async (req, res) => {
 app.get('/api/challenges/:challengeId/messages', async (req, res) => {
   try {
     const result = await pool.query(
-      'SELECT * FROM messages WHERE challenge_id = $1 ORDER BY created_at ASC',
+      'SELECT id, challenge_id, user_id, text, image_url, is_proof, is_validated, created_at FROM messages WHERE challenge_id = $1 ORDER BY created_at ASC',
       [req.params.challengeId]
     );
-    res.json(result.rows);
+    
+    const messages = result.rows.map(msg => ({
+      id: msg.id,
+      text: msg.text,
+      userId: msg.user_id,
+      imageUrl: msg.image_url,
+      isProof: msg.is_proof,
+      isValidated: msg.is_validated,
+      timestamp: msg.created_at
+    }));
+    
+    res.json(messages);
   } catch (error) {
     console.error('Error fetching messages:', error);
     res.status(500).json({ error: 'Internal server error' });
