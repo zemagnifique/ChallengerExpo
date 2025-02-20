@@ -10,9 +10,8 @@ const getApiUrl = () => {
     return `${protocol}//${hostname}:${port}`;
   }
   
-  // For mobile, use the Replit domain with port
-  const domain = process.env.REPLIT_DEV_DOMAIN || window?.location?.hostname || 'my-repl.repl.dev';
-  return `https://${domain}:${port}`;
+  // Use the current server URL
+  return 'https://137cc191-b824-40bd-89ee-eb24e7330321-00-qgvpjoy7e1af.worf.replit.dev:3001';
 };
 
 const API_URL = getApiUrl();
