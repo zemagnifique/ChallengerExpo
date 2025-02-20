@@ -4,47 +4,65 @@ import 'dotenv/config';
 
 // Polyfill Buffer for web environment
 if (typeof window !== 'undefined' && !window.Buffer) {
-  const BufferClass = function(arg: any, encodingOrOffset?: string | number, length?: number): Uint8Array {
-    if (arg instanceof Uint8Array) return arg;
-    if (typeof arg === 'number') return new Uint8Array(arg);
-    return Uint8Array.from(typeof arg === 'string' ? arg.split('').map(c => c.charCodeAt(0)) : arg);
+  const BufferClass = function(arg: any, encodingOrOffset?: string | number, length?: number) {
+    if (!(this instanceof BufferClass)) {
+      return new BufferClass(arg, encodingOrOffset, length);
+    }
+    
+    let buffer: Uint8Array;
+    if (typeof arg === 'number') {
+      buffer = new Uint8Array(arg);
+    } else if (arg instanceof Uint8Array) {
+      buffer = arg;
+    } else if (Array.isArray(arg) || typeof arg === 'string') {
+      buffer = typeof arg === 'string' 
+        ? new Uint8Array(arg.split('').map(c => c.charCodeAt(0)))
+        : new Uint8Array(arg);
+    } else {
+      buffer = new Uint8Array(0);
+    }
+
+    Object.setPrototypeOf(buffer, BufferClass.prototype);
+    return buffer;
   } as any;
 
-  BufferClass.prototype = Uint8Array.prototype;
-  
-  BufferClass.from = function(value: string | Array<number> | Uint8Array, encoding?: string): Uint8Array {
-    if (typeof value === 'string') {
-      return new Uint8Array(value.split('').map(c => c.charCodeAt(0)));
-    }
-    return new Uint8Array(value);
-  };
-  
-  BufferClass.alloc = function(size: number, fill?: string | number, encoding?: string): Uint8Array {
-    const buffer = new Uint8Array(size);
-    if (fill !== undefined) {
-      buffer.fill(typeof fill === 'string' ? fill.charCodeAt(0) : fill);
-    }
-    return buffer;
-  };
-  
-  BufferClass.allocUnsafe = function(size: number): Uint8Array {
-    return new Uint8Array(size);
-  };
-  
-  BufferClass.isBuffer = function(obj: any): boolean {
-    return obj instanceof Uint8Array;
-  };
-  
-  BufferClass.prototype.write = function(string: string, offset?: number): number {
-    const bytes = Uint8Array.from(string.split('').map(c => c.charCodeAt(0)));
+  Object.setPrototypeOf(BufferClass.prototype, Uint8Array.prototype);
+
+  BufferClass.prototype.write = function(string: string, offset?: number) {
+    const bytes = new Uint8Array(string.split('').map(c => c.charCodeAt(0)));
     this.set(bytes, offset || 0);
     return bytes.length;
   };
-  
-  BufferClass.prototype.toString = function(encoding?: string, start?: number, end?: number): string {
+
+  BufferClass.prototype.toString = function(encoding?: string, start?: number, end?: number) {
     start = start || 0;
     end = end || this.length;
-    return String.fromCharCode.apply(null, Array.from(this.slice(start, end)));
+    return Array.from(this.slice(start, end))
+      .map(byte => String.fromCharCode(byte))
+      .join('');
+  };
+
+  BufferClass.from = function(value: string | Array<number> | Uint8Array, encoding?: string) {
+    if (typeof value === 'string') {
+      return new BufferClass(value.split('').map(c => c.charCodeAt(0)));
+    }
+    return new BufferClass(value);
+  };
+
+  BufferClass.alloc = function(size: number, fill?: number) {
+    const buf = new BufferClass(size);
+    if (fill !== undefined) {
+      buf.fill(fill);
+    }
+    return buf;
+  };
+
+  BufferClass.allocUnsafe = function(size: number) {
+    return new BufferClass(size);
+  };
+
+  BufferClass.isBuffer = function(obj: any) {
+    return obj instanceof BufferClass;
   };
 
   // @ts-ignore
