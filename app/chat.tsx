@@ -238,6 +238,16 @@ export default function ChatScreen() {
     setLastTap(now);
   };
 
+  const [messages, setMessages] = useState<any[]>([]);
+  const [isCoach, setIsCoach] = useState(false);
+
+  useEffect(() => {
+    if (challenge) {
+      setMessages(challenge.messages ?? []);
+      setIsCoach(parseInt(user?.id) === challenge.coach_id);
+    }
+  }, [challenge, user]);
+
   if (!challenge) {
     return (
       <ThemedView style={styles.container}>
@@ -245,9 +255,6 @@ export default function ChatScreen() {
       </ThemedView>
     );
   }
-
-  const messages = challenge?.messages ?? [];
-  const isCoach = parseInt(user?.id) === challenge.coach_id;
 
   return (
     <ThemedView style={styles.container}>
