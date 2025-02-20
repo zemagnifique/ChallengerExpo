@@ -1,5 +1,13 @@
 
-const API_URL = `${window.location.protocol}//${window.location.hostname}:3001/api`;
+const getApiUrl = () => {
+  const port = 3001;
+  if (typeof window !== 'undefined') {
+    return `${window.location.protocol}//${window.location.hostname}:${port}/api`;
+  }
+  return `http://0.0.0.0:${port}/api`;
+};
+
+const API_URL = getApiUrl();
 
 export const ApiClient = {
   getChallenges: async () => {
