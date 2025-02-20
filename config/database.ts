@@ -10,7 +10,7 @@ let pool: DatabasePool;
 // For mobile environment or web, use fetch API
 const createFetchPool = () => ({
   query: async (text: string, params?: any[]) => {
-    const response = await fetch('/api/db', {
+    const response = await fetch('http://0.0.0.0:3000/api/db', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
