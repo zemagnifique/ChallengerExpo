@@ -388,8 +388,7 @@ const styles = StyleSheet.create({
     paddingTop: 48,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(0,0,0,0.1)',
-    backgroundColor: ({ user, challenge }) => 
-      user?.id === challenge?.userId ? '#F44336' : '#2196F3',
+    backgroundColor: challenge?.coachId === user?.id ? '#2196F3' : '#F44336',
   },
   headerContent: {
     marginLeft: 40,
@@ -453,7 +452,7 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   sendButton: {
-    backgroundColor: user?.id === challenge?.userId ? '#F44336' : '#2196F3',
+    backgroundColor: challenge?.coachId === user?.id ? '#2196F3' : '#F44336',
     padding: 12,
     borderRadius: 20,
     justifyContent: 'center',
