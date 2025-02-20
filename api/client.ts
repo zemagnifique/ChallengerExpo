@@ -17,18 +17,37 @@ const API_URL = getApiUrl();
 
 export const ApiClient = {
   getChallenges: async () => {
-    const response = await fetch(`${API_URL}/api/challenges`);
-    if (!response.ok) throw new Error('Failed to fetch challenges');
-    return response.json();
+    try {
+      console.log('Fetching challenges from:', `${API_URL}/api/challenges`);
+      const response = await fetch(`${API_URL}/api/challenges`);
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to fetch challenges: ${response.status} ${response.statusText} - ${errorText}`);
+      }
+      return response.json();
+    } catch (error) {
+      console.error('API Error:', error);
+      console.error('API URL:', API_URL);
+      console.error('Platform:', Platform.OS);
+      throw error;
+    }
   },
 
   createChallenge: async (challenge: any) => {
-    const response = await fetch(`${API_URL}/challenges`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(challenge)
-    });
-    if (!response.ok) throw new Error('Failed to create challenge');
-    return response.json();
+    try {
+      const response = await fetch(`${API_URL}/challenges`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(challenge)
+      });
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to create challenge: ${response.status} ${response.statusText} - ${errorText}`);
+      }
+      return response.json();
+    } catch (error) {
+      console.error('API Error:', error);
+      throw error;
+    }
   }
 };

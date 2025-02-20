@@ -234,6 +234,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setChallenges(challenges);
     } catch (e) {
       console.error("Error loading challenges:", e);
+      console.error("Error details:", {
+        message: e.message,
+        stack: e.stack,
+        name: e.name
+      });
     }
   };
 
