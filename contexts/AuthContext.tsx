@@ -129,9 +129,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const getCoaches = () => {
-    return Object.entries(TEST_USERS)
-      .filter(([_, user]) => user.isCoach)
-      .map(([id, user]) => ({ id, username: user.username }));
+    return Object.values(TEST_USERS)
+      .filter(user => user.isCoach)
+      .map(user => ({ id: user.id, username: user.username }));
   };
 
   const addChallenge = async (challenge: Challenge) => {
