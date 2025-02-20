@@ -65,7 +65,7 @@ localPort = 8094
 externalPort = 8099
 
 [workflows]
-runButton = "Dev"
+runButton = "Dev2"
 
 [[workflows.workflow]]
 name = "Dev Server"
@@ -130,3 +130,16 @@ author = 39794279
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "node app/api/index.ts"
+
+[[workflows.workflow]]
+name = "Dev2"
+mode = "parallel"
+author = 39794279
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node app/api/index.ts"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run start"
