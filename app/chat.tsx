@@ -58,6 +58,25 @@ export default function ChatScreen() {
   const challenge = challenges.find((c) => c.id === challengeId);
   console.log('Found challenge:', challenge);
 
+  // Load initial messages
+  React.useEffect(() => {
+    const loadMessages = async () => {
+      try {
+        const messages = await ApiClient.getMessages(challengeId as string);
+        updateChallenge({
+          ...challenge,
+          messages
+        });
+      } catch (error) {
+        console.error('Error loading messages:', error);
+      }
+    };
+    
+    if (challenge?.id) {
+      loadMessages();
+    }
+  }, [challengeId, challenge?.id]);
+
   React.useEffect(() => {
     const keyboardWillShow = (e: any) => {
       setKeyboardHeight(e.endCoordinates.height);
