@@ -7,16 +7,12 @@ import { useEffect } from 'react';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { Buffer } from 'buffer';
+import 'react-native-polyfill-globals/auto';
 
-// Initialize Buffer globally for web
 if (typeof window !== 'undefined') {
-  const g = window as any;
-  if (!g.Buffer) {
-    g.Buffer = Buffer;
-  }
-  if (!g.process) {
-    g.process = { env: {} };
-  }
+  window.Buffer = window.Buffer || Buffer;
+  window.process = window.process || { env: {} };
+  (globalThis as any).Buffer = window.Buffer;
 }
 
 SplashScreen.preventAutoHideAsync();
