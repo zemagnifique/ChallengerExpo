@@ -28,4 +28,4 @@ const createFetchPool = (): DatabasePool => ({
 
 const pool: DatabasePool = createFetchPool();
 
-export default pool;
+module.exports = { default: pool };
