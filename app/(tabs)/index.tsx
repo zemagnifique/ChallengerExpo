@@ -111,7 +111,7 @@ export default function IndexScreen() {
           <ThemedView
             style={[
               styles.listItem,
-              item.coachId === user?.id ? styles.coachingItem : styles.challengeItem,
+              user?.id === item.coachId ? styles.coachingItem : styles.challengeItem,
             ]}>
             <View style={styles.avatarContainer}>
               <View style={[styles.avatar, item.coachId === user?.id ? styles.coachingAvatar : styles.challengeAvatar]}>
