@@ -230,12 +230,20 @@ export default function IndexScreen() {
   );
 
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      data={allChallenges}
-      renderItem={({ item }) => renderChallengeSection(item)}
-      ListHeaderComponent={HeaderComponent}
-    />
+    <>
+      <ParallaxScrollView
+        headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
+        data={allChallenges}
+        renderItem={({ item }) => renderChallengeSection(item)}
+        ListHeaderComponent={HeaderComponent}
+      />
+      <TouchableOpacity
+        style={styles.createButton}
+        onPress={() => router.push('/create-challenge')}
+      >
+        <IconSymbol name="plus" size={30} color="#fff" />
+      </TouchableOpacity>
+    </>
   );
 }
 
