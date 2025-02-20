@@ -1,4 +1,3 @@
-
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -9,9 +8,9 @@ import { useAuth } from '@/contexts/AuthContext';
 export default function UserScreen() {
   const { user, logout, notifications, markNotificationAsRead } = useAuth();
   const router = useRouter();
-  
+
   const { login } = useAuth();
-  
+
   const switchUser = async (userId: string) => {
     await logout();
     const success = await login(userId, userId);
@@ -28,8 +27,8 @@ export default function UserScreen() {
   return (
     <ThemedView style={styles.container}>
       <ThemedText type="title">Profile</ThemedText>
-      <ThemedText style={styles.username}>{user?.username}</ThemedText>
-      
+      <ThemedText style={[styles.username, { color: Colors[colorScheme].text }]}>{user?.username}</ThemedText>
+
       <ThemedView style={styles.notificationsContainer}>
         <ThemedText type="subtitle">Notifications</ThemedText>
         {notifications.length === 0 ? (
@@ -58,7 +57,7 @@ export default function UserScreen() {
           <ThemedText style={styles.buttonText}>Switch to User 2</ThemedText>
         </TouchableOpacity>
       </ThemedView>
-      
+
       <TouchableOpacity style={[styles.button, styles.logoutButton]} onPress={handleLogout}>
         <ThemedText style={styles.buttonText}>Logout</ThemedText>
       </TouchableOpacity>
