@@ -1,5 +1,6 @@
-import { useState, useCallback } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, ScrollView, View, Platform } from 'react-native';
+import { useState, useCallback, useEffect } from 'react';
+import { StyleSheet, TextInput, TouchableOpacity, ScrollView, View, Platform, Picker } from 'react-native';
+import { UsersService } from '@/api/users';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
@@ -35,8 +36,22 @@ export default function CreateChallengeScreen() {
   const [frequency, setFrequency] = useState('Daily');
   const [proofRequirements, setProofRequirements] = useState('');
   const [selectedCoach, setSelectedCoach] = useState<number | null>(null);
+  const [users, setUsers] = useState([]);
+  const [coachSearch, setCoachSearch] = useState('');
   const router = useRouter();
-  const { getCoaches, user, addChallenge } = useAuth();
+  const { user, addChallenge } = useAuth();
+
+  useEffect(() => {
+    const loadUsers = async () => {
+      try {
+        const fetchedUsers = await UsersService.getAllUsers();
+        setUsers(fetchedUsers);
+      } catch (error) {
+        console.error('Error loading users:', error);
+      }
+    };
+    loadUsers();
+  }, []);
 
   const handleSubmit = async () => {
     try {
@@ -179,21 +194,53 @@ export default function CreateChallengeScreen() {
           />
 
           <ThemedText>Assign Coach</ThemedText>
-          <View style={styles.coachContainer}>
-            {coaches.map((coach) => (
-              <TouchableOpacity
-                key={coach.id}
-                style={[
-                  styles.coachButton,
-                  selectedCoach === parseInt(coach.id) && styles.coachButtonActive
-                ]}
-                onPress={() => setSelectedCoach(parseInt(coach.id))}>
-                <ThemedText style={selectedCoach === parseInt(coach.id) && styles.coachTextActive}>
-                  {coach.username}
-                </ThemedText>
-              </TouchableOpacity>
-            ))}
-          </View>
+          {Platform.OS === 'web' ? (
+            <View style={styles.coachSelectContainer}>
+              <TextInput
+                style={[styles.input, styles.coachInput]}
+                value={coachSearch}
+                onChangeText={setCoachSearch}
+                placeholder="@Search for a coach"
+                placeholderTextColor="#666"
+              />
+              {/* #TODO: Change this to load users only when typing names */}
+              {coachSearch && (
+                <View style={styles.dropdownContainer}>
+                  {users
+                    .filter(user => 
+                      user.username.toLowerCase().includes(coachSearch.toLowerCase().replace('@', ''))
+                    )
+                    .map(user => (
+                      <TouchableOpacity
+                        key={user.id}
+                        style={styles.dropdownItem}
+                        onPress={() => {
+                          setSelectedCoach(parseInt(user.id));
+                          setCoachSearch(`@${user.username}`);
+                        }}>
+                        <ThemedText>@{user.username}</ThemedText>
+                      </TouchableOpacity>
+                    ))}
+                </View>
+              )}
+            </View>
+          ) : (
+            <View style={styles.coachSelectContainer}>
+              <Picker
+                selectedValue={selectedCoach}
+                onValueChange={(itemValue) => setSelectedCoach(parseInt(itemValue))}
+                style={styles.picker}>
+                <Picker.Item label="Select a coach" value="" />
+                {users.map(user => (
+                  <Picker.Item 
+                    key={user.id} 
+                    label={`@${user.username}`} 
+                    value={user.id} 
+                  />
+                ))}
+              </Picker>
+            </View>
+          )}
 
           <TouchableOpacity 
             style={[styles.button, (!title || !selectedCoach) && styles.buttonDisabled]}
@@ -208,6 +255,39 @@ export default function CreateChallengeScreen() {
 }
 
 const styles = StyleSheet.create({
+  coachSelectContainer: {
+    position: 'relative',
+    zIndex: 1,
+  },
+  coachInput: {
+    marginBottom: 0,
+  },
+  dropdownContainer: {
+    position: 'absolute',
+    top: '100%',
+    left: 0,
+    right: 0,
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    maxHeight: 200,
+    overflow: 'scroll',
+    zIndex: 2,
+  },
+  dropdownItem: {
+    padding: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  picker: {
+    height: 50,
+    marginBottom: 16,
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+  },
   container: {
     flex: 1,
   },

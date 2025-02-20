@@ -36,6 +36,17 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL
 });
 
+// Get all users
+app.get('/api/users', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT id, username FROM users ORDER BY username ASC');
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Configure CORS
 app.use(cors({
   origin: '*',
