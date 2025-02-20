@@ -271,7 +271,7 @@ export default function ChatScreen() {
         </TouchableOpacity>
         <View style={styles.headerContent}>
           <ThemedText style={styles.title}>{challenge.title}</ThemedText>
-          {challenge.status === "pending" && isCoach && (
+          {challenge.status === "pending" && parseInt(user?.id) === challenge.coach_id && (
             <View style={styles.actionButtons}>
               <TouchableOpacity
                 style={[styles.actionButton, styles.acceptButton]}
