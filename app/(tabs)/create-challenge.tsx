@@ -190,35 +190,18 @@ export default function CreateChallengeScreen() {
 
           <ThemedText>Assign Coach</ThemedText>
           {Platform.OS === 'web' ? (
-            <View style={styles.coachSelectContainer}>
-              <TextInput
-                style={[styles.input, styles.coachInput]}
-                value={coachSearch}
-                onChangeText={setCoachSearch}
-                placeholder="@Search for a coach"
-                placeholderTextColor="#666"
-              />
-              {/* #TODO: Change this to load users only when typing names */}
-              {coachSearch && (
-                <View style={styles.dropdownContainer}>
-                  {users
-                    .filter(user => 
-                      user.username.toLowerCase().includes(coachSearch.toLowerCase().replace('@', ''))
-                    )
-                    .map(user => (
-                      <TouchableOpacity
-                        key={user.id}
-                        style={styles.dropdownItem}
-                        onPress={() => {
-                          setSelectedCoach(parseInt(user.id));
-                          setCoachSearch(`@${user.username}`);
-                        }}>
-                        <ThemedText>@{user.username}</ThemedText>
-                      </TouchableOpacity>
-                    ))}
-                </View>
-              )}
-            </View>
+            <select
+              style={styles.webSelect}
+              value={selectedCoach || ''}
+              onChange={(e) => setSelectedCoach(parseInt(e.target.value))}
+            >
+              <option value="">Select a coach</option>
+              {users.map(user => (
+                <option key={user.id} value={user.id}>
+                  @{user.username}
+                </option>
+              ))}
+            </select>
           ) : (
             <View style={styles.coachSelectContainer}>
               <Picker
@@ -389,5 +372,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     backgroundColor: '#fff',
     width: '100%',
+  },
+  webSelect: {
+    width: '100%',
+    padding: 12,
+    fontSize: 16,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    backgroundColor: '#fff',
+    marginBottom: 16,
+    appearance: 'auto'
   },
 });
