@@ -121,7 +121,7 @@ author = 39794279
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "EXPO_PACKAGER_PROXY_URL=https://$REPLIT_DEV_DOMAIN:443 REACT_NATIVE_PACKAGER_HOSTNAME=$REPLIT_DEV_DOMAIN npx expo start --web"
+args = "npm run start & node app/api/index.ts"
 
 [[workflows.workflow]]
 name = "API"
