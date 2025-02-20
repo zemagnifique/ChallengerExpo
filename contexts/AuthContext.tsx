@@ -81,10 +81,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const checkAuth = async () => {
-    const storedUser = await AsyncStorage.getItem('user');
-    if (storedUser) {
-      setIsAuthenticated(true);
-      setUser(JSON.parse(storedUser));
+    console.log('AuthContext: Checking authentication');
+    try {
+      const storedUser = await AsyncStorage.getItem('user');
+      console.log('AuthContext: Stored user:', storedUser);
+      if (storedUser) {
+        setIsAuthenticated(true);
+        setUser(JSON.parse(storedUser));
+        console.log('AuthContext: User authenticated');
+      } else {
+        console.log('AuthContext: No stored user found');
+      }
+    } catch (error) {
+      console.error('AuthContext: Error checking auth:', error);
     }
   };
 
@@ -249,14 +258,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const loadChallenges = async () => {
+    console.log('AuthContext: Loading challenges');
     try {
       const challengesJson = await AsyncStorage.getItem('challenges');
+      console.log('AuthContext: Challenges from storage:', challengesJson);
       if (challengesJson !== null) {
         const parsedChallenges = JSON.parse(challengesJson);
         setChallenges(parsedChallenges);
+        console.log('AuthContext: Challenges loaded successfully');
+      } else {
+        console.log('AuthContext: No challenges found in storage');
       }
     } catch (e) {
-      console.error("Error loading challenges:", e);
+      console.error("AuthContext: Error loading challenges:", e);
     }
   };
 
