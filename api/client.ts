@@ -3,11 +3,13 @@ import { Platform } from 'react-native';
 
 const getApiUrl = () => {
   const port = 3001;
-  if (Platform.OS === 'web' && typeof window !== 'undefined') {
-    return `${window.location.protocol}//${window.location.hostname}:${port}`;
+  const hostname = window?.location?.hostname || '';
+  
+  if (Platform.OS === 'web') {
+    return `${window.location.protocol}//${hostname}:${port}`;
   }
-  // For mobile, use the Replit domain
-  return `https://${process.env.REPLIT_SLUG}.${process.env.REPLIT_OWNER}.repl.co`;
+  
+  return `https://${hostname}:${port}`;
 };
 
 const API_URL = getApiUrl();

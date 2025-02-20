@@ -7,14 +7,10 @@ const PORT = 3001;
 
 // Configure CORS
 app.use(cors({
-  origin: [
-    'http://localhost:3001',
-    'http://0.0.0.0:3001',
-    `https://${process.env.REPLIT_SLUG}.${process.env.REPLIT_OWNER}.repl.co`
-  ],
+  origin: true,
+  credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(express.json());
