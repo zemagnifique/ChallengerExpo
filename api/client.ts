@@ -6,7 +6,8 @@ const getApiUrl = () => {
   if (Platform.OS === 'web' && typeof window !== 'undefined') {
     return `${window.location.protocol}//${window.location.hostname}:${port}`;
   }
-  return `http://0.0.0.0:${port}`;
+  // For mobile, use the Replit domain
+  return `https://${process.env.REPLIT_SLUG}.${process.env.REPLIT_OWNER}.repl.co`;
 };
 
 const API_URL = getApiUrl();
