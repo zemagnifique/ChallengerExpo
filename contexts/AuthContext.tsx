@@ -229,11 +229,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const loadChallenges = async () => {
     try {
-      const challengesJson = await AsyncStorage.getItem('challenges');
-      if (challengesJson !== null) {
-        const parsedChallenges = JSON.parse(challengesJson);
-        setChallenges(parsedChallenges);
-      }
+      const challenges = await ApiClient.getChallenges();
+      setChallenges(challenges);
     } catch (e) {
       console.error("Error loading challenges:", e);
     }
