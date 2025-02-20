@@ -11,6 +11,7 @@ import 'react-native-polyfill-globals/auto';
 
 if (typeof window !== 'undefined') {
   window.Buffer = Buffer;
+  global.Buffer = Buffer;
 }
 
 // Prevent auto-hiding the splash screen

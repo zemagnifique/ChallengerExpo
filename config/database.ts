@@ -1,6 +1,3 @@
-const { Buffer } = require('buffer');
-global.Buffer = Buffer;
-
 const createFetchPool = () => ({
   query: async (text, params) => {
     const response = await fetch(`http://${window.location.hostname}:8082/api/db`, {
