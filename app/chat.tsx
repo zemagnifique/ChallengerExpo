@@ -90,7 +90,7 @@ export default function ChatScreen() {
     if (!isCoach && !newMessage.isProof) {
       lastMessage.suggestionText = 'Double tap to submit as proof';
     } else if (isCoach && lastMessage.isProof && !lastMessage.isValidated) {
-      lastMessage.suggestionText = 'Double tap to approve the proof';
+      lastMessage.suggestionText = 'Double tap to approve proof';
     }
     
     updateChallenge({
