@@ -9,8 +9,14 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { Buffer } from 'buffer';
 
 // Initialize Buffer globally for web
-if (typeof global !== 'undefined' && !global.Buffer) {
-  global.Buffer = Buffer;
+if (typeof window !== 'undefined') {
+  const g = window as any;
+  if (!g.Buffer) {
+    g.Buffer = Buffer;
+  }
+  if (!g.process) {
+    g.process = { env: {} };
+  }
 }
 
 SplashScreen.preventAutoHideAsync();
