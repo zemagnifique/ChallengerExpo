@@ -1,4 +1,3 @@
-
 const { Platform } = require('react-native');
 const { Buffer: BufferPolyfill } = require('buffer');
 
