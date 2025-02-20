@@ -111,10 +111,10 @@ export default function IndexScreen() {
           <ThemedView
             style={[
               styles.listItem,
-              user?.id === item.coachId ? styles.coachingItem : styles.challengeItem,
+              parseInt(user?.id) === item.coach_id ? styles.coachingItem : styles.challengeItem,
             ]}>
             <View style={styles.avatarContainer}>
-              <View style={[styles.avatar, item.coachId === user?.id ? styles.coachingAvatar : styles.challengeAvatar]}>
+              <View style={[styles.avatar, parseInt(user?.id) === item.coach_id ? styles.coachingAvatar : styles.challengeAvatar]}>
                 <ThemedText style={styles.avatarText}>
                   {item.title.charAt(0).toUpperCase()}
                 </ThemedText>
