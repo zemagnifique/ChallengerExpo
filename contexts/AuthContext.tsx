@@ -70,15 +70,29 @@ const AuthContext = createContext<AuthContextType>({
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<User | null>(null);
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
   useEffect(() => {
     console.log('AuthProvider mounted');
-    checkAuth();
-    loadChallenges();
+    const initialize = async () => {
+      try {
+        await checkAuth();
+        await loadChallenges();
+      } catch (error) {
+        console.error('Initialization error:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    initialize();
   }, []);
+
+  if (isLoading) {
+    return null;
+  }
 
   const checkAuth = async () => {
     console.log('AuthContext: Checking authentication');
