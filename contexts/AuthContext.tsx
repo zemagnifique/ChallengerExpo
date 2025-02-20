@@ -83,8 +83,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     checkAuth();
-    loadChallenges();
   }, []);
+
+  useEffect(() => {
+    if (user?.id) {
+      loadChallenges();
+    }
+  }, [user]);
 
   const checkAuth = async () => {
     const storedUser = await AsyncStorage.getItem('user');
