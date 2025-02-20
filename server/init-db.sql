@@ -22,6 +22,19 @@ CREATE TABLE IF NOT EXISTS challenges (
   archived BOOLEAN DEFAULT FALSE
 );
 
+-- Create messages table
+CREATE TABLE IF NOT EXISTS messages (
+  id SERIAL PRIMARY KEY,
+  challenge_id VARCHAR(255) NOT NULL,
+  user_id VARCHAR(255) NOT NULL,
+  text TEXT,
+  image_url TEXT,
+  is_proof BOOLEAN DEFAULT FALSE,
+  is_validated BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
 -- Insert test users
 INSERT INTO users (id, username, password) 
 VALUES 

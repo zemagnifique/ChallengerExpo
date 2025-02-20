@@ -71,5 +71,52 @@ export const ApiClient = {
       console.error('API Error:', error);
       throw error;
     }
+  },
+
+  getMessages: async (challengeId: string) => {
+    try {
+      const response = await fetch(`${API_URL}/api/challenges/${challengeId}/messages`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch messages');
+      }
+      return response.json();
+    } catch (error) {
+      console.error('API Error:', error);
+      throw error;
+    }
+  },
+
+  sendMessage: async (challengeId: string, message: { userId: string, text?: string, imageUrl?: string, isProof?: boolean }) => {
+    try {
+      const response = await fetch(`${API_URL}/api/challenges/${challengeId}/messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(message)
+      });
+      if (!response.ok) {
+        throw new Error('Failed to send message');
+      }
+      return response.json();
+    } catch (error) {
+      console.error('API Error:', error);
+      throw error;
+    }
+  },
+
+  validateMessage: async (messageId: string, isValidated: boolean) => {
+    try {
+      const response = await fetch(`${API_URL}/api/messages/${messageId}/validate`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isValidated })
+      });
+      if (!response.ok) {
+        throw new Error('Failed to validate message');
+      }
+      return response.json();
+    } catch (error) {
+      console.error('API Error:', error);
+      throw error;
+    }
   }
 };
