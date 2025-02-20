@@ -17,7 +17,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import * as ImagePicker from "expo-image-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { ApiClient, getApiUrl } from '@/api/client';
+import { ApiClient } from '@/api/client';
 import { io } from "socket.io-client";
 
 type Challenge = {
@@ -131,7 +131,7 @@ export default function ChatScreen() {
 
   // WebSocket connection and message handling
   React.useEffect(() => {
-    const socket = io(getApiUrl());
+    const socket = io(ApiClient.getApiUrl());
 
     socket.on('connect', () => {
       console.log('Connected to WebSocket');
