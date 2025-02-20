@@ -1,18 +1,17 @@
 
 import { Platform } from 'react-native';
-import 'react-native-polyfill-globals/auto';
-import { Buffer } from 'buffer';
 
-if (typeof global !== 'undefined' && !global.Buffer) {
-  global.Buffer = Buffer;
+// Custom type for database interface
+interface DatabasePool {
+  query: (text: string, params?: any[]) => Promise<any>;
 }
 
-let pool;
+let pool: DatabasePool;
 
 if (Platform.OS === 'web') {
-  // For web environment, use a fetch-based approach
+  // For web environment, use fetch API
   pool = {
-    query: async (text, params) => {
+    query: async (text: string, params?: any[]) => {
       const response = await fetch('/api/db', {
         method: 'POST',
         headers: {
@@ -27,10 +26,12 @@ if (Platform.OS === 'web') {
     },
   };
 } else {
-  // For native environment, use regular pg with proper configuration
+  // For native environment, use pg with proper configuration
   const { Pool } = require('pg');
+  const connectionString = process.env.DATABASE_URL || 'postgresql://postgres:postgres@0.0.0.0:5432/postgres';
+  
   pool = new Pool({
-    connectionString: process.env.DATABASE_URL || 'postgresql://postgres:postgres@0.0.0.0:5432/postgres',
+    connectionString,
     ssl: process.env.NODE_ENV === 'production' ? {
       rejectUnauthorized: false
     } : false
