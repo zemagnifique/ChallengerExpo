@@ -231,7 +231,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const loadChallenges = async () => {
     try {
-      const fetchedChallenges = await ApiClient.getChallenges();
+      const fetchedChallenges = await ApiClient.getChallenges(user?.id || '');
       if (Array.isArray(fetchedChallenges)) {
         // Convert numeric IDs to strings
         const processedChallenges = fetchedChallenges.map(challenge => ({

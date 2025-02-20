@@ -38,10 +38,10 @@ export const ApiClient = {
     }
   },
 
-  getChallenges: async () => {
+  getChallenges: async (userId: string) => {
     try {
-      console.log('Fetching challenges from:', `${API_URL}/api/challenges`);
-      const response = await fetch(`${API_URL}/api/challenges`);
+      console.log('Fetching challenges from:', `${API_URL}/api/challenges?userId=${userId}`);
+      const response = await fetch(`${API_URL}/api/challenges?userId=${userId}`);
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(`Failed to fetch challenges: ${response.status} ${response.statusText} - ${errorText}`);

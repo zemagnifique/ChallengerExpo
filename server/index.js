@@ -70,7 +70,11 @@ app.post('/api/login', async (req, res) => {
 // Get all challenges
 app.get('/api/challenges', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM challenges ORDER BY created_at DESC');
+    const userId = req.query.userId;
+    const result = await pool.query(
+      'SELECT * FROM challenges WHERE user_id = $1 OR coach_id = $1 ORDER BY created_at DESC',
+      [userId]
+    );
     res.json(result.rows);
   } catch (error) {
     console.error('Error fetching challenges:', error);
