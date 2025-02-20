@@ -20,6 +20,10 @@ export default function RootLayout() {
           const { Buffer } = require('buffer/');
           window.Buffer = Buffer;
           global.Buffer = Buffer;
+          // Enable web resource access
+          if (window.location.hostname === '0.0.0.0') {
+            document.domain = '0.0.0.0';
+          }
         }
       } catch (e) {
         console.warn(e);
