@@ -28,6 +28,7 @@ type Challenge = {
     image?: string;
     isValidated?: boolean;
     isProof?: boolean; // Added isProof property
+    isSystem?: boolean; // Added isSystem property
   }>;
 };
 
@@ -81,6 +82,22 @@ export default function ChatScreen() {
     await updateChallenge(updatedChallenge);
     setMessage('');
     setSelectedImage(null);
+
+    // Show suggestion tooltip for challengers
+    if (!isCoach && !newMessage.isProof) {
+      setTimeout(() => {
+        const suggestionMessage = {
+          text: 'Double tap this message to submit as proof',
+          userId: 'system',
+          timestamp: new Date(),
+          isSystem: true
+        };
+        updateChallenge({
+          ...updatedChallenge,
+          messages: [...updatedChallenge.messages, suggestionMessage]
+        });
+      }, 500);
+    }
   };
 
   // Poll for new messages every 2 seconds
