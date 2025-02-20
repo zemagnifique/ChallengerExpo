@@ -5,12 +5,13 @@ const cors = require('cors');
 const app = express();
 const PORT = 3001;
 
+// Configure CORS
 app.use(cors({
-  origin: true,
-  credentials: true,
+  origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
 app.use(express.json());
 
 // Mock data for initial testing
@@ -26,7 +27,8 @@ let challenges = [
     status: 'pending',
     userId: 'user1',
     coachId: 'user2',
-    createdAt: new Date()
+    createdAt: new Date(),
+    archived: false
   }
 ];
 
@@ -36,7 +38,12 @@ app.get('/api/challenges', (req, res) => {
 });
 
 app.post('/api/challenges', (req, res) => {
-  const challenge = { ...req.body, id: Date.now().toString() };
+  const challenge = { 
+    ...req.body, 
+    id: Date.now().toString(),
+    createdAt: new Date(),
+    archived: false
+  };
   challenges.push(challenge);
   res.status(201).json(challenge);
 });
