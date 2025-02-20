@@ -37,6 +37,7 @@ type Challenge = {
     isValidated?: boolean;
     isProof?: boolean; // Added isProof property
     isSystem?: boolean; // Added isSystem property
+    suggestionText?: string; //Added suggestionText property
   }>;
 };
 
@@ -97,22 +98,6 @@ export default function ChatScreen() {
     await updateChallenge(updatedChallenge);
     setMessage("");
     setSelectedImage(null);
-
-    // Show suggestion tooltip based on user role
-    const updatedMessages = [...updatedChallenge.messages];
-    const lastMessage = updatedMessages[updatedMessages.length - 1];
-
-    const isCoach = challenge.coachId === user?.id;
-    if (isCoach && lastMessage.isProof && !lastMessage.isValidated) {
-      lastMessage.suggestionText = "Double tap to approve proof";
-    } else if (!isCoach) {
-      lastMessage.suggestionText = "Double tap to submit as proof";
-    }
-
-    updateChallenge({
-      ...updatedChallenge,
-      messages: updatedMessages,
-    });
   };
 
   // Poll for new messages every 2 seconds
@@ -314,69 +299,76 @@ export default function ChatScreen() {
           flatListRef.current?.scrollToEnd({ animated: true })
         }
         onLayout={() => flatListRef.current?.scrollToEnd({ animated: true })}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            onLongPress={() => {
-              isCoach && handleLongPress(item);
-            }}
-            onPressIn={() => {
-              const now = Date.now();
-              const DOUBLE_PRESS_DELAY = 300;
-              if (lastTap && now - lastTap < DOUBLE_PRESS_DELAY) {
-                handleDoubleTap(item);
-              } else {
-                setLastTap(now);
-              }
-            }}
-            delayLongPress={200}
-          >
-            <View
-              style={[
-                styles.messageBubble,
-                item.userId === user?.id
-                  ? [
-                      styles.ownMessage,
-                      {
-                        backgroundColor:
-                          item.userId === challenge?.coachId
-                            ? "#2B5876"
-                            : "#B71C1C",
-                      },
-                    ]
-                  : styles.otherMessage,
-              ]}
+        renderItem={({ item }) => {
+          const isCoach = challenge.coachId === user?.id;
+          let suggestionText = "";
+          if (isCoach && item.isProof && !item.isValidated) {
+            suggestionText = "Double tap to approve proof";
+          } else if (!isCoach && item.userId === user?.id) {
+            suggestionText = "Double tap to submit as proof";
+          }
+          return (
+            <TouchableOpacity
+              onLongPress={() => {
+                isCoach && handleLongPress(item);
+              }}
+              onPressIn={() => {
+                const now = Date.now();
+                const DOUBLE_PRESS_DELAY = 300;
+                if (lastTap && now - lastTap < DOUBLE_PRESS_DELAY) {
+                  handleDoubleTap(item);
+                } else {
+                  setLastTap(now);
+                }
+              }}
+              delayLongPress={200}
             >
-              {item.text && (
-                <ThemedText style={styles.messageText}>{item.text}</ThemedText>
-              )}
-              {item.image && (
-                <Image
-                  source={{ uri: item.image }}
-                  style={styles.messageImage}
-                  resizeMode="contain"
-                />
-              )}
-              <ThemedText style={styles.messageTime}>
-                {new Date(item.timestamp).toLocaleTimeString()}
-              </ThemedText>
-              {(item.isValidated || item.isProof) && (
-                <View style={styles.checkmarkContainer}>
-                  <IconSymbol
-                    name={
-                      item.isValidated
-                        ? "checkmark.circle.fill"
-                        : "magnifyingglass.circle.fill"
-                    }
-                    size={24}
-                    color={item.isValidated ? "#2196F3" : "#4CAF50"}
+              <View
+                style={[
+                  styles.messageBubble,
+                  item.userId === user?.id
+                    ? [
+                        styles.ownMessage,
+                        {
+                          backgroundColor:
+                            item.userId === challenge?.coachId
+                              ? "#2B5876"
+                              : "#B71C1C",
+                        },
+                      ]
+                    : styles.otherMessage,
+                ]}
+              >
+                {item.text && (
+                  <ThemedText style={styles.messageText}>{item.text}</ThemedText>
+                )}
+                {item.image && (
+                  <Image
+                    source={{ uri: item.image }}
+                    style={styles.messageImage}
+                    resizeMode="contain"
                   />
-                </View>
-              )}
-            </View>
-            {((isCoach && item.isProof && !item.isValidated) ||
-              (!isCoach &&
-                messages[messages.length - 1].timestamp === item.timestamp)) &&
-              item.suggestionText && (
+                )}
+                <ThemedText style={styles.messageTime}>
+                  {new Date(item.timestamp).toLocaleTimeString()}
+                </ThemedText>
+                {(item.isValidated || item.isProof) && (
+                  <View style={styles.checkmarkContainer}>
+                    <IconSymbol
+                      name={
+                        item.isValidated
+                          ? "checkmark.circle.fill"
+                          : "magnifyingglass.circle.fill"
+                      }
+                      size={24}
+                      color={item.isValidated ? "#2196F3" : "#4CAF50"}
+                    />
+                  </View>
+                )}
+              </View>
+              {((isCoach && item.isProof && !item.isValidated) ||
+                (!isCoach &&
+                  messages[messages.length - 1].timestamp === item.timestamp)) && (
                 <ThemedText
                   style={[
                     styles.suggestionText,
@@ -385,11 +377,12 @@ export default function ChatScreen() {
                       : { alignSelf: "flex-end", marginRight: 8 },
                   ]}
                 >
-                  {item.suggestionText}
+                  {suggestionText}
                 </ThemedText>
               )}
-          </TouchableOpacity>
-        )}
+            </TouchableOpacity>
+          );
+        }}
       />
 
       {challenge.status === "active" ? (
