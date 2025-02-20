@@ -44,8 +44,12 @@ externalPort = 6000
 localPort = 8089
 externalPort = 6800
 
+[[ports]]
+localPort = 8090
+externalPort = 8000
+
 [workflows]
-runButton = "Dev Server"
+runButton = "API Server"
 
 [[workflows.workflow]]
 name = "Dev Server"
@@ -86,3 +90,11 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npx eas build --platform android --profile preview"
+
+[[workflows.workflow]]
+name = "API Server"
+author = 39794279
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node app/api/index.ts"
