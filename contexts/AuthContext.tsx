@@ -1,8 +1,8 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { StorageAPI } from '@/api/storage';
-import { ApiClient } from '@/api/client';
-import { User, Challenge, Notification } from '@/types';
+import React, { createContext, useState, useContext, useEffect } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { StorageAPI } from "@/api/storage";
+import { ApiClient } from "@/api/client";
+import { User, Challenge, Notification } from "@/types";
 
 type User = {
   id: string;
@@ -10,9 +10,9 @@ type User = {
 };
 
 const USERS: Record<string, { password: string }> = {
-  'user1': { password: 'user1' },
-  'user2': { password: 'user2' },
-  'user3': { password: 'user3' }
+  user1: { password: "user1" },
+  user2: { password: "user2" },
+  user3: { password: "user3" },
 };
 
 type Notification = {
@@ -55,7 +55,10 @@ type AuthContextType = {
   markNotificationAsRead: (id: string) => void;
   updateChallenge: (challenge: Challenge) => void;
   updateChallengeStatus: (challengeId: string, status: string) => void;
-  updateChallengeCoach: (challengeId: string, newCoachId: string) => Promise<void>;
+  updateChallengeCoach: (
+    challengeId: string,
+    newCoachId: string,
+  ) => Promise<void>;
   deleteChallenge: (challengeId: string) => Promise<void>;
   archiveChallenge: (challengeId: string) => void; // Added archiveChallenge method
 };
@@ -72,7 +75,7 @@ const AuthContext = createContext<AuthContextType>({
   updateChallenge: () => {},
   updateChallengeStatus: () => {},
   updateChallengeCoach: async () => {},
-  deleteChallenge: async () => {}
+  deleteChallenge: async () => {},
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -92,7 +95,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [user]);
 
   const checkAuth = async () => {
-    const storedUser = await AsyncStorage.getItem('user');
+    const storedUser = await AsyncStorage.getItem("user");
     if (storedUser) {
       setIsAuthenticated(true);
       setUser(JSON.parse(storedUser));
@@ -102,27 +105,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (username: string, password: string) => {
     try {
       const userData = await ApiClient.login(username, password);
-      await AsyncStorage.setItem('user', JSON.stringify(userData));
+      await AsyncStorage.setItem("user", JSON.stringify(userData));
       setIsAuthenticated(true);
       setUser(userData);
       await loadChallenges();
       return true;
     } catch (error) {
-      console.error('Login failed:', error);
+      console.error("Login failed:", error);
       return false;
     }
   };
 
   const logout = async () => {
-    await AsyncStorage.removeItem('user');
+    await AsyncStorage.removeItem("user");
     setIsAuthenticated(false);
     setUser(null);
     setChallenges([]);
   };
 
   const TEST_USERS = {
-    'user1': { id: 'user1', username: 'user1', isCoach: false },
-    'user2': { id: 'user2', username: 'user2', isCoach: true }
+    user1: { id: "1", username: "user1", isCoach: false },
+    user2: { id: "2", username: "user2", isCoach: true },
   };
 
   const getCoaches = () => {
@@ -134,8 +137,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const addChallenge = async (challenge: Challenge) => {
     try {
       const newChallenge = await ApiClient.createChallenge(challenge);
-      setChallenges(prev => [...prev, newChallenge]);
-      
+      setChallenges((prev) => [...prev, newChallenge]);
+
       // Add notification for the coach
       if (challenge.coachId) {
         const notification = {
@@ -143,13 +146,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           message: `New coaching request: ${challenge.title}`,
           read: false,
           createdAt: new Date(),
-          userId: challenge.coachId
+          userId: challenge.coachId,
         };
-        setNotifications(prev => [notification, ...prev]);
+        setNotifications((prev) => [notification, ...prev]);
       }
       return newChallenge;
     } catch (error) {
-      console.error('Error adding challenge:', error);
+      console.error("Error adding challenge:", error);
       throw error;
     }
   };
@@ -159,76 +162,93 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       id: Date.now().toString(),
       message,
       read: false,
-      createdAt: new Date()
+      createdAt: new Date(),
     };
-    setNotifications(prev => [notification, ...prev]);
+    setNotifications((prev) => [notification, ...prev]);
   };
 
   const markNotificationAsRead = (id: string) => {
-    setNotifications(prev =>
-      prev.map(notif =>
-        notif.id === id ? { ...notif, read: true } : notif
-      )
+    setNotifications((prev) =>
+      prev.map((notif) => (notif.id === id ? { ...notif, read: true } : notif)),
     );
   };
 
   const updateChallenge = async (challenge: Challenge) => {
-    const updatedChallenges = challenges.map(ch =>
-      ch.id === challenge.id ? challenge : ch
+    const updatedChallenges = challenges.map((ch) =>
+      ch.id === challenge.id ? challenge : ch,
     );
     setChallenges(updatedChallenges);
-    await AsyncStorage.setItem('challenges', JSON.stringify(updatedChallenges));
+    await AsyncStorage.setItem("challenges", JSON.stringify(updatedChallenges));
   };
 
-  const updateChallengeStatus = async (challengeId: string, status: string, reason?: string) => {
-    const updatedChallenges = challenges.map(c => {
+  const updateChallengeStatus = async (
+    challengeId: string,
+    status: string,
+    reason?: string,
+  ) => {
+    const updatedChallenges = challenges.map((c) => {
       if (c.id === challengeId) {
         return { ...c, status, rejectionReason: reason };
       }
       return c;
     });
     setChallenges(updatedChallenges);
-    await AsyncStorage.setItem('challenges', JSON.stringify(updatedChallenges));
-    addNotification(`Challenge ${status === 'rejected' ? 'rejected' : 'updated to ' + status}`);
+    await AsyncStorage.setItem("challenges", JSON.stringify(updatedChallenges));
+    addNotification(
+      `Challenge ${status === "rejected" ? "rejected" : "updated to " + status}`,
+    );
   };
 
-  const updateChallengeCoach = async (challengeId: string, newCoachId: string) => {
-    const updatedChallenges = challenges.map(c => {
+  const updateChallengeCoach = async (
+    challengeId: string,
+    newCoachId: string,
+  ) => {
+    const updatedChallenges = challenges.map((c) => {
       if (c.id === challengeId) {
-        return { ...c, coachId: newCoachId, status: 'pending' };
+        return { ...c, coachId: newCoachId, status: "pending" };
       }
       return c;
     });
     setChallenges(updatedChallenges);
     saveChallenges(updatedChallenges);
-    addNotification('Coach updated for challenge');
+    addNotification("Coach updated for challenge");
   };
 
   const deleteChallenge = async (challengeId: string) => {
-    const updatedChallenges = challenges.filter(c => c.id !== challengeId);
+    const updatedChallenges = challenges.filter((c) => c.id !== challengeId);
     setChallenges(updatedChallenges);
     saveChallenges(updatedChallenges);
-    addNotification('Challenge deleted');
+    addNotification("Challenge deleted");
   };
 
   const archiveChallenge = async (challengeId: string) => {
-    const updatedChallenges = challenges.map(c => {
+    const updatedChallenges = challenges.map((c) => {
       if (c.id === challengeId) {
         return { ...c, archived: true };
       }
       return c;
     });
     setChallenges(updatedChallenges);
-    await AsyncStorage.setItem('challenges', JSON.stringify(updatedChallenges));
-    addNotification('Challenge archived');
+    await AsyncStorage.setItem("challenges", JSON.stringify(updatedChallenges));
+    addNotification("Challenge archived");
   };
 
   const saveChallenges = async (challengesToSave: Challenge[]) => {
     try {
-      const storedChallenges = await AsyncStorage.getItem('challenges');
-      const existingChallenges = storedChallenges ? JSON.parse(storedChallenges) : [];
-      const mergedChallenges = [...existingChallenges, ...challengesToSave.filter(c => !existingChallenges.find(ec => ec.id === c.id))];
-      await AsyncStorage.setItem('challenges', JSON.stringify(mergedChallenges));
+      const storedChallenges = await AsyncStorage.getItem("challenges");
+      const existingChallenges = storedChallenges
+        ? JSON.parse(storedChallenges)
+        : [];
+      const mergedChallenges = [
+        ...existingChallenges,
+        ...challengesToSave.filter(
+          (c) => !existingChallenges.find((ec) => ec.id === c.id),
+        ),
+      ];
+      await AsyncStorage.setItem(
+        "challenges",
+        JSON.stringify(mergedChallenges),
+      );
     } catch (e) {
       console.error("Error saving challenges:", e);
     }
@@ -236,12 +256,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const loadChallenges = async () => {
     try {
-      const fetchedChallenges = await ApiClient.getChallenges(user?.id || '');
+      const fetchedChallenges = await ApiClient.getChallenges(user?.id || "");
       if (Array.isArray(fetchedChallenges)) {
         // Convert numeric IDs to strings
-        const processedChallenges = fetchedChallenges.map(challenge => ({
+        const processedChallenges = fetchedChallenges.map((challenge) => ({
           ...challenge,
-          id: challenge.id.toString()
+          id: challenge.id.toString(),
         }));
         setChallenges(processedChallenges);
       } else {
@@ -252,29 +272,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error("Error details:", {
         message: e.message,
         stack: e.stack,
-        name: e.name
+        name: e.name,
       });
     }
   };
 
   return (
-    <AuthContext.Provider value={{
-      isAuthenticated,
-      user,
-      challenges,
-      notifications,
-      login,
-      logout,
-      getCoaches,
-      addChallenge,
-      addNotification,
-      markNotificationAsRead,
-      updateChallenge,
-      updateChallengeStatus,
-      updateChallengeCoach,
-      deleteChallenge,
-      archiveChallenge
-    }}>
+    <AuthContext.Provider
+      value={{
+        isAuthenticated,
+        user,
+        challenges,
+        notifications,
+        login,
+        logout,
+        getCoaches,
+        addChallenge,
+        addNotification,
+        markNotificationAsRead,
+        updateChallenge,
+        updateChallengeStatus,
+        updateChallengeCoach,
+        deleteChallenge,
+        archiveChallenge,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
