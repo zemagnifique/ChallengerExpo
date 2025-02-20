@@ -81,23 +81,25 @@ export default function ChatScreen() {
   const handleSendMessage = async () => {
     if (!message.trim()) return;
 
-    const newMessage = {
-      text: message,
-      userId: user?.id || "",
-      timestamp: new Date(),
-      image: selectedImage,
-      isValidated: false, // Initially not validated
-      isProof: false, // Initially not marked as proof
-    };
+    try {
+      const newMessage = await ApiClient.sendMessage(challengeId as string, {
+        userId: user?.id || "",
+        text: message,
+        imageUrl: selectedImage,
+        isProof: false
+      });
 
-    const updatedChallenge = {
-      ...challenge,
-      messages: [...(challenge.messages || []), newMessage],
-    };
+      const updatedChallenge = {
+        ...challenge,
+        messages: [...(challenge.messages || []), newMessage],
+      };
 
-    await updateChallenge(updatedChallenge);
-    setMessage("");
-    setSelectedImage(null);
+      await updateChallenge(updatedChallenge);
+      setMessage("");
+      setSelectedImage(null);
+    } catch (error) {
+      console.error('Error sending message:', error);
+    }
   };
 
   // Poll for new messages every 2 seconds
@@ -105,20 +107,16 @@ export default function ChatScreen() {
     let isSubscribed = true;
     const interval = setInterval(async () => {
       if (!isSubscribed) return;
-
-      const storedChallenges = await AsyncStorage.getItem("challenges");
-      if (storedChallenges) {
-        const parsedChallenges = JSON.parse(storedChallenges);
-        const updatedChallenge = parsedChallenges.find(
-          (c: Challenge) => c.id === challengeId,
-        );
-        if (
-          updatedChallenge &&
-          JSON.stringify(updatedChallenge.messages) !==
-            JSON.stringify(challenge?.messages)
-        ) {
-          updateChallenge(updatedChallenge);
+      try {
+        const messages = await ApiClient.getMessages(challengeId as string);
+        if (messages && JSON.stringify(messages) !== JSON.stringify(challenge?.messages)) {
+          updateChallenge({
+            ...challenge,
+            messages
+          });
         }
+      } catch (error) {
+        console.error('Error fetching messages:', error);
       }
     }, 2000);
 
