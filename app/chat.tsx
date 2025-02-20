@@ -192,8 +192,8 @@ export default function ChatScreen() {
     );
   }
 
-  const messages = (challenge?.messages ?? []);
-  const isCoach = challenge.coachId === user?.id;
+  const messages = challenge?.messages ?? [];
+  const isCoach = challenge?.coachId === user?.id;
 
   return (
     <ThemedView style={styles.container}>
