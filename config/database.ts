@@ -1,12 +1,10 @@
 
-import { Platform } from 'react-native';
+const { Pool } = require('pg');
 
-// Custom type for database interface
 interface DatabasePool {
   query: (text: string, params?: any[]) => Promise<any>;
 }
 
-// For mobile environment or web, use fetch API
 const createFetchPool = (): DatabasePool => ({
   query: async (text: string, params?: any[]) => {
     const response = await fetch('http://0.0.0.0:8082/api/db', {
