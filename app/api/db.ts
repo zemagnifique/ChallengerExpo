@@ -1,18 +1,16 @@
 
-import { Router } from 'express';
-import pool from '../../config/database';
-
-const router = Router();
+const express = require('express');
+const router = express.Router();
+const { pool } = require('../../config/database');
 
 router.post('/', async (req, res) => {
+  const { text, params } = req.body;
   try {
-    const { query, params } = req.body;
-    const result = await pool.query(query, params);
+    const result = await pool.query(text, params);
     res.json(result);
   } catch (error) {
-    console.error('Database query error:', error);
-    res.status(500).json({ error: 'Database query failed' });
+    res.status(500).json({ error: error.message });
   }
 });
 
-export default router;
+module.exports = router;

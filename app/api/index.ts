@@ -1,7 +1,7 @@
 
-import express from 'express';
-import cors from 'cors';
-import dbRouter from './db';
+const express = require('express');
+const cors = require('cors');
+const dbRouter = require('./db');
 
 const app = express();
 app.use(cors());
@@ -17,4 +17,4 @@ process.on('SIGTERM', () => {
   server.close();
 });
 
-export default app;
+module.exports = app;
