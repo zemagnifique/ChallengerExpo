@@ -197,7 +197,7 @@ export default function ChatScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: challenge?.coachId === user?.id ? '#2196F3' : '#F44336' }]}>
         <TouchableOpacity 
           style={styles.backButton} 
           onPress={() => router.back()}>
@@ -388,7 +388,6 @@ const styles = StyleSheet.create({
     paddingTop: 48,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(0,0,0,0.1)',
-    backgroundColor: challenge?.coachId === user?.id ? '#2196F3' : '#F44336',
   },
   headerContent: {
     marginLeft: 40,
