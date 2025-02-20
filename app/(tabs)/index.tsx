@@ -25,9 +25,9 @@ export default function IndexScreen() {
     filtered = filtered.filter(c => !c.archived);
 
     if (filter === 'challenger') {
-      return filtered.filter(c => c.userId === user?.id);
+      return filtered.filter(c => parseInt(c.user_id) === parseInt(user?.id));
     } else if (filter === 'coaching') {
-      return filtered.filter(c => c.coachId === user?.id);
+      return filtered.filter(c => parseInt(c.coach_id) === parseInt(user?.id));
     }
     return filtered;
   };
