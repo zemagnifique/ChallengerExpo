@@ -231,8 +231,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const loadChallenges = async () => {
     try {
-      const challenges = await ApiClient.getChallenges();
-      setChallenges(challenges);
+      const fetchedChallenges = await ApiClient.getChallenges();
+      if (Array.isArray(fetchedChallenges)) {
+        setChallenges(fetchedChallenges);
+      } else {
+        console.error("Invalid challenges data:", fetchedChallenges);
+      }
     } catch (e) {
       console.error("Error loading challenges:", e);
       console.error("Error details:", {

@@ -53,7 +53,10 @@ export default function ChatScreen() {
   const [keyboardHeight, setKeyboardHeight] = React.useState(0);
   const [selectedImage, setSelectedImage] = React.useState(null);
   const [lastTap, setLastTap] = useState(null); // Added state for double tap detection
+  console.log('Looking for challenge:', challengeId);
+  console.log('Available challenges:', challenges);
   const challenge = challenges.find((c) => c.id === challengeId);
+  console.log('Found challenge:', challenge);
 
   React.useEffect(() => {
     const keyboardWillShow = (e: any) => {
