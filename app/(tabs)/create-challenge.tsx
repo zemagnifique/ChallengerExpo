@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from 'react';
 import { StyleSheet, TextInput, TouchableOpacity, ScrollView, View, Platform } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
@@ -39,21 +38,26 @@ export default function CreateChallengeScreen() {
   const router = useRouter();
   const { getCoaches, user, addChallenge } = useAuth();
 
-  const handleSubmit = () => {
-    const challenge = {
-      title,
-      description,
-      startDate,
-      endDate,
-      frequency,
-      proofRequirements,
-      status: 'pending',
-      userId: user?.id,
-      coachId: selectedCoach,
-      createdAt: new Date()
-    };
-    addChallenge(challenge);
-    router.back();
+  const handleSubmit = async () => {
+    try {
+      const challenge = {
+        title,
+        description,
+        startDate,
+        endDate,
+        frequency,
+        proofRequirements,
+        status: 'pending',
+        userId: parseInt(user?.id),
+        coachId: selectedCoach,
+        createdAt: new Date(),
+      };
+      addChallenge(challenge);
+      router.back();
+    } catch (error) {
+      console.error("Error submitting challenge:", error);
+      // Handle error appropriately, e.g., display an error message to the user.
+    }
   };
 
   const selectDefaultChallenge = (challenge) => {
@@ -73,7 +77,7 @@ export default function CreateChallengeScreen() {
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}>
       <ScrollView style={styles.container}>
         <ThemedText type="title" style={styles.title}>Create Challenge</ThemedText>
-        
+
         <ThemedView style={styles.defaultChallenges}>
           <ThemedText type="subtitle">Quick Start Challenges</ThemedText>
           {DEFAULT_CHALLENGES.map((challenge, index) => (

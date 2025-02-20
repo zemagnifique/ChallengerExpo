@@ -143,9 +143,9 @@ export default function IndexScreen() {
                 )}
               </View>
               <ThemedText style={styles.participantInfo}>
-                {item.coachId === user?.id
-                  ? `Challenger: ${item.userId}`
-                  : `Coach: ${item.coachId}`}
+                {parseInt(user?.id) === item.coach_id
+                  ? `Challenger: User ${item.user_id}`
+                  : `Coach: User ${item.coach_id}`}
               </ThemedText>
             </View>
           </ThemedView>
