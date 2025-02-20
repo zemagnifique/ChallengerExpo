@@ -10,6 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 export default function UserScreen() {
   const { user, logout, notifications, markNotificationAsRead } = useAuth();
   const router = useRouter();
+  const colorScheme = useColorScheme();
 
   const { login } = useAuth();
 
