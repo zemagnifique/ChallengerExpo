@@ -252,7 +252,8 @@ export default function CreateChallengeScreen() {
 const styles = StyleSheet.create({
   coachSelectContainer: {
     position: 'relative',
-    zIndex: 1,
+    zIndex: 999,
+    elevation: 999,
   },
   coachInput: {
     marginBottom: 0,
@@ -268,7 +269,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     maxHeight: 200,
     overflow: 'scroll',
-    zIndex: 2,
+    zIndex: 1000,
+    elevation: 1000,
   },
   dropdownItem: {
     padding: 12,
