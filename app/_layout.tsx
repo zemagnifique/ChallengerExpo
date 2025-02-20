@@ -6,15 +6,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { AuthProvider } from '@/contexts/AuthContext';
-import { Buffer } from 'buffer';
 import 'react-native-polyfill-globals/auto';
-
-// Polyfill Buffer for web
-if (typeof window !== 'undefined') {
-  (window as any).Buffer = Buffer;
-  (window as any).process = { env: {} };
-  (globalThis as any).Buffer = Buffer;
-}
 
 // Prevent auto-hiding the splash screen
 SplashScreen.preventAutoHideAsync();

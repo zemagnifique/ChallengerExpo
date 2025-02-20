@@ -1,7 +1,6 @@
 
 import type { PropsWithChildren, ReactElement } from 'react';
-import { Platform } from 'react-native';
-import { StyleSheet } from 'react-native-web';
+import { Platform, StyleSheet } from 'react-native';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import Animated, {
