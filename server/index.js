@@ -86,7 +86,21 @@ app.get('/api/challenges', async (req, res) => {
 app.post('/api/challenges', async (req, res) => {
   const { title, description, startDate, endDate, frequency, proofRequirements, userId, coachId } = req.body;
   
+  // Validate required fields
+  if (!title || !description || !startDate || !endDate || !frequency || !proofRequirements || !userId || !coachId) {
+    return res.status(400).json({ 
+      error: 'Missing required fields',
+      required: ['title', 'description', 'startDate', 'endDate', 'frequency', 'proofRequirements', 'userId', 'coachId']
+    });
+  }
+
   try {
+    // Validate users exist
+    const userCheck = await pool.query('SELECT id FROM users WHERE id = $1 OR id = $2', [userId, coachId]);
+    if (userCheck.rows.length < 2) {
+      return res.status(400).json({ error: 'Invalid user or coach ID' });
+    }
+
     const result = await pool.query(
       `INSERT INTO challenges (title, description, start_date, end_date, frequency, proof_requirements, status, user_id, coach_id, created_at, archived)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), false)
@@ -94,7 +108,10 @@ app.post('/api/challenges', async (req, res) => {
       [title, description, startDate, endDate, frequency, proofRequirements, 'pending', userId, coachId]
     );
     
-    // Convert the response to match the expected format
+    if (result.rows.length === 0) {
+      throw new Error('No rows returned after insert');
+    }
+
     const challenge = {
       ...result.rows[0],
       id: result.rows[0].id.toString(),
@@ -108,7 +125,10 @@ app.post('/api/challenges', async (req, res) => {
     res.status(201).json(challenge);
   } catch (error) {
     console.error('Error creating challenge:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    const errorMessage = error.code === '23505' ? 'Duplicate challenge' : 
+                        error.code === '23503' ? 'Referenced user not found' : 
+                        'Internal server error';
+    res.status(500).json({ error: errorMessage, details: error.message });
   }
 });
 
