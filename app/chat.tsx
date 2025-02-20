@@ -85,18 +85,13 @@ export default function ChatScreen() {
 
     // Show suggestion tooltip for challengers
     if (!isCoach && !newMessage.isProof) {
-      setTimeout(() => {
-        const suggestionMessage = {
-          text: 'Double tap this message to submit as proof',
-          userId: 'system',
-          timestamp: new Date(),
-          isSystem: true
-        };
-        updateChallenge({
-          ...updatedChallenge,
-          messages: [...updatedChallenge.messages, suggestionMessage]
-        });
-      }, 500);
+      const updatedMessages = [...updatedChallenge.messages];
+      const lastMessage = updatedMessages[updatedMessages.length - 1];
+      lastMessage.suggestionText = 'Double tap to submit as proof';
+      updateChallenge({
+        ...updatedChallenge,
+        messages: updatedMessages
+      });
     }
   };
 
@@ -306,6 +301,11 @@ export default function ChatScreen() {
                   />
                 </View>
               )}
+              {item.suggestionText && (
+                <ThemedText style={styles.suggestionText}>
+                  {item.suggestionText}
+                </ThemedText>
+              )}
             </View>
           </TouchableOpacity>
         )}
@@ -490,6 +490,12 @@ const styles = StyleSheet.create({
   checkmarkContainer: {
     marginTop: 4,
     alignSelf: 'flex-end',
+  },
+  suggestionText: {
+    fontSize: 12,
+    color: '#FF0000',
+    marginTop: 4,
+    fontStyle: 'italic',
   },
   imagePreview: {
     position: 'relative',
