@@ -83,14 +83,14 @@ export default function ChatScreen() {
     setMessage('');
     setSelectedImage(null);
 
-    const isCoach = challenge.coachId === user?.id; // Moved isCoach initialization here
+    const isCoach = challenge.coachId === user?.id;
     const updatedMessages = [...updatedChallenge.messages];
     const lastMessage = updatedMessages[updatedMessages.length - 1];
 
-    if (!isCoach && !newMessage.isProof) {
-      lastMessage.suggestionText = 'Double tap to submit as proof';
-    } else if (isCoach && lastMessage.isProof && !lastMessage.isValidated) {
+    if (isCoach && lastMessage.isProof && !lastMessage.isValidated) {
       lastMessage.suggestionText = 'Double tap to approve proof';
+    } else if (!isCoach) {
+      lastMessage.suggestionText = 'Double tap to submit as proof';
     }
 
     updateChallenge({
