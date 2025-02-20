@@ -197,7 +197,7 @@ export default function ChatScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <View style={[styles.header, { backgroundColor: challenge?.coachId === user?.id ? '#2196F3' : '#F44336' }]}>
+      <View style={[styles.header, { backgroundColor: challenge?.coachId === user?.id ? '#2B5876' : '#B71C1C' }]}>
         <TouchableOpacity 
           style={styles.backButton} 
           onPress={() => router.back()}>
@@ -308,7 +308,7 @@ export default function ChatScreen() {
             <IconSymbol name="paperclip" size={24} color={useThemeColor({}, 'text')} />
           </TouchableOpacity>
           <TouchableOpacity 
-            style={[styles.sendButton, { backgroundColor: challenge?.coachId === user?.id ? '#2196F3' : '#F44336' }]}
+            style={[styles.sendButton, { backgroundColor: challenge?.coachId === user?.id ? '#2B5876' : '#B71C1C' }]}
             onPress={handleSendMessage}>
             <ThemedText style={styles.sendButtonText}>Send</ThemedText>
           </TouchableOpacity>
