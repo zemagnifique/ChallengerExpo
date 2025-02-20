@@ -14,15 +14,19 @@ export default function RootLayout() {
 
   useEffect(() => {
     async function prepare() {
+      console.log('RootLayout: Starting initialization');
       try {
+        console.log('RootLayout: Preventing splash screen auto-hide');
         await SplashScreen.preventAutoHideAsync();
+        console.log('RootLayout: Setting up Buffer');
         if (typeof window !== 'undefined') {
           const { Buffer } = require('buffer/');
           window.Buffer = Buffer;
           global.Buffer = Buffer;
         }
+        console.log('RootLayout: Initialization complete');
       } catch (e) {
-        console.error('Initialization error:', e);
+        console.error('RootLayout initialization error:', e);
       }
     }
     prepare();
