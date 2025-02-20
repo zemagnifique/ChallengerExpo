@@ -493,8 +493,9 @@ const styles = StyleSheet.create({
   },
   suggestionText: {
     fontSize: 12,
-    color: '#FF0000',
+    color: '#666666',
     marginTop: 4,
+    marginBottom: 16,
     fontStyle: 'italic',
     alignSelf: 'flex-end',
     marginRight: 8,
