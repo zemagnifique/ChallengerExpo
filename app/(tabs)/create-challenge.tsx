@@ -1,11 +1,19 @@
-import { useState, useCallback, useEffect } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, ScrollView, View, Platform, Picker } from 'react-native';
-import { ApiClient } from '@/api/client';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { useRouter } from 'expo-router';
-import { useAuth } from '@/contexts/AuthContext';
+import { useState, useCallback, useEffect } from "react";
+import {
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  View,
+  Platform,
+  Picker,
+} from "react-native";
+import { ApiClient } from "@/api/client";
+import { ThemedText } from "@/components/ThemedText";
+import { ThemedView } from "@/components/ThemedView";
+import ParallaxScrollView from "@/components/ParallaxScrollView";
+import { useRouter } from "expo-router";
+import { useAuth } from "@/contexts/AuthContext";
 
 const DEFAULT_CHALLENGES = [
   {
@@ -25,19 +33,21 @@ const DEFAULT_CHALLENGES = [
     description: "1 hour of meditation",
     frequency: "Weekly",
     proofRequirements: "Screenshot of meditation app completion",
-  }
+  },
 ];
 
 export default function CreateChallengeScreen() {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(new Date(Date.now() + 180 * 24 * 60 * 60 * 1000));
-  const [frequency, setFrequency] = useState('Daily');
-  const [proofRequirements, setProofRequirements] = useState('');
+  const [endDate, setEndDate] = useState(
+    new Date(Date.now() + 180 * 24 * 60 * 60 * 1000),
+  );
+  const [frequency, setFrequency] = useState("Daily");
+  const [proofRequirements, setProofRequirements] = useState("");
   const [selectedCoach, setSelectedCoach] = useState<number | null>(null);
   const [users, setUsers] = useState([]);
-  const [coachSearch, setCoachSearch] = useState('');
+  const [coachSearch, setCoachSearch] = useState("");
   const router = useRouter();
   const { user, addChallenge } = useAuth();
 
@@ -47,7 +57,7 @@ export default function CreateChallengeScreen() {
         const fetchedUsers = await ApiClient.getAllUsers();
         setUsers(fetchedUsers);
       } catch (error) {
-        console.error('Error loading users:', error);
+        console.error("Error loading users:", error);
       }
     };
     loadUsers();
@@ -62,7 +72,7 @@ export default function CreateChallengeScreen() {
         endDate,
         frequency,
         proofRequirements,
-        status: 'pending',
+        status: "pending",
         userId: parseInt(user?.id),
         coachId: selectedCoach,
         createdAt: new Date(),
@@ -84,18 +94,24 @@ export default function CreateChallengeScreen() {
 
   return (
     <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}>
+      headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
+    >
       <ScrollView style={styles.container}>
-        <ThemedText type="title" style={styles.title}>Create Challenge</ThemedText>
+        <ThemedText type="title" style={styles.title}>
+          Create Challenge
+        </ThemedText>
 
         <ThemedView style={styles.defaultChallenges}>
           <ThemedText type="subtitle">Quick Start Challenges</ThemedText>
           {DEFAULT_CHALLENGES.map((challenge, index) => (
-            <TouchableOpacity 
-              key={index} 
+            <TouchableOpacity
+              key={index}
               style={styles.challengeCard}
-              onPress={() => selectDefaultChallenge(challenge)}>
-              <ThemedText style={styles.cardTitle}>{challenge.title}</ThemedText>
+              onPress={() => selectDefaultChallenge(challenge)}
+            >
+              <ThemedText style={styles.cardTitle}>
+                {challenge.title}
+              </ThemedText>
               <ThemedText>{challenge.description}</ThemedText>
             </TouchableOpacity>
           ))}
@@ -123,56 +139,61 @@ export default function CreateChallengeScreen() {
           />
 
           <ThemedText>Start Date: {startDate.toLocaleDateString()}</ThemedText>
-          {Platform.OS === 'web' ? (
+          {Platform.OS === "web" ? (
             <input
               type="date"
-              value={startDate.toISOString().split('T')[0]}
+              value={startDate.toISOString().split("T")[0]}
               onChange={(e) => setStartDate(new Date(e.target.value))}
               style={styles.webDateInput}
             />
           ) : (
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.input}
               onPress={() => {
                 const currentDate = startDate || new Date();
                 const tempDate = new Date(currentDate);
                 tempDate.setDate(tempDate.getDate() + 180);
                 setEndDate(tempDate);
-              }}>
+              }}
+            >
               <ThemedText>{startDate.toLocaleDateString()}</ThemedText>
             </TouchableOpacity>
           )}
 
           <ThemedText>End Date: {endDate.toLocaleDateString()}</ThemedText>
-          {Platform.OS === 'web' ? (
+          {Platform.OS === "web" ? (
             <input
               type="date"
-              value={endDate.toISOString().split('T')[0]}
+              value={endDate.toISOString().split("T")[0]}
               onChange={(e) => setEndDate(new Date(e.target.value))}
               style={styles.webDateInput}
             />
           ) : (
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.input}
               onPress={() => {
                 const currentDate = endDate || new Date();
                 setEndDate(currentDate);
-              }}>
+              }}
+            >
               <ThemedText>{endDate.toLocaleDateString()}</ThemedText>
             </TouchableOpacity>
           )}
 
           <ThemedText>Frequency</ThemedText>
           <View style={styles.frequencyContainer}>
-            {['Daily', 'Weekly'].map((freq) => (
+            {["Daily", "Weekly"].map((freq) => (
               <TouchableOpacity
                 key={freq}
                 style={[
                   styles.frequencyButton,
-                  frequency === freq && styles.frequencyButtonActive
+                  frequency === freq && styles.frequencyButtonActive,
                 ]}
-                onPress={() => setFrequency(freq)}>
-                <ThemedText style={frequency === freq && styles.frequencyTextActive}>
+                onPress={() => setFrequency(freq)}
+              >
+                <ThemedText
+                  style={frequency === freq && styles.frequencyTextActive}
+                >
                   {freq}
                 </ThemedText>
               </TouchableOpacity>
@@ -189,16 +210,16 @@ export default function CreateChallengeScreen() {
           />
 
           <ThemedText>Assign Coach</ThemedText>
-          {Platform.OS === 'web' ? (
+          {Platform.OS === "web" ? (
             <select
               style={styles.webSelect}
-              value={selectedCoach || ''}
+              value={selectedCoach || ""}
               onChange={(e) => setSelectedCoach(parseInt(e.target.value))}
             >
               <option value="">Select a coach</option>
-              {users.map(user => (
+              {users.map((user) => (
                 <option key={user.id} value={user.id}>
-                  @{user.username}
+                  {user.username}
                 </option>
               ))}
             </select>
@@ -206,24 +227,31 @@ export default function CreateChallengeScreen() {
             <View style={styles.coachSelectContainer}>
               <Picker
                 selectedValue={selectedCoach}
-                onValueChange={(itemValue) => setSelectedCoach(parseInt(itemValue))}
-                style={styles.picker}>
+                onValueChange={(itemValue) =>
+                  setSelectedCoach(parseInt(itemValue))
+                }
+                style={styles.picker}
+              >
                 <Picker.Item label="Select a coach" value="" />
-                {users.map(user => (
-                  <Picker.Item 
-                    key={user.id} 
-                    label={`@${user.username}`} 
-                    value={user.id} 
+                {users.map((user) => (
+                  <Picker.Item
+                    key={user.id}
+                    label={`${user.username}`}
+                    value={user.id}
                   />
                 ))}
               </Picker>
             </View>
           )}
 
-          <TouchableOpacity 
-            style={[styles.button, (!title || !selectedCoach) && styles.buttonDisabled]}
+          <TouchableOpacity
+            style={[
+              styles.button,
+              (!title || !selectedCoach) && styles.buttonDisabled,
+            ]}
             onPress={handleSubmit}
-            disabled={!title || !selectedCoach}>
+            disabled={!title || !selectedCoach}
+          >
             <ThemedText style={styles.buttonText}>Create Challenge</ThemedText>
           </TouchableOpacity>
         </ThemedView>
@@ -234,7 +262,7 @@ export default function CreateChallengeScreen() {
 
 const styles = StyleSheet.create({
   coachSelectContainer: {
-    position: 'relative',
+    position: "relative",
     zIndex: 999,
     elevation: 999,
   },
@@ -242,30 +270,30 @@ const styles = StyleSheet.create({
     marginBottom: 0,
   },
   dropdownContainer: {
-    position: 'absolute',
-    top: '100%',
+    position: "absolute",
+    top: "100%",
     left: 0,
     right: 0,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     borderRadius: 8,
     maxHeight: 200,
-    overflow: 'scroll',
+    overflow: "scroll",
     zIndex: 1000,
     elevation: 1000,
   },
   dropdownItem: {
     padding: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: "#eee",
   },
   picker: {
     height: 50,
     marginBottom: 16,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     borderRadius: 8,
   },
   container: {
@@ -273,7 +301,7 @@ const styles = StyleSheet.create({
   },
   title: {
     marginBottom: 20,
-    textAlign: 'center',
+    textAlign: "center",
   },
   defaultChallenges: {
     padding: 20,
@@ -281,12 +309,12 @@ const styles = StyleSheet.create({
   },
   challengeCard: {
     padding: 15,
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: "rgba(255,255,255,0.1)",
     borderRadius: 8,
     marginTop: 10,
   },
   cardTitle: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 5,
   },
   form: {
@@ -296,19 +324,19 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     borderRadius: 8,
     padding: 12,
     marginBottom: 16,
     fontSize: 16,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   textArea: {
     height: 100,
-    textAlignVertical: 'top',
+    textAlignVertical: "top",
   },
   frequencyContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 10,
     marginBottom: 16,
   },
@@ -316,20 +344,20 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     flex: 1,
-    alignItems: 'center',
+    alignItems: "center",
   },
   frequencyButtonActive: {
-    backgroundColor: '#4CAF50',
-    borderColor: '#4CAF50',
+    backgroundColor: "#4CAF50",
+    borderColor: "#4CAF50",
   },
   frequencyTextActive: {
-    color: '#fff',
+    color: "#fff",
   },
   coachContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: 10,
     marginBottom: 16,
   },
@@ -337,51 +365,51 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     minWidth: 100,
-    alignItems: 'center',
+    alignItems: "center",
   },
   coachButtonActive: {
-    backgroundColor: '#4CAF50',
-    borderColor: '#4CAF50',
+    backgroundColor: "#4CAF50",
+    borderColor: "#4CAF50",
   },
   coachTextActive: {
-    color: '#fff',
+    color: "#fff",
   },
   button: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: "#4CAF50",
     padding: 15,
     borderRadius: 8,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 10,
   },
   buttonDisabled: {
-    backgroundColor: '#ccc',
+    backgroundColor: "#ccc",
   },
   buttonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   webDateInput: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     borderRadius: 8,
     padding: 12,
     marginBottom: 16,
     fontSize: 16,
-    backgroundColor: '#fff',
-    width: '100%',
+    backgroundColor: "#fff",
+    width: "100%",
   },
   webSelect: {
-    width: '100%',
+    width: "100%",
     padding: 12,
     fontSize: 16,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#ccc',
-    backgroundColor: '#fff',
+    borderColor: "#ccc",
+    backgroundColor: "#fff",
     marginBottom: 16,
-    appearance: 'auto'
+    appearance: "auto",
   },
 });
