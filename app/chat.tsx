@@ -83,16 +83,20 @@ export default function ChatScreen() {
     setMessage('');
     setSelectedImage(null);
 
-    // Show suggestion tooltip for challengers
+    // Show suggestion tooltip based on user role
+    const updatedMessages = [...updatedChallenge.messages];
+    const lastMessage = updatedMessages[updatedMessages.length - 1];
+    
     if (!isCoach && !newMessage.isProof) {
-      const updatedMessages = [...updatedChallenge.messages];
-      const lastMessage = updatedMessages[updatedMessages.length - 1];
       lastMessage.suggestionText = 'Double tap to submit as proof';
-      updateChallenge({
-        ...updatedChallenge,
-        messages: updatedMessages
-      });
+    } else if (isCoach && lastMessage.isProof && !lastMessage.isValidated) {
+      lastMessage.suggestionText = 'Double tap to approve the proof';
     }
+    
+    updateChallenge({
+      ...updatedChallenge,
+      messages: updatedMessages
+    });
   };
 
   // Poll for new messages every 2 seconds
@@ -302,7 +306,7 @@ export default function ChatScreen() {
                 </View>
               )}
               </View>
-            {item.suggestionText && messages[messages.length - 1].timestamp === item.timestamp && (
+            {((isCoach && item.isProof && !item.isValidated) || (!isCoach && messages[messages.length - 1].timestamp === item.timestamp)) && item.suggestionText && (
               <ThemedText style={styles.suggestionText}>
                 {item.suggestionText}
               </ThemedText>
