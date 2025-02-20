@@ -1,22 +1,22 @@
 
-const { Pool } = require('pg');
+import { Platform } from 'react-native';
+import { Buffer } from 'buffer';
+
+if (typeof global !== 'undefined' && Platform.OS === 'web') {
+  (global as any).Buffer = Buffer;
+}
 
 const createFetchPool = () => ({
-  query: async (text, params) => {
+  query: async (text: string, params?: any[]) => {
     const response = await fetch('http://0.0.0.0:8082/api/db', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        query: text,
-        params,
-      }),
+      body: JSON.stringify({ text, params }),
     });
-    if (!response.ok) {
-      throw new Error(`Database query failed: ${response.statusText}`);
-    }
-    return response.json();
+    const result = await response.json();
+    return result;
   },
 });
 
