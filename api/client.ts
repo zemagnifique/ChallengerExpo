@@ -2,14 +2,7 @@
 import { Platform } from 'react-native';
 
 const getApiUrl = () => {
-  const port = 3001;
-  // Check if we're in a React Native environment
-  if (typeof Platform !== 'undefined' && Platform.OS === 'web') {
-    // For web browser
-    return `${typeof window !== 'undefined' ? window.location.origin : `http://0.0.0.0:${port}`}/api`;
-  }
-  // For mobile, use the Replit dev domain
-  return `https://${process.env.REPLIT_DEV_DOMAIN}/api`;
+  return '/api';
 };
 
 const API_URL = getApiUrl();
