@@ -7,8 +7,8 @@ app.use(express.json());
 
 app.use('/api/db', dbRouter);
 
-app.listen(3000, '0.0.0.0', () => {
-  console.log('API server running on port 3000');
+app.listen(8082, '0.0.0.0', () => {
+  console.log('API server running on port 8082');
 });
 
 export default app;

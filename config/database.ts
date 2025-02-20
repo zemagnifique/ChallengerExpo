@@ -9,7 +9,7 @@ interface DatabasePool {
 // For mobile environment or web, use fetch API
 const createFetchPool = (): DatabasePool => ({
   query: async (text: string, params?: any[]) => {
-    const response = await fetch('http://0.0.0.0:3000/api/db', {
+    const response = await fetch('http://0.0.0.0:8082/api/db', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
