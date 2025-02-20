@@ -22,13 +22,17 @@ export const ApiClient = {
   getApiUrl,
   getAllUsers: async () => {
     try {
+      console.log('Fetching users from:', `${API_URL}/api/users`);
       const response = await fetch(`${API_URL}/api/users`);
       if (!response.ok) {
-        throw new Error('Failed to fetch users');
+        const errorText = await response.text();
+        throw new Error(`Failed to fetch users: ${response.status} ${response.statusText} - ${errorText}`);
       }
       return response.json();
     } catch (error) {
-      console.error('Error fetching users:', error);
+      console.error('API Error:', error);
+      console.error('API URL:', API_URL);
+      console.error('Platform:', Platform.OS);
       throw error;
     }
   },
