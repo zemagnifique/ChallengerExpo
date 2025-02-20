@@ -302,7 +302,7 @@ export default function ChatScreen() {
                 </View>
               )}
               </View>
-            {item.suggestionText && (
+            {item.suggestionText && messages[messages.length - 1].timestamp === item.timestamp && (
               <ThemedText style={styles.suggestionText}>
                 {item.suggestionText}
               </ThemedText>
@@ -496,6 +496,8 @@ const styles = StyleSheet.create({
     color: '#FF0000',
     marginTop: 4,
     fontStyle: 'italic',
+    alignSelf: 'flex-end',
+    marginRight: 8,
   },
   imagePreview: {
     position: 'relative',
