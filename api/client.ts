@@ -1,7 +1,7 @@
 
 import { Platform } from 'react-native';
 
-export const getApiUrl = () => {
+const getApiUrl = () => {
   const port = 3001;
   
   if (Platform.OS === 'web' && typeof window !== 'undefined') {
@@ -19,6 +19,7 @@ const API_URL = getApiUrl();
 console.log('Current API_URL:', API_URL);
 
 export const ApiClient = {
+  getApiUrl,
   login: async (username: string, password: string) => {
     try {
       const response = await fetch(`${API_URL}/api/login`, {
