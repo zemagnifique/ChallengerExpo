@@ -17,14 +17,16 @@ export default function IndexScreen() {
   const { challenges = [], user, updateChallengeStatus, updateChallengeCoach, deleteChallenge, archiveChallenge } = useAuth();
 
   const filteredChallenges = () => {
-    if (!challenges || !Array.isArray(challenges)) return [];
-    let filtered = challenges.filter(c => c && c.status !== 'rejected');
+    const challengesList = challenges || [];
+    if (!Array.isArray(challengesList)) return [];
+    
+    let filtered = challengesList.filter(c => c && c.status !== 'rejected');
 
     if (filter === 'archived') {
       return filtered.filter(c => c && c.archived);
     }
 
-    filtered = filtered.filter(c => !c.archived);
+    filtered = filtered.filter(c => c && !c.archived);
 
     if (filter === 'challenger') {
       return filtered.filter(c => c.userId === user?.id);
