@@ -130,7 +130,7 @@ export default function ChatScreen() {
 
   // WebSocket connection and message handling
   React.useEffect(() => {
-    const socket = io(ApiClient.getApiUrl());
+    const socket = io(getApiUrl());
     
     socket.on('connect', () => {
       console.log('Connected to WebSocket');

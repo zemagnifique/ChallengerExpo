@@ -1,7 +1,7 @@
 
 import { Platform } from 'react-native';
 
-const getApiUrl = () => {
+export const getApiUrl = () => {
   const port = 3001;
   
   if (Platform.OS === 'web' && typeof window !== 'undefined') {
