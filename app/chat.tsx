@@ -307,7 +307,10 @@ export default function ChatScreen() {
               )}
               </View>
             {((isCoach && item.isProof && !item.isValidated) || (!isCoach && messages[messages.length - 1].timestamp === item.timestamp)) && item.suggestionText && (
-              <ThemedText style={styles.suggestionText}>
+              <ThemedText style={[
+                styles.suggestionText,
+                isCoach ? { alignSelf: 'flex-start', marginLeft: 8 } : { alignSelf: 'flex-end', marginRight: 8 }
+              ]}>
                 {item.suggestionText}
               </ThemedText>
             )}
@@ -501,8 +504,6 @@ const styles = StyleSheet.create({
     marginTop: 4,
     marginBottom: 16,
     fontStyle: 'italic',
-    alignSelf: 'flex-end',
-    marginRight: 8,
   },
   imagePreview: {
     position: 'relative',
