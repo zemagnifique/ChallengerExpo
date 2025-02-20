@@ -255,7 +255,7 @@ export default function ChatScreen() {
           styles.header,
           {
             backgroundColor:
-              challenge?.coachId === user?.id ? "#2B5876" : "#B71C1C",
+              parseInt(user?.id) === challenge?.coach_id ? "#2B5876" : "#B71C1C",
           },
         ]}
       >
