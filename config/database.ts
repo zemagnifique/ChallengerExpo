@@ -1,14 +1,14 @@
 
-import { Platform } from 'react-native';
-import { Buffer as BufferPolyfill } from 'buffer';
+const { Platform } = require('react-native');
+const { Buffer: BufferPolyfill } = require('buffer');
 
 const globalBuffer = global.Buffer || BufferPolyfill;
 if (typeof global !== 'undefined' && Platform.OS === 'web') {
-  (global as any).Buffer = globalBuffer;
+  global.Buffer = globalBuffer;
 }
 
 const createFetchPool = () => ({
-  query: async (text: string, params?: any[]) => {
+  query: async (text, params) => {
     const response = await fetch(`http://${window.location.hostname}:8082/api/db`, {
       method: 'POST',
       headers: {
