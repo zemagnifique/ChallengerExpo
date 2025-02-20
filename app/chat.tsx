@@ -353,7 +353,7 @@ export default function ChatScreen() {
                         styles.ownMessage,
                         {
                           backgroundColor:
-                            item.userId === challenge?.coachId
+                            parseInt(user?.id) === challenge?.coach_id
                               ? "#2B5876"
                               : "#B71C1C",
                         },
