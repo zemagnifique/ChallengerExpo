@@ -1,3 +1,4 @@
+
 const express = require('express');
 const cors = require('cors');
 const dbRouter = require('./db.ts');
@@ -33,33 +34,37 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
-app.use('/api/db', dbRouter);
+let server;
 
 const startServer = (port) => {
-  try {
-    const server = app.listen(port, '0.0.0.0', () => {
-      console.log(`API server running on port ${port}`);
-    });
-
-    server.on('error', (error) => {
-      if (error.code === 'EADDRINUSE') {
-        console.log(`Port ${port} is busy, trying ${port + 1}`);
-        startServer(port + 1);
-      }
-    });
-
-    process.on('SIGTERM', () => {
-      server.close();
-    });
-  } catch (error) {
-    console.error('Server error:', error);
+  if (server) {
+    return Promise.resolve(server);
   }
+
+  return new Promise((resolve, reject) => {
+    try {
+      server = app.listen(port, '0.0.0.0', () => {
+        console.log(`API server running on port ${port}`);
+        resolve(server);
+      });
+
+      server.on('error', (error) => {
+        if (error.code === 'EADDRINUSE') {
+          console.log(`Port ${port} is in use, trying ${port + 1}`);
+          server = null;
+          resolve(startServer(port + 1));
+        } else {
+          reject(error);
+        }
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
 };
 
-startServer(8082);
+if (require.main === module) {
+  startServer(8082);
+}
 
-process.on('SIGTERM', () => {
-  server.close();
-});
-
-module.exports = app;
+module.exports = { app, startServer };
