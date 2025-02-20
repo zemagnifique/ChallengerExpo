@@ -1,3 +1,4 @@
+
 import { Platform } from 'react-native';
 
 // Custom type for database interface
@@ -5,10 +6,8 @@ interface DatabasePool {
   query: (text: string, params?: any[]) => Promise<any>;
 }
 
-let pool: DatabasePool;
-
 // For mobile environment or web, use fetch API
-const createFetchPool = () => ({
+const createFetchPool = (): DatabasePool => ({
   query: async (text: string, params?: any[]) => {
     const response = await fetch('http://0.0.0.0:3000/api/db', {
       method: 'POST',
@@ -20,10 +19,13 @@ const createFetchPool = () => ({
         params,
       }),
     });
+    if (!response.ok) {
+      throw new Error(`Database query failed: ${response.statusText}`);
+    }
     return response.json();
   },
 });
 
-pool = createFetchPool();
+const pool: DatabasePool = createFetchPool();
 
 export default pool;
