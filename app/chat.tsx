@@ -301,12 +301,12 @@ export default function ChatScreen() {
                   />
                 </View>
               )}
-              {item.suggestionText && (
-                <ThemedText style={styles.suggestionText}>
-                  {item.suggestionText}
-                </ThemedText>
-              )}
-            </View>
+              </View>
+            {item.suggestionText && (
+              <ThemedText style={styles.suggestionText}>
+                {item.suggestionText}
+              </ThemedText>
+            )}
           </TouchableOpacity>
         )}
       />
