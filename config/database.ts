@@ -1,13 +1,16 @@
 
 import { Platform } from 'react-native';
+import 'react-native-polyfill-globals/auto';
+import { Buffer } from 'buffer';
+
+if (typeof global !== 'undefined' && !global.Buffer) {
+  global.Buffer = Buffer;
+}
 
 let pool;
 
 if (Platform.OS === 'web') {
-  // For web environment, use a connection string approach
-  const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://postgres:postgres@0.0.0.0:5432/postgres';
-  
-  // Use fetch API for web requests
+  // For web environment, use a fetch-based approach
   pool = {
     query: async (text, params) => {
       const response = await fetch('/api/db', {
@@ -24,7 +27,7 @@ if (Platform.OS === 'web') {
     },
   };
 } else {
-  // For native environment, use regular pg
+  // For native environment, use regular pg with proper configuration
   const { Pool } = require('pg');
   pool = new Pool({
     connectionString: process.env.DATABASE_URL || 'postgresql://postgres:postgres@0.0.0.0:5432/postgres',
