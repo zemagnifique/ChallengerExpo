@@ -14,7 +14,6 @@ import Animated, {
 import { ThemedView } from '@/components/ThemedView';
 import { useBottomTabOverflow } from '@/components/ui/TabBarBackground';
 
-const isWeb = Platform.OS === 'web';
 const HEADER_HEIGHT = 0;
 
 type Props = PropsWithChildren<{
