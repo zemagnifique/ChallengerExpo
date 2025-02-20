@@ -73,7 +73,7 @@ export default function ChatScreen() {
         console.error('Error loading messages:', error);
       }
     };
-    
+
     if (challenge?.id) {
       loadMessages();
     }
@@ -120,7 +120,7 @@ export default function ChatScreen() {
         ...challenge,
         messages
       });
-      
+
       setMessage("");
       setSelectedImage(null);
     } catch (error) {
@@ -131,19 +131,19 @@ export default function ChatScreen() {
   // WebSocket connection and message handling
   React.useEffect(() => {
     const socket = io(getApiUrl());
-    
+
     socket.on('connect', () => {
       console.log('Connected to WebSocket');
       socket.emit('joinRoom', challengeId);
     });
-    
+
     socket.on('newMessage', (message) => {
       updateChallenge({
         ...challenge,
         messages: [...(challenge?.messages || []), message]
       });
     });
-    
+
     return () => {
       socket.emit('leaveRoom', challengeId);
       socket.disconnect();
@@ -246,7 +246,7 @@ export default function ChatScreen() {
   }
 
   const messages = challenge?.messages ?? [];
-  const isCoach = challenge.coachId === user?.id;
+  const isCoach = parseInt(user?.id) === challenge.coach_id;
 
   return (
     <ThemedView style={styles.container}>
@@ -322,7 +322,7 @@ export default function ChatScreen() {
         }
         onLayout={() => flatListRef.current?.scrollToEnd({ animated: true })}
         renderItem={({ item }) => {
-          const isCoach = challenge.coachId === user?.id;
+          const isCoach = parseInt(user?.id) === challenge.coach_id;
           let suggestionText = "";
           if (isCoach && item.isProof && !item.isValidated) {
             suggestionText = "Double tap to approve proof";
