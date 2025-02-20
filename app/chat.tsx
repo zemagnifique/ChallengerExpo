@@ -17,6 +17,7 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import * as ImagePicker from "expo-image-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ApiClient } from '@/api/client';
+import { io } from "socket.io-client";
 
 type Challenge = {
   id: string;
@@ -127,29 +128,27 @@ export default function ChatScreen() {
     }
   };
 
-  // Poll for new messages every 2 seconds
+  // WebSocket connection and message handling
   React.useEffect(() => {
-    let isSubscribed = true;
-    const interval = setInterval(async () => {
-      if (!isSubscribed) return;
-      try {
-        const messages = await ApiClient.getMessages(challengeId as string);
-        if (messages && JSON.stringify(messages) !== JSON.stringify(challenge?.messages)) {
-          updateChallenge({
-            ...challenge,
-            messages
-          });
-        }
-      } catch (error) {
-        console.error('Error fetching messages:', error);
-      }
-    }, 2000);
-
+    const socket = io(ApiClient.getApiUrl());
+    
+    socket.on('connect', () => {
+      console.log('Connected to WebSocket');
+      socket.emit('joinRoom', challengeId);
+    });
+    
+    socket.on('newMessage', (message) => {
+      updateChallenge({
+        ...challenge,
+        messages: [...(challenge?.messages || []), message]
+      });
+    });
+    
     return () => {
-      isSubscribed = false;
-      clearInterval(interval);
+      socket.emit('leaveRoom', challengeId);
+      socket.disconnect();
     };
-  }, [challengeId]);
+  }, [challengeId, challenge]);
 
   const handleAcceptChallenge = async () => {
     try {

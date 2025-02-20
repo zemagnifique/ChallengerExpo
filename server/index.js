@@ -5,6 +5,31 @@ const { Pool } = require('pg');
 
 const app = express();
 const PORT = 3001;
+const http = require('http');
+const server = http.createServer(app);
+const io = require('socket.io')(server, {
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST']
+  }
+});
+
+// WebSocket connection handling
+io.on('connection', (socket) => {
+  console.log('Client connected');
+  
+  socket.on('joinRoom', (challengeId) => {
+    socket.join(`challenge_${challengeId}`);
+  });
+  
+  socket.on('leaveRoom', (challengeId) => {
+    socket.leave(`challenge_${challengeId}`);
+  });
+  
+  socket.on('disconnect', () => {
+    console.log('Client disconnected');
+  });
+});
 
 // Configure PostgreSQL connection
 const pool = new Pool({
@@ -109,7 +134,12 @@ app.post('/api/challenges/:challengeId/messages', async (req, res) => {
       [req.params.challengeId, userId, text, imageUrl, isProof]
     );
     
-    res.status(201).json(result.rows[0]);
+    const newMessage = result.rows[0];
+    
+    // Emit the new message to all clients in the challenge room
+    io.to(`challenge_${req.params.challengeId}`).emit('newMessage', newMessage);
+    
+    res.status(201).json(newMessage);
   } catch (error) {
     console.error('Error creating message:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -137,6 +167,6 @@ app.put('/api/messages/:messageId/validate', async (req, res) => {
   }
 });
 
-app.listen(PORT, '0.0.0.0', () => {
+server.listen(PORT, '0.0.0.0', () => {
   console.log(`API Server running on port ${PORT}`);
 });
