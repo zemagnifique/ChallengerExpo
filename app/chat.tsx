@@ -16,7 +16,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import * as ImagePicker from "expo-image-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { ApiClient } from '@/api/client';
+import { ApiClient, getApiUrl } from '@/api/client';
 import { io } from "socket.io-client";
 
 type Challenge = {
