@@ -89,6 +89,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (username: string, password: string) => {
     try {
+      // Try database first
       const userInfo = await DatabaseModels.getUser(username);
       if (userInfo && userInfo.password === password) {
         const user = { id: userInfo.id, username: userInfo.username };
@@ -98,9 +99,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await loadChallenges();
         return true;
       }
+      
+      // Fallback to AsyncStorage for development
+      const storedUser = await AsyncStorage.getItem('user');
+      if (storedUser) {
+        const user = JSON.parse(storedUser);
+        setIsAuthenticated(true);
+        setUser(user);
+        await loadChallenges();
+        return true;
+      }
+      
       return false;
     } catch (error) {
       console.error('Login error:', error);
+      // Fallback to AsyncStorage on error
+      const storedUser = await AsyncStorage.getItem('user');
+      if (storedUser) {
+        const user = JSON.parse(storedUser);
+        setIsAuthenticated(true);
+        setUser(user);
+        await loadChallenges();
+        return true;
+      }
       return false;
     }
   };
