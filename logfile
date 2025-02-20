@@ -1,0 +1,11 @@
+2025-02-20 03:34:35.231 UTC [8421] LOG:  starting PostgreSQL 16.5 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 13.3.0, 64-bit
+2025-02-20 03:34:35.234 UTC [8421] LOG:  listening on IPv4 address "127.0.0.1", port 5432
+2025-02-20 03:34:35.235 UTC [8421] LOG:  could not bind IPv6 address "::1": Cannot assign requested address
+2025-02-20 03:34:35.236 UTC [8421] FATAL:  could not create lock file "/run/postgresql/.s.PGSQL.5432.lock": No such file or directory
+2025-02-20 03:34:35.239 UTC [8421] LOG:  database system is shut down
+2025-02-20 03:36:20.267 UTC [8571] LOG:  starting PostgreSQL 16.5 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 13.3.0, 64-bit
+2025-02-20 03:36:20.269 UTC [8571] LOG:  listening on IPv4 address "127.0.0.1", port 5432
+2025-02-20 03:36:20.269 UTC [8571] LOG:  could not bind IPv6 address "::1": Cannot assign requested address
+2025-02-20 03:36:20.272 UTC [8571] LOG:  listening on Unix socket "/run/postgresql/.s.PGSQL.5432"
+2025-02-20 03:36:20.277 UTC [8574] LOG:  database system was shut down at 2025-02-20 03:34:26 UTC
+2025-02-20 03:36:20.282 UTC [8571] LOG:  database system is ready to accept connections
