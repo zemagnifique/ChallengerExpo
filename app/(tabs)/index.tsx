@@ -106,7 +106,7 @@ export default function IndexScreen() {
       >
         <TouchableOpacity
           activeOpacity={1}
-          onPress={() => router.push(`/chat?challengeId=${item.id}`)}
+          onPress={() => router.push({ pathname: '/chat', params: { challengeId: item.id }})}
         >
           <ThemedView
             style={[

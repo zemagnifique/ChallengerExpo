@@ -43,7 +43,8 @@ type Challenge = {
 
 export default function ChatScreen() {
   const flatListRef = React.useRef(null);
-  const { challengeId } = useLocalSearchParams();
+  const { challengeId } = useLocalSearchParams<{ challengeId: string }>();
+  console.log('Challenge ID:', challengeId);
   const { challenges, user, updateChallengeStatus, updateChallenge } =
     useAuth();
   const router = useRouter();
