@@ -49,7 +49,7 @@ localPort = 8090
 externalPort = 8000
 
 [workflows]
-runButton = "API Server"
+runButton = "Dev"
 
 [[workflows.workflow]]
 name = "Dev Server"
@@ -98,3 +98,11 @@ author = 39794279
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "node app/api/index.ts"
+
+[[workflows.workflow]]
+name = "Dev"
+author = 39794279
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run start & node app/api/index.ts"
