@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { StyleSheet, TextInput, TouchableOpacity, ScrollView, View, Platform, Picker } from 'react-native';
-import { UsersService } from '@/api/users';
+import { ApiClient } from '@/api/client';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
@@ -44,7 +44,7 @@ export default function CreateChallengeScreen() {
   useEffect(() => {
     const loadUsers = async () => {
       try {
-        const fetchedUsers = await UsersService.getAllUsers();
+        const fetchedUsers = await ApiClient.getAllUsers();
         setUsers(fetchedUsers);
       } catch (error) {
         console.error('Error loading users:', error);
