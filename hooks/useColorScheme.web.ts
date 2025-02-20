@@ -1,6 +1,6 @@
 
-import { useColorScheme as useNativeColorScheme } from 'react-native-web';
+import { ColorSchemeName } from 'react-native';
 
-export function useColorScheme() {
-  return useNativeColorScheme();
+export function useColorScheme(): ColorSchemeName {
+  return 'light';
 }
