@@ -102,10 +102,11 @@ export default function ChatScreen() {
     const updatedMessages = [...updatedChallenge.messages];
     const lastMessage = updatedMessages[updatedMessages.length - 1];
 
-    if (!isCoach && !newMessage.isProof) {
-      lastMessage.suggestionText = "Double tap to submit as proof";
-    } else if (isCoach && lastMessage.isProof && !lastMessage.isValidated) {
+    const isCoach = challenge.coachId === user?.id;
+    if (isCoach && lastMessage.isProof && !lastMessage.isValidated) {
       lastMessage.suggestionText = "Double tap to approve proof";
+    } else if (!isCoach) {
+      lastMessage.suggestionText = "Double tap to submit as proof";
     }
 
     updateChallenge({
