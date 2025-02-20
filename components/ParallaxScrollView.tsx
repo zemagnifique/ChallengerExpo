@@ -4,11 +4,11 @@ import { Platform, StyleSheet } from 'react-native';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import Animated, {
-  interpolate,
+  useAnimatedScrollHandler,
   useAnimatedRef,
   useAnimatedStyle,
   useScrollViewOffset,
-  withTiming,
+  withSpring,
 } from 'react-native-reanimated';
 
 import { ThemedView } from '@/components/ThemedView';

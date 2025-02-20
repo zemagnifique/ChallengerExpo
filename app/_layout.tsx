@@ -13,15 +13,19 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
 
   useEffect(() => {
-    // Initialize Buffer
-    if (typeof window !== 'undefined') {
-      const { Buffer } = require('buffer/');
-      window.Buffer = Buffer;
-      global.Buffer = Buffer;
+    async function prepare() {
+      try {
+        await SplashScreen.preventAutoHideAsync();
+        if (typeof window !== 'undefined') {
+          const { Buffer } = require('buffer/');
+          window.Buffer = Buffer;
+          global.Buffer = Buffer;
+        }
+      } catch (e) {
+        console.warn(e);
+      }
     }
-    
-    // Prevent splash screen from auto-hiding
-    SplashScreen.preventAutoHideAsync();
+    prepare();
   }, []);
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
