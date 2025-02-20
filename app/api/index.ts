@@ -4,25 +4,23 @@ const dbRouter = require('./db.ts');
 
 const app = express();
 
-// Error handler middleware
-const errorHandler = (err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ error: 'Something went wrong!' });
-};
-
 app.use(cors({
   origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type']
 }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Mount database router
+app.use('/api/db', dbRouter);
 
 // Root route
 app.get('/', (req, res) => {
   res.json({ 
-    message: 'Welcome to the API',
-    status: 'running',
+    message: 'API is running',
+    status: 'ok',
     endpoints: {
       root: '/',
       health: '/health',
