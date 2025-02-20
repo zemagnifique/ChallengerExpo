@@ -4,8 +4,16 @@ const cors = require('cors');
 const dbRouter = require('./db');
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type']
+}));
 app.use(express.json());
+
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok' });
+});
 
 app.use('/api/db', dbRouter);
 
