@@ -20,6 +20,18 @@ console.log('Current API_URL:', API_URL);
 
 export const ApiClient = {
   getApiUrl,
+  getAllUsers: async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/users`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch users');
+      }
+      return response.json();
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      throw error;
+    }
+  },
   login: async (username: string, password: string) => {
     try {
       const response = await fetch(`${API_URL}/api/login`, {
