@@ -1,9 +1,15 @@
 
 const express = require('express');
 const cors = require('cors');
+const { Pool } = require('pg');
 
 const app = express();
 const PORT = 3001;
+
+// Configure PostgreSQL connection
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL
+});
 
 // Configure CORS
 app.use(cors({
@@ -15,38 +21,34 @@ app.use(cors({
 
 app.use(express.json());
 
-// Mock data for initial testing
-let challenges = [
-  {
-    id: '1',
-    title: 'Daily Exercise',
-    description: '30 minutes of exercise every day',
-    startDate: new Date(),
-    endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-    frequency: 'Daily',
-    proofRequirements: 'Photo or screenshot of workout completion',
-    status: 'pending',
-    userId: 'user1',
-    coachId: 'user2',
-    createdAt: new Date(),
-    archived: false
+// Get all challenges
+app.get('/api/challenges', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM challenges ORDER BY created_at DESC');
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching challenges:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
-];
-
-// Define routes
-app.get('/api/challenges', (req, res) => {
-  res.json(challenges);
 });
 
-app.post('/api/challenges', (req, res) => {
-  const challenge = { 
-    ...req.body, 
-    id: Date.now().toString(),
-    createdAt: new Date(),
-    archived: false
-  };
-  challenges.push(challenge);
-  res.status(201).json(challenge);
+// Create a new challenge
+app.post('/api/challenges', async (req, res) => {
+  const { title, description, startDate, endDate, frequency, proofRequirements, userId, coachId } = req.body;
+  
+  try {
+    const result = await pool.query(
+      `INSERT INTO challenges (title, description, start_date, end_date, frequency, proof_requirements, status, user_id, coach_id, created_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
+       RETURNING *`,
+      [title, description, startDate, endDate, frequency, proofRequirements, 'pending', userId, coachId]
+    );
+    
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error('Error creating challenge:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 app.listen(PORT, '0.0.0.0', () => {
