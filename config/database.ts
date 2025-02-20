@@ -4,70 +4,74 @@ import 'dotenv/config';
 
 // Polyfill Buffer for web environment
 if (typeof window !== 'undefined' && !window.Buffer) {
-  const BufferClass = function(arg: any, encodingOrOffset?: string | number, length?: number) {
-    if (!(this instanceof BufferClass)) {
-      return new BufferClass(arg, encodingOrOffset, length);
+  const BufferPolyfill = function(arg, encodingOrOffset, length) {
+    if (!(this instanceof BufferPolyfill)) {
+      return new BufferPolyfill(arg, encodingOrOffset, length);
     }
     
-    let buffer: Uint8Array;
+    let buffer;
     if (typeof arg === 'number') {
       buffer = new Uint8Array(arg);
     } else if (arg instanceof Uint8Array) {
-      buffer = arg;
+      buffer = new Uint8Array(arg);
     } else if (Array.isArray(arg) || typeof arg === 'string') {
       buffer = typeof arg === 'string' 
-        ? new Uint8Array(arg.split('').map(c => c.charCodeAt(0)))
+        ? new TextEncoder().encode(arg)
         : new Uint8Array(arg);
     } else {
       buffer = new Uint8Array(0);
     }
 
-    Object.setPrototypeOf(buffer, BufferClass.prototype);
+    Object.setPrototypeOf(buffer, BufferPolyfill.prototype);
     return buffer;
-  } as any;
-
-  Object.setPrototypeOf(BufferClass.prototype, Uint8Array.prototype);
-
-  BufferClass.prototype.write = function(string: string, offset?: number) {
-    const bytes = new Uint8Array(string.split('').map(c => c.charCodeAt(0)));
-    this.set(bytes, offset || 0);
-    return bytes.length;
   };
 
-  BufferClass.prototype.toString = function(encoding?: string, start?: number, end?: number) {
-    start = start || 0;
-    end = end || this.length;
-    return Array.from(this.slice(start, end))
-      .map(byte => String.fromCharCode(byte))
-      .join('');
-  };
+  Object.setPrototypeOf(BufferPolyfill.prototype, Uint8Array.prototype);
 
-  BufferClass.from = function(value: string | Array<number> | Uint8Array, encoding?: string) {
+  BufferPolyfill.from = function(value, encoding) {
     if (typeof value === 'string') {
-      return new BufferClass(value.split('').map(c => c.charCodeAt(0)));
+      return new TextEncoder().encode(value);
     }
-    return new BufferClass(value);
+    return new Uint8Array(value);
   };
 
-  BufferClass.alloc = function(size: number, fill?: number) {
-    const buf = new BufferClass(size);
+  BufferPolyfill.alloc = function(size, fill) {
+    const buf = new Uint8Array(size);
     if (fill !== undefined) {
       buf.fill(fill);
     }
     return buf;
   };
 
-  BufferClass.allocUnsafe = function(size: number) {
-    return new BufferClass(size);
+  BufferPolyfill.allocUnsafe = function(size) {
+    return new Uint8Array(size);
   };
 
-  BufferClass.isBuffer = function(obj: any) {
-    return obj instanceof BufferClass;
+  BufferPolyfill.isBuffer = function(obj) {
+    return obj instanceof Uint8Array;
   };
 
-  // @ts-ignore
-  globalThis.Buffer = BufferClass;
-  window.Buffer = BufferClass;
+  BufferPolyfill.prototype.write = function(string, offset = 0) {
+    const bytes = new TextEncoder().encode(string);
+    this.set(bytes, offset);
+    return bytes.length;
+  };
+
+  BufferPolyfill.prototype.toString = function(encoding, start = 0, end = this.length) {
+    return new TextDecoder().decode(this.slice(start, end));
+  };
+
+  BufferPolyfill.prototype.equals = function(other) {
+    if (!(other instanceof Uint8Array)) return false;
+    if (this.length !== other.length) return false;
+    for (let i = 0; i < this.length; i++) {
+      if (this[i] !== other[i]) return false;
+    }
+    return true;
+  };
+
+  globalThis.Buffer = BufferPolyfill;
+  window.Buffer = BufferPolyfill;
 }
 
 const pool = new Pool({
