@@ -6,11 +6,7 @@ type User = {
   username: string;
 };
 
-const USERS: Record<string, { password: string }> = {
-  'user1': { password: 'user1' },
-  'user2': { password: 'user2' },
-  'user3': { password: 'user3' }
-};
+import { DatabaseModels } from '../models/database';
 
 type Notification = {
   id: string;
@@ -92,16 +88,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const login = async (username: string, password: string) => {
-    const userInfo = USERS[username];
-    if (userInfo && userInfo.password === password) {
-      const user = { id: username, username };
-      await AsyncStorage.setItem('user', JSON.stringify(user));
-      setIsAuthenticated(true);
-      setUser(user);
-      await loadChallenges(); // Load challenges after user is set
-      return true;
+    try {
+      const userInfo = await DatabaseModels.getUser(username);
+      if (userInfo && userInfo.password === password) {
+        const user = { id: userInfo.id, username: userInfo.username };
+        await AsyncStorage.setItem('user', JSON.stringify(user));
+        setIsAuthenticated(true);
+        setUser(user);
+        await loadChallenges();
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Login error:', error);
+      return false;
     }
-    return false;
   };
 
   const logout = async () => {
