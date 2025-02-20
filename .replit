@@ -17,7 +17,7 @@ localPort = 8082
 externalPort = 3000
 
 [workflows]
-runButton = "Dev Server"
+runButton = "Start Server"
 
 [[workflows.workflow]]
 name = "Dev Server"
@@ -58,3 +58,11 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npx eas build --platform android --profile preview"
+
+[[workflows.workflow]]
+name = "Start Server"
+author = 39794279
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node server/index.js"
