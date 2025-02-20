@@ -1,6 +1,7 @@
 
 import type { PropsWithChildren, ReactElement } from 'react';
-import { StyleSheet } from 'react-native';
+import { Platform } from 'react-native';
+import { StyleSheet } from 'react-native-web';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import Animated, {
@@ -13,6 +14,7 @@ import Animated, {
 import { ThemedView } from '@/components/ThemedView';
 import { useBottomTabOverflow } from '@/components/ui/TabBarBackground';
 
+const isWeb = Platform.OS === 'web';
 const HEADER_HEIGHT = 0;
 
 type Props = PropsWithChildren<{
