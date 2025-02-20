@@ -289,8 +289,8 @@ export default function ChatScreen() {
           )}
           <ThemedText style={styles.subtitle}>
             {isCoach
-              ? `Challenger: ${challenge.userId}`
-              : `Coach: ${challenge.coachId}`}
+              ? `Challenger: User ${challenge.user_id}`
+              : `Coach: User ${challenge.coach_id}`}
           </ThemedText>
         </View>
 
