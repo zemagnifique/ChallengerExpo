@@ -88,13 +88,24 @@ app.post('/api/challenges', async (req, res) => {
   
   try {
     const result = await pool.query(
-      `INSERT INTO challenges (title, description, start_date, end_date, frequency, proof_requirements, status, user_id, coach_id, created_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
+      `INSERT INTO challenges (title, description, start_date, end_date, frequency, proof_requirements, status, user_id, coach_id, created_at, archived)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), false)
        RETURNING *`,
       [title, description, startDate, endDate, frequency, proofRequirements, 'pending', userId, coachId]
     );
     
-    res.status(201).json(result.rows[0]);
+    // Convert the response to match the expected format
+    const challenge = {
+      ...result.rows[0],
+      id: result.rows[0].id.toString(),
+      userId: result.rows[0].user_id,
+      coachId: result.rows[0].coach_id,
+      startDate: result.rows[0].start_date,
+      endDate: result.rows[0].end_date,
+      createdAt: result.rows[0].created_at
+    };
+    
+    res.status(201).json(challenge);
   } catch (error) {
     console.error('Error creating challenge:', error);
     res.status(500).json({ error: 'Internal server error' });

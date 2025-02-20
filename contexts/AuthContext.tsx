@@ -131,26 +131,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .map(([id, user]) => ({ id, username: user.username }));
   };
 
-  const addChallenge = (challenge: Challenge) => {
-    const newChallenge = {
-      ...challenge,
-      id: Date.now().toString(), // Ensure unique ID
-    };
-    setChallenges(prev => {
-      const updatedChallenges = [...prev, newChallenge];
-      saveChallenges(updatedChallenges);
-      return updatedChallenges;
-    });
-    // Add notification for the coach
-    if (challenge.coachId) {
-      const notification = {
-        id: Date.now().toString(),
-        message: `New coaching request: ${challenge.title}`,
-        read: false,
-        createdAt: new Date(),
-        userId: challenge.coachId // Ensure notification goes to coach
-      };
-      setNotifications(prev => [notification, ...prev]);
+  const addChallenge = async (challenge: Challenge) => {
+    try {
+      const newChallenge = await ApiClient.createChallenge(challenge);
+      setChallenges(prev => [...prev, newChallenge]);
+      
+      // Add notification for the coach
+      if (challenge.coachId) {
+        const notification = {
+          id: Date.now().toString(),
+          message: `New coaching request: ${challenge.title}`,
+          read: false,
+          createdAt: new Date(),
+          userId: challenge.coachId
+        };
+        setNotifications(prev => [notification, ...prev]);
+      }
+      return newChallenge;
+    } catch (error) {
+      console.error('Error adding challenge:', error);
+      throw error;
     }
   };
 

@@ -57,7 +57,8 @@ export const ApiClient = {
 
   createChallenge: async (challenge: any) => {
     try {
-      const response = await fetch(`${API_URL}/challenges`, {
+      console.log('Creating challenge:', challenge);
+      const response = await fetch(`${API_URL}/api/challenges`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(challenge)
@@ -66,7 +67,9 @@ export const ApiClient = {
         const errorText = await response.text();
         throw new Error(`Failed to create challenge: ${response.status} ${response.statusText} - ${errorText}`);
       }
-      return response.json();
+      const result = await response.json();
+      console.log('Challenge created:', result);
+      return result;
     } catch (error) {
       console.error('API Error:', error);
       throw error;
