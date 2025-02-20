@@ -125,7 +125,7 @@ export default function IndexScreen() {
                 <ThemedText style={styles.title}>
                   {item.title}
                   <ThemedText style={styles.typeLabel}>
-                    {item.coachId === user?.id ? ' (Coaching)' : ' (Challenge)'}
+                    {parseInt(user?.id) === item.coach_id ? ' (Coaching)' : ' (Challenge)'}
                   </ThemedText>
                 </ThemedText>
                 <ThemedText style={styles.date}>
