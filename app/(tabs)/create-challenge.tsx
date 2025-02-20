@@ -217,9 +217,9 @@ export default function CreateChallengeScreen() {
               onChange={(e) => setSelectedCoach(parseInt(e.target.value))}
             >
               <option value="">Select a coach</option>
-              {users.map((user) => (
-                <option key={user.id} value={user.id}>
-                  {user.username}
+              {users.filter(u => u.id !== user?.id).map((otherUser) => (
+                <option key={otherUser.id} value={otherUser.id}>
+                  {otherUser.username}
                 </option>
               ))}
             </select>
@@ -233,11 +233,11 @@ export default function CreateChallengeScreen() {
                 style={styles.picker}
               >
                 <Picker.Item label="Select a coach" value="" />
-                {users.map((user) => (
+                {users.filter(u => u.id !== user?.id).map((otherUser) => (
                   <Picker.Item
-                    key={user.id}
-                    label={`${user.username}`}
-                    value={user.id}
+                    key={otherUser.id}
+                    label={`${otherUser.username}`}
+                    value={otherUser.id}
                   />
                 ))}
               </Picker>
