@@ -2,9 +2,11 @@
 import { Pool } from 'pg';
 import 'dotenv/config';
 
+import buffer from 'buffer';
+
 // Polyfill Buffer for web environment
 if (typeof window !== 'undefined' && !window.Buffer) {
-  const BufferPolyfill = function(arg, encodingOrOffset, length) {
+  window.Buffer = buffer.Buffer;
     if (!(this instanceof BufferPolyfill)) {
       return new BufferPolyfill(arg, encodingOrOffset, length);
     }
