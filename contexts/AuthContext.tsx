@@ -106,35 +106,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
       });
 
-      socket.on("updateMessages", async (messages) => {
-        if (!messages || !messages.length) return;
-        console.log("TEST updateMessages Auth");
-        console.log(messages[0].challenge_id);
-        const challenge_id = messages[0].challenge_id;
+      const updateChallengeMessages = async (challenge_id: string, newMessages: any[]) => {
         try {
-          // Fetch fresh messages from the database
           const updatedMessages = await ApiClient.getMessages(challenge_id);
-
-          setChallenges((currentChallenges) =>
-            currentChallenges.map((challenge) => {
-              console.log("setChallenges");
-              console.log(currentChallenges);
-              if (challenge.id === challenge_id) {
-                return {
-                  ...challenge,
-                  messages: updatedMessages.map((msg) => ({
-                    ...msg,
-                    is_read: msg.is_read,
-                    timestamp: new Date(msg.created_at),
-                  })),
-                };
-              }
-              return challenge;
-            }),
+          setChallenges(currentChallenges =>
+            currentChallenges.map(challenge => 
+              challenge.id === challenge_id 
+                ? {
+                    ...challenge,
+                    messages: updatedMessages.map(msg => ({
+                      ...msg,
+                      is_read: msg.is_read,
+                      timestamp: new Date(msg.created_at),
+                    })),
+                  }
+                : challenge
+            )
           );
         } catch (error) {
-          console.error("Error fetching updated messages:", error);
+          console.error("Error updating challenge messages:", error);
         }
+      };
+
+      socket.on("updateMessages", async (messages) => {
+        if (!messages || !messages.length) return;
+        const challenge_id = messages[0].challenge_id;
+        await updateChallengeMessages(challenge_id, messages);
       });
 
       socket.on("messagesRead", ({ challenge_id, user_id }) => {
