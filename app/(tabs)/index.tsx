@@ -158,7 +158,9 @@ export default function IndexScreen() {
 
   const handleAcceptChallenge = async (challenge) => {
     try {
-      await updateChallengeStatus(challenge.id, 'active');
+      await ApiClient.updateChallengeStatus(challenge.id, 'active');
+      const updatedChallenge = { ...challenge, status: 'active' };
+      await updateChallenge(updatedChallenge);
       rowRefs.get(challenge.id)?.close();
     } catch (error) {
       console.error("Error accepting challenge:", error);
