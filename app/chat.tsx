@@ -30,8 +30,9 @@ export default function ChatScreen() {
   const [selectedImage, setSelectedImage] = React.useState(null);
   const [lastTap, setLastTap] = React.useState(null);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [socketConnected, setSocketConnected] = React.useState(false);
 
-  const challenge = challenges.find((c) => c.id === challengeId);
+  const challenge = React.useMemo(() => challenges.find((c) => c.id === challengeId), [challenges, challengeId]);
   const isCoach = challenge ? parseInt(user?.id) === challenge.coach_id : false;
   const messages = challenge?.status === "pending" ? [] : (challenge?.messages ?? []);
 
@@ -128,18 +129,18 @@ export default function ChatScreen() {
     }
   };
 
-  const handleAcceptChallenge = async () => {
-    if (isSubmitting) return;
+  const handleAcceptChallenge = React.useCallback(async () => {
+    if (isSubmitting || !challengeId) return;
     try {
       setIsSubmitting(true);
-      await updateChallengeStatus(challengeId as string, "active");
-      setIsSubmitting(false);
+      await updateChallengeStatus(challengeId, "active");
       router.back();
     } catch (error) {
-      setIsSubmitting(false);
       console.error("Error accepting challenge:", error);
+    } finally {
+      setIsSubmitting(false);
     }
-  };
+  }, [challengeId, isSubmitting, updateChallengeStatus, router]);
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
