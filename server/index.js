@@ -213,6 +213,33 @@ app.get("/api/challenges/:challengeId/messages", async (req, res) => {
   }
 });
 
+// Update challenge status
+app.put("/api/challenges/:challengeId/status", async (req, res) => {
+  const { status } = req.body;
+  
+  try {
+    const result = await pool.query(
+      "UPDATE challenges SET status = $1 WHERE id = $2 RETURNING *",
+      [status, req.params.challengeId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Challenge not found" });
+    }
+
+    // Emit status update to all clients in the challenge room
+    io.to(`challenge_${req.params.challengeId}`).emit("challengeStatusUpdated", {
+      challengeId: req.params.challengeId,
+      status
+    });
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error("Error updating challenge status:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // Add a message to a challenge
 app.post("/api/challenges/:challengeId/messages", async (req, res) => {
   const { userId, text, imageUrl, isProof } = req.body;

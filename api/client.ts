@@ -144,6 +144,26 @@ export const ApiClient = {
     }
   },
 
+  updateChallengeStatus: async (challengeId: string, status: string) => {
+    try {
+      const response = await fetch(
+        `${API_URL}/api/challenges/${challengeId}/status`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status }),
+        },
+      );
+      if (!response.ok) {
+        throw new Error("Failed to update challenge status");
+      }
+      return response.json();
+    } catch (error) {
+      console.error("API Error:", error);
+      throw error;
+    }
+  },
+
   validateMessage: async (messageId: string, isValidated: boolean) => {
     try {
       const response = await fetch(
