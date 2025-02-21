@@ -32,7 +32,6 @@ export default function IndexScreen() {
     deleteChallenge,
     archiveChallenge,
   } = useAuth();
-
   const filteredChallenges = () => {
     let filtered = (challenges ?? []).filter((c) => c.status !== "rejected");
 
@@ -59,163 +58,172 @@ export default function IndexScreen() {
     return getUnreadMessageCount(challenge.id);
   };
 
-  const renderChallengeSection = (item) => (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <Swipeable
-        ref={(ref) => {
-          if (ref && !rowRefs.has(item.id)) {
-            rowRefs.set(item.id, ref);
-          }
-        }}
-        friction={2}
-        rightThreshold={40}
-        renderRightActions={(progress, dragX) => (
-          <View style={styles.swipeableButtons}>
-            {parseInt(item.coach_id) === parseInt(user?.id) ? (
-              <>
-                {item.status === "pending" && (
-                  <>
+  const renderChallengeSection = (item) => {
+    console.log("renderChallengeSection");
+    return (
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <Swipeable
+          ref={(ref) => {
+            if (ref && !rowRefs.has(item.id)) {
+              rowRefs.set(item.id, ref);
+            }
+          }}
+          friction={2}
+          rightThreshold={40}
+          renderRightActions={(progress, dragX) => (
+            <View style={styles.swipeableButtons}>
+              {parseInt(item.coach_id) === parseInt(user?.id) ? (
+                <>
+                  {item.status === "pending" && (
+                    <>
+                      <TouchableOpacity
+                        style={[styles.actionButton, styles.acceptButton]}
+                        onPress={() => handleAcceptChallenge(item)}
+                      >
+                        <IconSymbol
+                          name="checkmark.circle.fill"
+                          size={24}
+                          color="#fff"
+                        />
+                        <ThemedText style={styles.buttonText}>
+                          Accept
+                        </ThemedText>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={[styles.actionButton, styles.rejectButton]}
+                        onPress={() => handleRejectChallenge(item)}
+                      >
+                        <IconSymbol
+                          name="xmark.circle.fill"
+                          size={24}
+                          color="#fff"
+                        />
+                        <ThemedText style={styles.buttonText}>
+                          Reject
+                        </ThemedText>
+                      </TouchableOpacity>
+                    </>
+                  )}
+                  {item.status === "active" && (
                     <TouchableOpacity
-                      style={[styles.actionButton, styles.acceptButton]}
-                      onPress={() => handleAcceptChallenge(item)}
+                      style={[styles.actionButton, styles.archiveButton]}
+                      onPress={() => handleArchiveChallenge(item.id)}
                     >
                       <IconSymbol
-                        name="checkmark.circle.fill"
+                        name="tray.and.arrow.down.fill"
                         size={24}
                         color="#fff"
                       />
-                      <ThemedText style={styles.buttonText}>Accept</ThemedText>
+                      <ThemedText style={styles.buttonText}>Archive</ThemedText>
                     </TouchableOpacity>
+                  )}
+                </>
+              ) : (
+                <>
+                  {item.status === "pending" && (
+                    <>
+                      <TouchableOpacity
+                        style={[styles.actionButton, styles.changeCoachButton]}
+                        onPress={() => handleChangeCoach(item.id, "newCoachId")}
+                      >
+                        <IconSymbol name="biceps" size={24} color="#fff" />
+                        <ThemedText style={styles.buttonText}>
+                          Change Coach
+                        </ThemedText>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={[styles.actionButton, styles.deleteButton]}
+                        onPress={() => handleDeleteChallenge(item.id)}
+                      >
+                        <IconSymbol name="trash.fill" size={24} color="#fff" />
+                        <ThemedText style={styles.buttonText}>
+                          Delete
+                        </ThemedText>
+                      </TouchableOpacity>
+                    </>
+                  )}
+                  {item.status === "active" && (
                     <TouchableOpacity
-                      style={[styles.actionButton, styles.rejectButton]}
-                      onPress={() => handleRejectChallenge(item)}
+                      style={[styles.actionButton, styles.archiveButton]}
+                      onPress={() => handleArchiveChallenge(item.id)}
                     >
                       <IconSymbol
-                        name="xmark.circle.fill"
+                        name="tray.and.arrow.down.fill"
                         size={24}
                         color="#fff"
                       />
-                      <ThemedText style={styles.buttonText}>Reject</ThemedText>
+                      <ThemedText style={styles.buttonText}>Archive</ThemedText>
                     </TouchableOpacity>
-                  </>
-                )}
-                {item.status === "active" && (
-                  <TouchableOpacity
-                    style={[styles.actionButton, styles.archiveButton]}
-                    onPress={() => handleArchiveChallenge(item.id)}
-                  >
-                    <IconSymbol
-                      name="tray.and.arrow.down.fill"
-                      size={24}
-                      color="#fff"
-                    />
-                    <ThemedText style={styles.buttonText}>Archive</ThemedText>
-                  </TouchableOpacity>
-                )}
-              </>
-            ) : (
-              <>
-                {item.status === "pending" && (
-                  <>
-                    <TouchableOpacity
-                      style={[styles.actionButton, styles.changeCoachButton]}
-                      onPress={() => handleChangeCoach(item.id, "newCoachId")}
-                    >
-                      <IconSymbol name="biceps" size={24} color="#fff" />
-                      <ThemedText style={styles.buttonText}>
-                        Change Coach
-                      </ThemedText>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={[styles.actionButton, styles.deleteButton]}
-                      onPress={() => handleDeleteChallenge(item.id)}
-                    >
-                      <IconSymbol name="trash.fill" size={24} color="#fff" />
-                      <ThemedText style={styles.buttonText}>Delete</ThemedText>
-                    </TouchableOpacity>
-                  </>
-                )}
-                {item.status === "active" && (
-                  <TouchableOpacity
-                    style={[styles.actionButton, styles.archiveButton]}
-                    onPress={() => handleArchiveChallenge(item.id)}
-                  >
-                    <IconSymbol
-                      name="tray.and.arrow.down.fill"
-                      size={24}
-                      color="#fff"
-                    />
-                    <ThemedText style={styles.buttonText}>Archive</ThemedText>
-                  </TouchableOpacity>
-                )}
-              </>
-            )}
-          </View>
-        )}
-      >
-        <TouchableOpacity
-          activeOpacity={1}
-          onPress={() =>
-            router.push({
-              pathname: "/chat",
-              params: { challenge_id: item.id },
-            })
-          }
+                  )}
+                </>
+              )}
+            </View>
+          )}
         >
-          <ThemedView
-            style={[
-              styles.listItem,
-              parseInt(user?.id) === item.coach_id
-                ? styles.coachingItem
-                : styles.challengeItem,
-            ]}
+          <TouchableOpacity
+            activeOpacity={1}
+            onPress={() =>
+              router.push({
+                pathname: "/chat",
+                params: { challenge_id: item.id },
+              })
+            }
           >
-            <View style={styles.avatarContainer}>
-              <View
-                style={[
-                  styles.avatar,
-                  parseInt(user?.id) === item.coach_id
-                    ? styles.coachingAvatar
-                    : styles.challengeAvatar,
-                ]}
-              >
-                <ThemedText style={styles.avatarText}>
-                  {item.title.charAt(0).toUpperCase()}
+            <ThemedView
+              style={[
+                styles.listItem,
+                parseInt(user?.id) === item.coach_id
+                  ? styles.coachingItem
+                  : styles.challengeItem,
+              ]}
+            >
+              <View style={styles.avatarContainer}>
+                <View
+                  style={[
+                    styles.avatar,
+                    parseInt(user?.id) === item.coach_id
+                      ? styles.coachingAvatar
+                      : styles.challengeAvatar,
+                  ]}
+                >
+                  <ThemedText style={styles.avatarText}>
+                    {item.title.charAt(0).toUpperCase()}
+                  </ThemedText>
+                </View>
+              </View>
+              <View style={styles.contentContainer}>
+                <View style={styles.titleContainer}>
+                  <ThemedText style={styles.title}>{item.title}</ThemedText>
+                  {getUnreadCount(item) > 0 && (
+                    <View style={styles.badge}>
+                      <ThemedText style={styles.badgeText}>
+                        {getUnreadCount(item)}
+                      </ThemedText>
+                    </View>
+                  )}
+                </View>
+                <View style={styles.previewRow}>
+                  <ThemedText numberOfLines={1} style={styles.preview}>
+                    {item.description || `Frequency: ${item.frequency}`}
+                  </ThemedText>
+                  {item.status === "pending" && (
+                    <View style={styles.badge}>
+                      <ThemedText style={styles.badgeText}>Pending</ThemedText>
+                    </View>
+                  )}
+                </View>
+                <ThemedText style={styles.participantInfo}>
+                  {parseInt(user?.id) === item.coach_id
+                    ? `Challenger: User ${item.user_id}`
+                    : `Coach: User ${item.coach_id}`}
                 </ThemedText>
               </View>
-            </View>
-            <View style={styles.contentContainer}>
-              <View style={styles.titleContainer}>
-                <ThemedText style={styles.title}>{item.title}</ThemedText>
-                {getUnreadCount(item) > 0 && (
-                  <View style={styles.badge}>
-                    <ThemedText style={styles.badgeText}>
-                      {getUnreadCount(item)}
-                    </ThemedText>
-                  </View>
-                )}
-              </View>
-              <View style={styles.previewRow}>
-                <ThemedText numberOfLines={1} style={styles.preview}>
-                  {item.description || `Frequency: ${item.frequency}`}
-                </ThemedText>
-                {item.status === "pending" && (
-                  <View style={styles.badge}>
-                    <ThemedText style={styles.badgeText}>Pending</ThemedText>
-                  </View>
-                )}
-              </View>
-              <ThemedText style={styles.participantInfo}>
-                {parseInt(user?.id) === item.coach_id
-                  ? `Challenger: User ${item.user_id}`
-                  : `Coach: User ${item.coach_id}`}
-              </ThemedText>
-            </View>
-          </ThemedView>
-        </TouchableOpacity>
-      </Swipeable>
-    </GestureHandlerRootView>
-  );
+            </ThemedView>
+          </TouchableOpacity>
+        </Swipeable>
+      </GestureHandlerRootView>
+    );
+  };
 
   const rowRefs = new Map();
 
