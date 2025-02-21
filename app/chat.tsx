@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+
+import React from "react";
 import {
   StyleSheet,
   View,
@@ -19,23 +20,21 @@ import { ApiClient } from "@/api/client";
 import { io } from "socket.io-client";
 
 export default function ChatScreen() {
-  const flatListRef = React.useRef<FlatList<any>>(null);
   const { challengeId } = useLocalSearchParams<{ challengeId: string }>();
   const { challenges, user, updateChallengeStatus, updateChallenge } = useAuth();
   const router = useRouter();
+  const flatListRef = React.useRef<FlatList<any>>(null);
 
-  // All useState declarations
-  const [message, setMessage] = useState("");
-  const [localStatus, setLocalStatus] = useState("");
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [lastTap, setLastTap] = useState(null);
+  const [message, setMessage] = React.useState("");
+  const [keyboardHeight, setKeyboardHeight] = React.useState(0);
+  const [selectedImage, setSelectedImage] = React.useState(null);
+  const [lastTap, setLastTap] = React.useState(null);
 
   const challenge = challenges.find((c) => c.id === challengeId);
   const isCoach = challenge ? parseInt(user?.id) === challenge.coach_id : false;
   const messages = challenge?.status === "pending" ? [] : (challenge?.messages ?? []);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const loadMessages = async () => {
       try {
         if (challenge?.status !== "pending") {
@@ -55,7 +54,7 @@ export default function ChatScreen() {
     }
   }, [challengeId, challenge?.id, challenge?.status]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const keyboardWillShow = (e: any) => {
       setKeyboardHeight(e.endCoordinates.height);
     };
@@ -79,7 +78,7 @@ export default function ChatScreen() {
     };
   }, []);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const socket = io(ApiClient.getApiUrl());
 
     socket.on("connect", () => {
@@ -131,7 +130,6 @@ export default function ChatScreen() {
   const handleAcceptChallenge = async () => {
     try {
       await updateChallengeStatus(challengeId as string, "active");
-      setLocalStatus("active");
       router.back();
     } catch (error) {
       console.error("Error accepting challenge:", error);
@@ -164,22 +162,6 @@ export default function ChatScreen() {
         await updateChallenge(updatedChallenge);
       }
     }
-  };
-
-  const handleLongPress = async (message: any) => {
-    if (!isCoach || message.userId === user?.id || !message.isProof) return;
-
-    const updatedMessages = challenge.messages.map((msg) => {
-      if (
-        msg.timestamp === message.timestamp &&
-        msg.userId === message.userId
-      ) {
-        return { ...msg, isValidated: !msg.isValidated, isProof: true };
-      }
-      return msg;
-    });
-    const updatedChallenge = { ...challenge, messages: updatedMessages };
-    await updateChallenge(updatedChallenge);
   };
 
   const handleDoubleTap = async (message: any) => {
@@ -280,28 +262,14 @@ export default function ChatScreen() {
         }
         onLayout={() => flatListRef.current?.scrollToEnd({ animated: true })}
         renderItem={({ item }) => {
-          let suggestionText = "";
-          if (isCoach && item.isProof && !item.isValidated) {
-            suggestionText = "Double tap to approve proof";
-          } else if (!isCoach && item.userId === user?.id) {
-            suggestionText = "Double tap to submit as proof";
-          }
+          const suggestionText = isCoach && item.isProof && !item.isValidated
+            ? "Double tap to approve proof"
+            : !isCoach && item.userId === user?.id
+            ? "Double tap to submit as proof"
+            : "";
+
           return (
-            <TouchableOpacity
-              onLongPress={() => {
-                isCoach && handleLongPress(item);
-              }}
-              onPressIn={() => {
-                const now = Date.now();
-                const DOUBLE_PRESS_DELAY = 300;
-                if (lastTap && now - lastTap < DOUBLE_PRESS_DELAY) {
-                  handleDoubleTap(item);
-                } else {
-                  setLastTap(now);
-                }
-              }}
-              delayLongPress={200}
-            >
+            <TouchableOpacity onPress={() => handleDoubleTap(item)}>
               <View
                 style={[
                   styles.messageBubble,
@@ -344,16 +312,13 @@ export default function ChatScreen() {
                   </View>
                 )}
               </View>
-              {((isCoach && item.isProof && !item.isValidated) ||
-                (!isCoach &&
-                  messages[messages.length - 1].timestamp ===
-                    item.timestamp)) && (
+              {suggestionText && (
                 <ThemedText
                   style={[
                     styles.suggestionText,
-                    isCoach
-                      ? { alignSelf: "flex-start", marginLeft: 8 }
-                      : { alignSelf: "flex-end", marginRight: 8 },
+                    item.userId === user?.id
+                      ? { alignSelf: "flex-end", marginRight: 8 }
+                      : { alignSelf: "flex-start", marginLeft: 8 },
                   ]}
                 >
                   {suggestionText}
