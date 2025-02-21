@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS messages (
 -- Insert test users
 INSERT INTO users (id, username, password) 
 VALUES 
-  ('user1', 'user1', 'user1'),
-  ('user2', 'user2', 'user2'),
-  ('user3', 'user3', 'user3')
+  ('1', 'user1', 'user1'),
+  ('2', 'user2', 'user2'),
+  ('3', 'user3', 'user3')
 ON CONFLICT (username) DO NOTHING;
