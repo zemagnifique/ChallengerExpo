@@ -290,7 +290,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const getUnreadMessageCount = (challengeId: string): number => {
     const challenge = challenges.find((c) => c.id === challengeId);
-    return challenge?.messages?.filter((msg) => !msg.read && msg.userId !== user?.id).length || 0;
+    return challenge?.messages?.filter((msg) => !msg.read && msg.user_id !== user?.id).length || 0;
   };
 
   const markMessagesAsRead = async (challengeId: string): Promise<void> => {
@@ -300,7 +300,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           ...c,
           messages: c.messages?.map(msg => ({
             ...msg,
-            read: msg.userId !== user?.id ? true : msg.read
+            read: msg.user_id !== user?.id ? true : msg.read
           })) || []
         };
       }

@@ -174,7 +174,7 @@ export default function ChatScreen() {
     if (!result.cancelled && !result.canceled) {
       const newMessage = {
         text: "",
-        userId: user?.id || "",
+        user_id: user?.id || "",
         timestamp: new Date(),
         image: result.assets[0].uri,
         isValidated: false,
