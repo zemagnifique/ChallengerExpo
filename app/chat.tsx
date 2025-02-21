@@ -65,11 +65,13 @@ export default function ChatScreen() {
   React.useEffect(() => {
     const loadMessages = async () => {
       try {
-        const messages = await ApiClient.getMessages(challengeId as string);
-        updateChallenge({
-          ...challenge,
-          messages
-        });
+        if (challenge?.status !== 'pending') {
+          const messages = await ApiClient.getMessages(challengeId as string);
+          updateChallenge({
+            ...challenge,
+            messages: messages || []
+          });
+        }
       } catch (error) {
         console.error('Error loading messages:', error);
       }
@@ -78,7 +80,7 @@ export default function ChatScreen() {
     if (challenge?.id) {
       loadMessages();
     }
-  }, [challengeId, challenge?.id]);
+  }, [challengeId, challenge?.id, challenge?.status]);
 
   React.useEffect(() => {
     const keyboardWillShow = (e: any) => {
@@ -243,7 +245,7 @@ export default function ChatScreen() {
 
   useEffect(() => {
     if (challenge) {
-      setMessages(challenge.messages ?? []);
+      setMessages(challenge.status === 'pending' ? [] : (challenge.messages ?? []));
       setIsCoach(parseInt(user?.id) === challenge.coach_id);
     }
   }, [challenge, user]);
