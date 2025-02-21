@@ -113,25 +113,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
       });
 
-      socket.on("updateMessages", (messages) => {
+      socket.on("updateMessages", async (messages) => {
         if (!messages || !messages.length) return;
         
         const challengeId = messages[0].challenge_id;
-        setChallenges(currentChallenges => 
-          currentChallenges.map(challenge => {
-            if (challenge.id === challengeId) {
-              return {
-                ...challenge,
-                messages: messages.map(msg => ({
-                  ...msg,
-                  read: msg.user_id === user.id,
-                  timestamp: new Date(msg.created_at)
-                }))
-              };
-            }
-            return challenge;
-          })
-        );
+        try {
+          // Fetch fresh messages from the database
+          const updatedMessages = await ApiClient.getMessages(challengeId);
+          
+          setChallenges(currentChallenges => 
+            currentChallenges.map(challenge => {
+              if (challenge.id === challengeId) {
+                return {
+                  ...challenge,
+                  messages: updatedMessages.map(msg => ({
+                    ...msg,
+                    read: msg.user_id === user.id,
+                    timestamp: new Date(msg.created_at)
+                  }))
+                };
+              }
+              return challenge;
+            })
+          );
+        } catch (error) {
+          console.error("Error fetching updated messages:", error);
+        }
       });
 
       socket.on("messagesRead", ({ challengeId, userId }) => {
