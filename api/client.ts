@@ -174,15 +174,18 @@ export const ApiClient = {
     }
   },
 
-  markMessagesAsRead: async (challengeId: string, userId: string) => {
+  markMessagesAsRead: async (challengeId: string, user_id: string) => {
     try {
-      const response = await fetch(`${API_URL}/api/challenges/${challengeId}/messages/read`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        `${API_URL}/api/challenges/${challengeId}/messages/read`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ user_id: userId }),
         },
-        body: JSON.stringify({ user_id: userId }),
-      });
+      );
       if (!response.ok) {
         throw new Error("Failed to mark messages as read");
       }

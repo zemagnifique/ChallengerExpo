@@ -11,10 +11,10 @@ const io = require("socket.io")(server, {
     origin: "*",
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
-    allowedHeaders: ["Content-Type", "Authorization"]
+    allowedHeaders: ["Content-Type", "Authorization"],
   },
-  transports: ['websocket', 'polling'],
-  allowEIO3: true
+  transports: ["websocket", "polling"],
+  allowEIO3: true,
 });
 
 // WebSocket connection handling
@@ -220,11 +220,11 @@ app.get("/api/challenges/:challengeId/messages", async (req, res) => {
 // Update challenge status
 app.put("/api/challenges/:challengeId/status", async (req, res) => {
   const { status } = req.body;
-  
+
   try {
     const result = await pool.query(
       "UPDATE challenges SET status = $1 WHERE id = $2 RETURNING *",
-      [status, req.params.challengeId]
+      [status, req.params.challengeId],
     );
 
     if (result.rows.length === 0) {
@@ -232,10 +232,13 @@ app.put("/api/challenges/:challengeId/status", async (req, res) => {
     }
 
     // Emit status update to all clients in the challenge room
-    io.to(`challenge_${req.params.challengeId}`).emit("challengeStatusUpdated", {
-      challengeId: req.params.challengeId,
-      status
-    });
+    io.to(`challenge_${req.params.challengeId}`).emit(
+      "challengeStatusUpdated",
+      {
+        challengeId: req.params.challengeId,
+        status,
+      },
+    );
 
     res.json(result.rows[0]);
   } catch (error) {
@@ -259,18 +262,21 @@ app.post("/api/challenges/:challengeId/messages", async (req, res) => {
     // Get all messages after inserting new one
     const messagesResult = await pool.query(
       "SELECT * FROM messages WHERE challenge_id = $1 ORDER BY created_at ASC",
-      [req.params.challengeId]
+      [req.params.challengeId],
     );
 
-    const messages = messagesResult.rows.map(msg => ({
+    const messages = messagesResult.rows.map((msg) => ({
       ...msg,
       read: false,
       timestamp: msg.created_at,
-      success: true
+      success: true,
     }));
 
     // Emit all messages to clients in the challenge room
-    io.to(`challenge_${req.params.challengeId}`).emit("updateMessages", messages);
+    io.to(`challenge_${req.params.challengeId}`).emit(
+      "updateMessages",
+      messages,
+    );
 
     res.status(201).json({ success: true, message: result.rows[0] });
   } catch (error) {
@@ -302,19 +308,19 @@ app.put("/api/messages/:messageId/validate", async (req, res) => {
 
 app.put("/api/challenges/:challengeId/messages/read", async (req, res) => {
   const { user_id } = req.body;
-  
+
   try {
     const result = await pool.query(
       "UPDATE messages SET is_read = true WHERE challenge_id = $1 AND user_id != $2 RETURNING *",
-      [req.params.challengeId, user_id]
+      [req.params.challengeId, user_id],
     );
-    
+
     // Emit socket event when messages are marked as read
     io.to(`challenge_${req.params.challengeId}`).emit("messagesRead", {
       challengeId: req.params.challengeId,
-      userId: user_id
+      user_id: user_id,
     });
-    
+
     res.json(result.rows);
   } catch (error) {
     console.error("Error marking messages as read:", error);

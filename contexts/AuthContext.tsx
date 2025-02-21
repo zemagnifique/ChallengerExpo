@@ -97,7 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (user?.id) {
       loadChallenges();
-      
+
       // Setup WebSocket connection
       const socket = io(ApiClient.getApiUrl(), {
         transports: ["websocket", "polling"],
@@ -108,54 +108,54 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       socket.on("connect", () => {
         console.log("Connected to main WebSocket");
         // Join all challenge rooms
-        challenges.forEach(challenge => {
+        challenges.forEach((challenge) => {
           socket.emit("joinRoom", challenge.id);
         });
       });
 
       socket.on("updateMessages", async (messages) => {
         if (!messages || !messages.length) return;
-        
+
         const challengeId = messages[0].challenge_id;
         try {
           // Fetch fresh messages from the database
           const updatedMessages = await ApiClient.getMessages(challengeId);
-          
-          setChallenges(currentChallenges => 
-            currentChallenges.map(challenge => {
+
+          setChallenges((currentChallenges) =>
+            currentChallenges.map((challenge) => {
               if (challenge.id === challengeId) {
                 return {
                   ...challenge,
-                  messages: updatedMessages.map(msg => ({
+                  messages: updatedMessages.map((msg) => ({
                     ...msg,
                     read: msg.user_id === user.id,
-                    timestamp: new Date(msg.created_at)
-                  }))
+                    timestamp: new Date(msg.created_at),
+                  })),
                 };
               }
               return challenge;
-            })
+            }),
           );
         } catch (error) {
           console.error("Error fetching updated messages:", error);
         }
       });
 
-      socket.on("messagesRead", ({ challengeId, userId }) => {
-        if (userId !== user.id) {
-          setChallenges(currentChallenges =>
-            currentChallenges.map(challenge => {
+      socket.on("messagesRead", ({ challengeId, user_id }) => {
+        if (user_id !== user.id) {
+          setChallenges((currentChallenges) =>
+            currentChallenges.map((challenge) => {
               if (challenge.id === challengeId) {
                 return {
                   ...challenge,
-                  messages: challenge.messages?.map(msg => ({
+                  messages: challenge.messages?.map((msg) => ({
                     ...msg,
-                    read: msg.user_id === userId ? true : msg.read
-                  }))
+                    read: msg.user_id === user_id ? true : msg.read,
+                  })),
                 };
               }
               return challenge;
-            })
+            }),
           );
         }
       });
@@ -359,9 +359,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const getUnreadMessageCount = (challengeId: string): number => {
     const challenge = challenges.find((c) => c.id === challengeId);
     if (!challenge || !challenge.messages) return 0;
-    
-    return challenge.messages.filter(msg => 
-      msg.user_id !== user?.id && !msg.read
+
+    return challenge.messages.filter(
+      (msg) => msg.user_id !== user?.id && !msg.read,
     ).length;
   };
 
