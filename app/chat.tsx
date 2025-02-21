@@ -20,15 +20,16 @@ import { ApiClient } from "@/api/client";
 import { io } from "socket.io-client";
 
 export default function ChatScreen() {
+  const flatListRef = React.useRef<FlatList<any>>(null);
+  const router = useRouter();
   const { challengeId } = useLocalSearchParams<{ challengeId: string }>();
   const { challenges, user, updateChallengeStatus, updateChallenge } = useAuth();
-  const router = useRouter();
-  const flatListRef = React.useRef<FlatList<any>>(null);
-
+  
   const [message, setMessage] = React.useState("");
   const [keyboardHeight, setKeyboardHeight] = React.useState(0);
   const [selectedImage, setSelectedImage] = React.useState(null);
   const [lastTap, setLastTap] = React.useState(null);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const challenge = challenges.find((c) => c.id === challengeId);
   const isCoach = challenge ? parseInt(user?.id) === challenge.coach_id : false;
@@ -128,10 +129,14 @@ export default function ChatScreen() {
   };
 
   const handleAcceptChallenge = async () => {
+    if (isSubmitting) return;
     try {
+      setIsSubmitting(true);
       await updateChallengeStatus(challengeId as string, "active");
+      setIsSubmitting(false);
       router.back();
     } catch (error) {
+      setIsSubmitting(false);
       console.error("Error accepting challenge:", error);
     }
   };
