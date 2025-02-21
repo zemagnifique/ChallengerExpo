@@ -107,18 +107,24 @@ export default function ChatScreen() {
     
     socket.on("newMessage", (message) => {
       console.log('Received message:', message);
-      if (message.challenge_id === challengeId) {
-        updateChallenge({
-          ...challenge,
-          messages: [
-            ...(challenge.messages || []),
-            {
-              ...message,
-              read: message.user_id === user?.id,
-              timestamp: new Date(message.created_at)
-            }
-          ]
-        });
+      if (message && message.challenge_id === challengeId) {
+        const newMessage = {
+          id: message.id,
+          text: message.text,
+          user_id: message.user_id,
+          imageUrl: message.image_url,
+          isProof: message.is_proof,
+          isValidated: message.is_validated,
+          read: message.user_id === user?.id,
+          timestamp: new Date(message.created_at)
+        };
+        
+        if (challenge) {
+          updateChallenge({
+            ...challenge,
+            messages: [...(challenge.messages || []), newMessage]
+          });
+        }
       }
     });
 

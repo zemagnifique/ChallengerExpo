@@ -261,13 +261,14 @@ app.post("/api/challenges/:challengeId/messages", async (req, res) => {
       challenge_id: req.params.challengeId,
       read: false,
       timestamp: new Date(),
-      created_at: new Date()
+      created_at: new Date(),
+      success: true
     };
 
     // Emit the new message to all clients in the challenge room
     io.to(`challenge_${req.params.challengeId}`).emit("newMessage", newMessage);
 
-    res.status(201).json(newMessage);
+    res.status(201).json({ success: true, message: newMessage });
   } catch (error) {
     console.error("Error creating message:", error);
     res.status(500).json({ error: "Internal server error" });
