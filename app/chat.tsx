@@ -206,6 +206,10 @@ export default function ChatScreen() {
     await updateChallenge(updatedChallenge);
   };
 
+  const [messages, setMessages] = useState<any[]>([]);
+  const [isCoach, setIsCoach] = useState(false);
+  const [lastTap, setLastTap] = useState(null);
+
   const handleDoubleTap = async (message: any) => {
     const now = Date.now();
     if (lastTap && now - lastTap < 300) {
@@ -239,9 +243,6 @@ export default function ChatScreen() {
     }
     setLastTap(now);
   };
-
-  const [messages, setMessages] = useState<any[]>([]);
-  const [isCoach, setIsCoach] = useState(false);
 
   useEffect(() => {
     if (challenge) {
