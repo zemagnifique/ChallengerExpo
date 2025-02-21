@@ -89,7 +89,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [socket, setSocket] = React.useState<any>(null);
 
   useEffect(() => {
     checkAuth();
@@ -99,66 +98,73 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (user?.id) {
       loadChallenges();
 
-    // Setup main socket connection
-    const newSocket = io(ApiClient.getApiUrl(), {
-      transports: ["websocket"],
-      reconnection: true,
-    });
-
-    newSocket.on("connect", () => {
-      console.log("Connected to main socket");
-      // Join all challenge rooms
-      challenges.forEach((challenge) => {
-        newSocket.emit("joinRoom", challenge.id);
+      // Setup WebSocket connection
+      const socket = io(ApiClient.getApiUrl(), {
+        transports: ["websocket", "polling"],
+        reconnection: true,
+        reconnectionAttempts: 5,
       });
-    });
 
-    newSocket.on("updateMessages", (messages) => {
-      if (!messages || !messages.length) return;
-      const challengeId = messages[0].challenge_id;
-      const processedMessages = messages.map((msg) => ({
-        ...msg,
-        is_read: msg.user_id === user.id,
-        timestamp: new Date(msg.created_at),
-      }));
-
-      setChallenges((currentChallenges) =>
-        currentChallenges.map((c) =>
-          c.id === challengeId ? { ...c, messages: processedMessages } : c
-        )
-      );
-    });
-
-    newSocket.on("messagesRead", ({ challengeId, user_id }) => {
-      if (user_id !== user.id) {
-        setChallenges((currentChallenges) =>
-          currentChallenges.map((challenge) => {
-            if (challenge.id === challengeId) {
-              return {
-                ...challenge,
-                messages: challenge.messages?.map((msg) => ({
-                  ...msg,
-                  is_read: msg.user_id === user_id ? true : msg.is_read,
-                })),
-              };
-            }
-            return challenge;
-          }),
-        );
-      }
-    });
-
-
-    setSocket(newSocket);
-
-    return () => {
-      challenges.forEach((challenge) => {
-        newSocket.emit("leaveRoom", challenge.id);
+      socket.on("connect", () => {
+        console.log("Connected to main WebSocket");
+        // Join all challenge rooms
+        challenges.forEach((challenge) => {
+          socket.emit("joinRoom", challenge.id);
+        });
       });
-      newSocket.disconnect();
-    };
-  }
-}, [user]);
+
+      socket.on("updateMessages", async (messages) => {
+        if (!messages || !messages.length) return;
+
+        const challengeId = messages[0].challenge_id;
+        try {
+          // Fetch fresh messages from the database
+          const updatedMessages = await ApiClient.getMessages(challengeId);
+
+          setChallenges((currentChallenges) =>
+            currentChallenges.map((challenge) => {
+              if (challenge.id === challengeId) {
+                return {
+                  ...challenge,
+                  messages: updatedMessages.map((msg) => ({
+                    ...msg,
+                    is_read: msg.is_read,
+                    timestamp: new Date(msg.created_at),
+                  })),
+                };
+              }
+              return challenge;
+            }),
+          );
+        } catch (error) {
+          console.error("Error fetching updated messages:", error);
+        }
+      });
+
+      socket.on("messagesRead", ({ challengeId, user_id }) => {
+        if (user_id !== user.id) {
+          setChallenges((currentChallenges) =>
+            currentChallenges.map((challenge) => {
+              if (challenge.id === challengeId) {
+                return {
+                  ...challenge,
+                  messages: challenge.messages?.map((msg) => ({
+                    ...msg,
+                    is_read: msg.user_id === user_id ? true : msg.is_read,
+                  })),
+                };
+              }
+              return challenge;
+            }),
+          );
+        }
+      });
+
+      return () => {
+        socket.disconnect();
+      };
+    }
+  }, [user]);
 
   const checkAuth = async () => {
     const storedUser = await AsyncStorage.getItem("user");
@@ -187,10 +193,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsAuthenticated(false);
     setUser(null);
     setChallenges([]);
-    if (socket) {
-      socket.disconnect();
-      setSocket(null);
-    }
   };
 
   const TEST_USERS = {
@@ -359,7 +361,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!challenge || !challenge.messages) return 0;
     console.log(challenge.messages);
     return challenge.messages.filter(
-      (msg) => msg.user_id !== user?.id && !msg.read,
+      (msg) => msg.user_id !== user?.id && !msg.is_read,
     ).length;
   };
 
