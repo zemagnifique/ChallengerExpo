@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
   StyleSheet,
@@ -23,8 +22,9 @@ export default function ChatScreen() {
   const flatListRef = React.useRef<FlatList<any>>(null);
   const router = useRouter();
   const { challengeId } = useLocalSearchParams<{ challengeId: string }>();
-  const { challenges, user, updateChallengeStatus, updateChallenge } = useAuth();
-  
+  const { challenges, user, updateChallengeStatus, updateChallenge } =
+    useAuth();
+
   const [message, setMessage] = React.useState("");
   const [keyboardHeight, setKeyboardHeight] = React.useState(0);
   const [selectedImage, setSelectedImage] = React.useState(null);
@@ -32,9 +32,13 @@ export default function ChatScreen() {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [socketConnected, setSocketConnected] = React.useState(false);
 
-  const challenge = React.useMemo(() => challenges.find((c) => c.id === challengeId), [challenges, challengeId]);
+  const challenge = React.useMemo(
+    () => challenges.find((c) => c.id === challengeId),
+    [challenges, challengeId],
+  );
   const isCoach = challenge ? parseInt(user?.id) === challenge.coach_id : false;
-  const messages = challenge?.status === "pending" ? [] : (challenge?.messages ?? []);
+  const messages =
+    challenge?.status === "pending" ? [] : (challenge?.messages ?? []);
 
   React.useEffect(() => {
     const loadMessages = async () => {
@@ -242,9 +246,7 @@ export default function ChatScreen() {
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.actionButton, styles.rejectButton]}
-                onPress={() =>
-                  updateChallengeStatus(challenge.id, "rejected")
-                }
+                onPress={() => updateChallengeStatus(challenge.id, "rejected")}
               >
                 <ThemedText style={styles.buttonText}>Reject</ThemedText>
               </TouchableOpacity>
@@ -268,11 +270,12 @@ export default function ChatScreen() {
         }
         onLayout={() => flatListRef.current?.scrollToEnd({ animated: true })}
         renderItem={({ item }) => {
-          const suggestionText = isCoach && item.isProof && !item.isValidated
-            ? "Double tap to approve proof"
-            : !isCoach && item.userId === user?.id
-            ? "Double tap to submit as proof"
-            : "";
+          const suggestionText =
+            isCoach && item.isProof && !item.isValidated
+              ? "Double tap to approve proof"
+              : !isCoach && item.userId === user?.id
+                ? "Double tap to submit as proof"
+                : "";
 
           return (
             <TouchableOpacity onPress={() => handleDoubleTap(item)}>
