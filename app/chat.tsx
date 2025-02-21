@@ -50,7 +50,7 @@ export default function ChatScreen() {
           const messages = await ApiClient.getMessages(challengeId as string);
           const processedMessages = messages.map((msg) => ({
             ...msg,
-            read: msg.user_id === user?.id, // Only mark own messages as read initially
+            read: false,
           }));
           updateChallenge({
             ...challenge,

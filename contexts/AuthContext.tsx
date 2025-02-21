@@ -373,7 +373,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           messages:
             c.messages?.map((msg) => ({
               ...msg,
-              read: msg.user_id !== user?.id ? true : msg.read,
+              read: msg.user_id === user?.id ? msg.read : true,
             })) || [],
         };
       }
