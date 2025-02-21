@@ -128,7 +128,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                   ...challenge,
                   messages: updatedMessages.map((msg) => ({
                     ...msg,
-                    read: msg.user_id === user.id,
+                    read: msg.is_read,
                     timestamp: new Date(msg.created_at),
                   })),
                 };
