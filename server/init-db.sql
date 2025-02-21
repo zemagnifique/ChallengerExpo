@@ -31,6 +31,7 @@ CREATE TABLE IF NOT EXISTS messages (
   image_url TEXT,
   is_proof BOOLEAN DEFAULT FALSE,
   is_validated BOOLEAN DEFAULT FALSE,
+  is_read BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES users(id)
 );

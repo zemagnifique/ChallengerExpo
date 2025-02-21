@@ -54,6 +54,10 @@ export default function IndexScreen() {
 
   const allChallenges = filteredChallenges();
 
+  const getUnreadCount = (challenge) => {
+    return (challenge.messages || []).filter(m => !m.is_read && m.userId !== user?.id).length;
+  };
+
   const renderChallengeSection = (item) => (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Swipeable
@@ -177,18 +181,13 @@ export default function IndexScreen() {
               </View>
             </View>
             <View style={styles.contentContainer}>
-              <View style={styles.titleRow}>
-                <ThemedText style={styles.title}>
-                  {item.title}
-                  <ThemedText style={styles.typeLabel}>
-                    {parseInt(user?.id) === item.coach_id
-                      ? " (Coaching)"
-                      : " (Challenge)"}
-                  </ThemedText>
-                </ThemedText>
-                <ThemedText style={styles.date}>
-                  {new Date(item.startDate).toLocaleDateString()}
-                </ThemedText>
+              <View style={styles.titleContainer}>
+                <ThemedText style={styles.title}>{item.title}</ThemedText>
+                {getUnreadCount(item) > 0 && (
+                  <View style={styles.badge}>
+                    <ThemedText style={styles.badgeText}>{getUnreadCount(item)}</ThemedText>
+                  </View>
+                )}
               </View>
               <View style={styles.previewRow}>
                 <ThemedText numberOfLines={1} style={styles.preview}>
@@ -342,12 +341,14 @@ export default function IndexScreen() {
   );
 
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
-      data={allChallenges}
-      renderItem={({ item }) => renderChallengeSection(item)}
-      ListHeaderComponent={HeaderComponent}
-    />
+    <ThemedView style={styles.container}>
+      <ParallaxScrollView
+        headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
+        data={allChallenges}
+        renderItem={({ item }) => renderChallengeSection(item)}
+        ListHeaderComponent={HeaderComponent}
+      />
+    </ThemedView>
   );
 }
 
@@ -420,6 +421,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 4,
   },
+  titleContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
   title: {
     fontSize: 16,
     fontWeight: "600",
@@ -444,6 +449,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 12,
+    marginLeft: 8,
   },
   badgeText: {
     fontSize: 12,

@@ -49,6 +49,8 @@ export default function ChatScreen() {
             ...challenge,
             messages: messages || [],
           });
+          // Mark messages as read when chat is opened
+          await ApiClient.markMessagesAsRead(challengeId as string, user?.id || "");
         }
       } catch (error) {
         console.error("Error loading messages:", error);

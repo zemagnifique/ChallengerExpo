@@ -285,6 +285,22 @@ app.put("/api/messages/:messageId/validate", async (req, res) => {
   }
 });
 
+app.put("/api/challenges/:challengeId/messages/read", async (req, res) => {
+  const { userId } = req.body;
+  
+  try {
+    const result = await pool.query(
+      "UPDATE messages SET is_read = true WHERE challenge_id = $1 AND user_id != $2 RETURNING *",
+      [req.params.challengeId, userId]
+    );
+    
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Error marking messages as read:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 server.listen(PORT, "0.0.0.0", () => {
   console.log(`API Server running on port ${PORT}`);
 });
