@@ -296,6 +296,12 @@ app.put("/api/challenges/:challengeId/messages/read", async (req, res) => {
       [req.params.challengeId, user_id]
     );
     
+    // Emit socket event when messages are marked as read
+    io.to(`challenge_${req.params.challengeId}`).emit("messagesRead", {
+      challengeId: req.params.challengeId,
+      userId: user_id
+    });
+    
     res.json(result.rows);
   } catch (error) {
     console.error("Error marking messages as read:", error);
