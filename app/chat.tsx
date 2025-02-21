@@ -21,7 +21,7 @@ import { io } from "socket.io-client";
 export default function ChatScreen() {
   const flatListRef = React.useRef<FlatList<any>>(null);
   const router = useRouter();
-  const { challengeId } = useLocalSearchParams<{ challengeId: string }>();
+  const { challenge_id } = useLocalSearchParams<{ challenge_id: string }>();
   const { challenges, user, updateChallengeStatus, updateChallenge } =
     useAuth();
 
@@ -34,8 +34,8 @@ export default function ChatScreen() {
   const textColor = useThemeColor({}, "text");
 
   const challenge = React.useMemo(
-    () => challenges.find((c) => c.id === challengeId),
-    [challenges, challengeId],
+    () => challenges.find((c) => c.id === challenge_id),
+    [challenges, challenge_id],
   );
   const isCoach = challenge ? parseInt(user?.id) === challenge.coach_id : false;
   const messages =
@@ -47,7 +47,7 @@ export default function ChatScreen() {
     const loadMessages = async () => {
       try {
         if (challenge?.status !== "pending") {
-          const messages = await ApiClient.getMessages(challengeId as string);
+          const messages = await ApiClient.getMessages(challenge_id as string);
           const processedMessages = messages.map((msg) => ({
             ...msg,
             is_read: false,
@@ -57,7 +57,7 @@ export default function ChatScreen() {
             messages: processedMessages || [],
           });
           // Mark received messages as read when chat is opened
-          await markMessagesAsRead(challengeId as string);
+          await markMessagesAsRead(challenge_id as string);
         }
       } catch (error) {
         console.error("Error loading messages:", error);
@@ -67,7 +67,7 @@ export default function ChatScreen() {
     if (challenge?.id) {
       loadMessages();
     }
-  }, [challengeId, challenge?.id, challenge?.status]);
+  }, [challenge_id, challenge?.id, challenge?.status]);
 
   React.useEffect(() => {
     const keyboardWillShow = (e: any) => {
@@ -94,7 +94,7 @@ export default function ChatScreen() {
   }, []);
 
   React.useEffect(() => {
-    if (!challengeId || !challenge) return;
+    if (!challenge_id || !challenge) return;
 
     const socket = io(ApiClient.getApiUrl(), {
       transports: ["websocket"],
@@ -103,7 +103,7 @@ export default function ChatScreen() {
 
     socket.on("connect", () => {
       console.log("Connected to chat socket");
-      socket.emit("joinRoom", challengeId);
+      socket.emit("joinRoom", challenge_id);
     });
 
     socket.on("updateMessages", (messages) => {
@@ -128,23 +128,23 @@ export default function ChatScreen() {
     });
 
     return () => {
-      socket.emit("leaveRoom", challengeId);
+      socket.emit("leaveRoom", challenge_id);
       socket.disconnect();
     };
-  }, [challengeId, challenge?.id]);
+  }, [challenge_id, challenge?.id]);
 
   const handleSendMessage = async () => {
     if (!message.trim() && !selectedImage) return;
 
     try {
-      const newMessage = await ApiClient.sendMessage(challengeId as string, {
+      const newMessage = await ApiClient.sendMessage(challenge_id as string, {
         user_id: user?.id || "",
         text: message.trim(),
         imageUrl: selectedImage,
         isProof: false,
       });
 
-      const messages = await ApiClient.getMessages(challengeId as string);
+      const messages = await ApiClient.getMessages(challenge_id as string);
       if (challenge) {
         updateChallenge({
           ...challenge,
@@ -160,10 +160,10 @@ export default function ChatScreen() {
   };
 
   const handleAcceptChallenge = React.useCallback(async () => {
-    if (isSubmitting || !challengeId) return;
+    if (isSubmitting || !challenge_id) return;
     try {
       setIsSubmitting(true);
-      await ApiClient.updateChallengeStatus(challengeId, "active");
+      await ApiClient.updateChallengeStatus(challenge_id, "active");
       if (challenge) {
         await updateChallenge({ ...challenge, status: "active" });
       }
@@ -175,7 +175,7 @@ export default function ChatScreen() {
     } finally {
       setIsSubmitting(false);
     }
-  }, [challengeId, isSubmitting, challenge, updateChallenge, router]);
+  }, [challenge_id, isSubmitting, challenge, updateChallenge, router]);
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({

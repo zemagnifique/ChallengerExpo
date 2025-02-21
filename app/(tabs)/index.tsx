@@ -156,7 +156,10 @@ export default function IndexScreen() {
         <TouchableOpacity
           activeOpacity={1}
           onPress={() =>
-            router.push({ pathname: "/chat", params: { challengeId: item.id } })
+            router.push({
+              pathname: "/chat",
+              params: { challenge_id: item.id },
+            })
           }
         >
           <ThemedView
@@ -186,7 +189,9 @@ export default function IndexScreen() {
                 <ThemedText style={styles.title}>{item.title}</ThemedText>
                 {getUnreadCount(item) > 0 && (
                   <View style={styles.badge}>
-                    <ThemedText style={styles.badgeText}>{getUnreadCount(item)}</ThemedText>
+                    <ThemedText style={styles.badgeText}>
+                      {getUnreadCount(item)}
+                    </ThemedText>
                   </View>
                 )}
               </View>
@@ -234,28 +239,28 @@ export default function IndexScreen() {
     }
   };
 
-  const handleChangeCoach = async (challengeId, newCoachId) => {
+  const handleChangeCoach = async (challenge_id, newCoachId) => {
     try {
-      await updateChallengeCoach(challengeId, newCoachId);
-      rowRefs.get(challengeId)?.close();
+      await updateChallengeCoach(challenge_id, newCoachId);
+      rowRefs.get(challenge_id)?.close();
     } catch (error) {
       console.error("Error changing coach:", error);
     }
   };
 
-  const handleDeleteChallenge = async (challengeId) => {
+  const handleDeleteChallenge = async (challenge_id) => {
     try {
-      await deleteChallenge(challengeId);
-      rowRefs.get(challengeId)?.close();
+      await deleteChallenge(challenge_id);
+      rowRefs.get(challenge_id)?.close();
     } catch (error) {
       console.error("Error deleting challenge:", error);
     }
   };
 
-  const handleArchiveChallenge = async (challengeId) => {
+  const handleArchiveChallenge = async (challenge_id) => {
     try {
-      await archiveChallenge(challengeId);
-      rowRefs.get(challengeId)?.close();
+      await archiveChallenge(challenge_id);
+      rowRefs.get(challenge_id)?.close();
     } catch (error) {
       console.error("Error archiving challenge:", error);
     }
@@ -451,13 +456,13 @@ const styles = StyleSheet.create({
     height: 20,
     borderRadius: 10,
     marginLeft: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   badgeText: {
     fontSize: 12,
     color: "#FFFFFF",
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   typeLabel: {
     fontSize: 14,

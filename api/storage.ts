@@ -41,9 +41,9 @@ export const StorageAPI = {
     }
   },
 
-  deleteChallenge: async (challengeId: string): Promise<void> => {
+  deleteChallenge: async (challenge_id: string): Promise<void> => {
     const challenges = await StorageAPI.getChallenges();
-    const filtered = challenges.filter((c) => c.id !== challengeId);
+    const filtered = challenges.filter((c) => c.id !== challenge_id);
     await StorageAPI.saveChallenges(filtered);
   },
 

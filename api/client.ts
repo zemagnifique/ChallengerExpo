@@ -111,10 +111,10 @@ export const ApiClient = {
     }
   },
 
-  getMessages: async (challengeId: string) => {
+  getMessages: async (challenge_id: string) => {
     try {
       const response = await fetch(
-        `${API_URL}/api/challenges/${challengeId}/messages`,
+        `${API_URL}/api/challenges/${challenge_id}/messages`,
       );
       if (!response.ok) {
         throw new Error("Failed to fetch messages");
@@ -127,7 +127,7 @@ export const ApiClient = {
   },
 
   sendMessage: async (
-    challengeId: string,
+    challenge_id: string,
     message: {
       user_id: string;
       text?: string;
@@ -137,7 +137,7 @@ export const ApiClient = {
   ) => {
     try {
       const response = await fetch(
-        `${API_URL}/api/challenges/${challengeId}/messages`,
+        `${API_URL}/api/challenges/${challenge_id}/messages`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -154,10 +154,10 @@ export const ApiClient = {
     }
   },
 
-  updateChallengeStatus: async (challengeId: string, status: string) => {
+  updateChallengeStatus: async (challenge_id: string, status: string) => {
     try {
       const response = await fetch(
-        `${API_URL}/api/challenges/${challengeId}/status`,
+        `${API_URL}/api/challenges/${challenge_id}/status`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -174,10 +174,10 @@ export const ApiClient = {
     }
   },
 
-  markMessagesAsRead: async (challengeId: string, user_id: string) => {
+  markMessagesAsRead: async (challenge_id: string, user_id: string) => {
     try {
       const response = await fetch(
-        `${API_URL}/api/challenges/${challengeId}/messages/read`,
+        `${API_URL}/api/challenges/${challenge_id}/messages/read`,
         {
           method: "PUT",
           headers: {

@@ -21,12 +21,12 @@ const io = require("socket.io")(server, {
 io.on("connection", (socket) => {
   console.log("Client connected");
 
-  socket.on("joinRoom", (challengeId) => {
-    socket.join(`challenge_${challengeId}`);
+  socket.on("joinRoom", (challenge_id) => {
+    socket.join(`challenge_${challenge_id}`);
   });
 
-  socket.on("leaveRoom", (challengeId) => {
-    socket.leave(`challenge_${challengeId}`);
+  socket.on("leaveRoom", (challenge_id) => {
+    socket.leave(`challenge_${challenge_id}`);
   });
 
   socket.on("disconnect", () => {
@@ -193,11 +193,11 @@ app.post("/api/challenges", async (req, res) => {
 });
 
 // Get messages for a challenge
-app.get("/api/challenges/:challengeId/messages", async (req, res) => {
+app.get("/api/challenges/:challenge_id/messages", async (req, res) => {
   try {
     const result = await pool.query(
       "SELECT id, challenge_id, user_id, text, image_url, is_proof, is_validated, created_at, is_read FROM messages WHERE challenge_id = $1 ORDER BY created_at ASC",
-      [req.params.challengeId],
+      [req.params.challenge_id],
     );
 
     const messages = result.rows.map((msg) => ({
@@ -219,13 +219,13 @@ app.get("/api/challenges/:challengeId/messages", async (req, res) => {
 });
 
 // Update challenge status
-app.put("/api/challenges/:challengeId/status", async (req, res) => {
+app.put("/api/challenges/:challenge_id/status", async (req, res) => {
   const { status } = req.body;
 
   try {
     const result = await pool.query(
       "UPDATE challenges SET status = $1 WHERE id = $2 RETURNING *",
-      [status, req.params.challengeId],
+      [status, req.params.challenge_id],
     );
 
     if (result.rows.length === 0) {
@@ -233,10 +233,10 @@ app.put("/api/challenges/:challengeId/status", async (req, res) => {
     }
 
     // Emit status update to all clients in the challenge room
-    io.to(`challenge_${req.params.challengeId}`).emit(
+    io.to(`challenge_${req.params.challenge_id}`).emit(
       "challengeStatusUpdated",
       {
-        challengeId: req.params.challengeId,
+        challenge_id: req.params.challenge_id,
         status,
       },
     );
@@ -249,7 +249,7 @@ app.put("/api/challenges/:challengeId/status", async (req, res) => {
 });
 
 // Add a message to a challenge
-app.post("/api/challenges/:challengeId/messages", async (req, res) => {
+app.post("/api/challenges/:challenge_id/messages", async (req, res) => {
   const { user_id, text, imageUrl, isProof } = req.body;
 
   try {
@@ -257,13 +257,13 @@ app.post("/api/challenges/:challengeId/messages", async (req, res) => {
       `INSERT INTO messages (challenge_id, user_id, text, image_url, is_proof, created_at)
        VALUES ($1, $2, $3, $4, $5, NOW())
        RETURNING *`,
-      [req.params.challengeId, user_id, text, imageUrl, isProof],
+      [req.params.challenge_id, user_id, text, imageUrl, isProof],
     );
 
     // Get all messages after inserting new one
     const messagesResult = await pool.query(
       "SELECT * FROM messages WHERE challenge_id = $1 ORDER BY created_at ASC",
-      [req.params.challengeId],
+      [req.params.challenge_id],
     );
 
     const messages = messagesResult.rows.map((msg) => ({
@@ -273,7 +273,7 @@ app.post("/api/challenges/:challengeId/messages", async (req, res) => {
     }));
 
     // Emit all messages to clients in the challenge room
-    io.to(`challenge_${req.params.challengeId}`).emit(
+    io.to(`challenge_${req.params.challenge_id}`).emit(
       "updateMessages",
       messages,
     );
@@ -306,18 +306,18 @@ app.put("/api/messages/:messageId/validate", async (req, res) => {
   }
 });
 
-app.put("/api/challenges/:challengeId/messages/read", async (req, res) => {
+app.put("/api/challenges/:challenge_id/messages/read", async (req, res) => {
   const { user_id } = req.body;
 
   try {
     const result = await pool.query(
       "UPDATE messages SET is_read = true WHERE challenge_id = $1 AND user_id != $2 RETURNING *",
-      [req.params.challengeId, user_id],
+      [req.params.challenge_id, user_id],
     );
 
     // Emit socket event when messages are marked as read
-    io.to(`challenge_${req.params.challengeId}`).emit("messagesRead", {
-      challengeId: req.params.challengeId,
+    io.to(`challenge_${req.params.challenge_id}`).emit("messagesRead", {
+      challenge_id: req.params.challenge_id,
       user_id: user_id,
     });
 

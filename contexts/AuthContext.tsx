@@ -1,19 +1,12 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { io } from "socket.io-client";
-import { StorageAPI } from "@/api/storage";
 import { ApiClient } from "@/api/client";
 import { User, Challenge, Notification } from "@/types";
 
 type User = {
   id: string;
   username: string;
-};
-
-const USERS: Record<string, { password: string }> = {
-  user1: { password: "user1" },
-  user2: { password: "user2" },
-  user3: { password: "user3" },
 };
 
 type Notification = {
@@ -56,15 +49,15 @@ type AuthContextType = {
   addNotification: (message: string) => void;
   markNotificationAsRead: (id: string) => void;
   updateChallenge: (challenge: Challenge) => void;
-  updateChallengeStatus: (challengeId: string, status: string) => void;
+  updateChallengeStatus: (challenge_id: string, status: string) => void;
   updateChallengeCoach: (
-    challengeId: string,
+    challenge_id: string,
     newCoachId: string,
   ) => Promise<void>;
-  deleteChallenge: (challengeId: string) => Promise<void>;
-  archiveChallenge: (challengeId: string) => void; // Added archiveChallenge method
-  getUnreadMessageCount: (challengeId: string) => number;
-  markMessagesAsRead: (challengeId: string) => Promise<void>;
+  deleteChallenge: (challenge_id: string) => Promise<void>;
+  archiveChallenge: (challenge_id: string) => void; // Added archiveChallenge method
+  getUnreadMessageCount: (challenge_id: string) => number;
+  markMessagesAsRead: (challenge_id: string) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType>({
@@ -115,15 +108,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       socket.on("updateMessages", async (messages) => {
         if (!messages || !messages.length) return;
-
-        const challengeId = messages[0].challenge_id;
+        console.log("TEST updateMessages Auth");
+        console.log(messages[0].challenge_id);
+        const challenge_id = messages[0].challenge_id;
         try {
           // Fetch fresh messages from the database
-          const updatedMessages = await ApiClient.getMessages(challengeId);
+          const updatedMessages = await ApiClient.getMessages(challenge_id);
 
           setChallenges((currentChallenges) =>
             currentChallenges.map((challenge) => {
-              if (challenge.id === challengeId) {
+              console.log("setChallenges");
+              console.log(currentChallenges);
+              if (challenge.id === challenge_id) {
                 return {
                   ...challenge,
                   messages: updatedMessages.map((msg) => ({
@@ -141,11 +137,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       });
 
-      socket.on("messagesRead", ({ challengeId, user_id }) => {
+      socket.on("messagesRead", ({ challenge_id, user_id }) => {
         if (user_id !== user.id) {
           setChallenges((currentChallenges) =>
             currentChallenges.map((challenge) => {
-              if (challenge.id === challengeId) {
+              if (challenge.id === challenge_id) {
                 return {
                   ...challenge,
                   messages: challenge.messages?.map((msg) => ({
@@ -194,12 +190,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
     setChallenges([]);
   };
-
+  //DELETE
   const TEST_USERS = {
     user1: { id: "1", username: "user1", isCoach: false },
     user2: { id: "2", username: "user2", isCoach: true },
   };
-
+  //DELETE
   const getCoaches = () => {
     return Object.values(TEST_USERS)
       .filter((user) => user.isCoach)
@@ -254,12 +250,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const updateChallengeStatus = async (
-    challengeId: string,
+    challenge_id: string,
     status: string,
     reason?: string,
   ) => {
     const updatedChallenges = challenges.map((c) => {
-      if (c.id === challengeId) {
+      if (c.id === challenge_id) {
         return { ...c, status, rejectionReason: reason };
       }
       return c;
@@ -272,11 +268,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const updateChallengeCoach = async (
-    challengeId: string,
+    challenge_id: string,
     newCoachId: string,
   ) => {
     const updatedChallenges = challenges.map((c) => {
-      if (c.id === challengeId) {
+      if (c.id === challenge_id) {
         return { ...c, coachId: newCoachId, status: "pending" };
       }
       return c;
@@ -286,16 +282,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     addNotification("Coach updated for challenge");
   };
 
-  const deleteChallenge = async (challengeId: string) => {
-    const updatedChallenges = challenges.filter((c) => c.id !== challengeId);
+  const deleteChallenge = async (challenge_id: string) => {
+    const updatedChallenges = challenges.filter((c) => c.id !== challenge_id);
     setChallenges(updatedChallenges);
     saveChallenges(updatedChallenges);
     addNotification("Challenge deleted");
   };
 
-  const archiveChallenge = async (challengeId: string) => {
+  const archiveChallenge = async (challenge_id: string) => {
     const updatedChallenges = challenges.map((c) => {
-      if (c.id === challengeId) {
+      if (c.id === challenge_id) {
         return { ...c, archived: true };
       }
       return c;
@@ -356,18 +352,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const getUnreadMessageCount = (challengeId: string): number => {
-    const challenge = challenges.find((c) => c.id === challengeId);
+  const getUnreadMessageCount = (challenge_id: string): number => {
+    const challenge = challenges.find((c) => c.id === challenge_id);
     if (!challenge || !challenge.messages) return 0;
-    console.log(challenge.messages);
     return challenge.messages.filter(
       (msg) => msg.user_id !== user?.id && !msg.is_read,
     ).length;
   };
 
-  const markMessagesAsRead = async (challengeId: string): Promise<void> => {
+  const markMessagesAsRead = async (challenge_id: string): Promise<void> => {
     const updatedChallenges = challenges.map((c) => {
-      if (c.id === challengeId) {
+      if (c.id === challenge_id) {
         return {
           ...c,
           messages:
@@ -380,7 +375,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return c;
     });
     setChallenges(updatedChallenges);
-    await ApiClient.markMessagesAsRead(challengeId, user?.id || "");
+    await ApiClient.markMessagesAsRead(challenge_id, user?.id || "");
   };
 
   return (
