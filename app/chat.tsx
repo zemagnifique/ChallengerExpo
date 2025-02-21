@@ -40,6 +40,8 @@ export default function ChatScreen() {
   const messages =
     challenge?.status === "pending" ? [] : (challenge?.messages ?? []);
 
+  const { markMessagesAsRead } = useAuth();
+  
   React.useEffect(() => {
     const loadMessages = async () => {
       try {
@@ -50,7 +52,7 @@ export default function ChatScreen() {
             messages: messages || [],
           });
           // Mark messages as read when chat is opened
-          await ApiClient.markMessagesAsRead(challengeId as string, user?.id || "");
+          await markMessagesAsRead(challengeId as string);
         }
       } catch (error) {
         console.error("Error loading messages:", error);

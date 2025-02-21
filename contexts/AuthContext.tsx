@@ -38,6 +38,7 @@ type Challenge = {
     text: string;
     userId: string;
     timestamp: Date;
+    read: boolean; // Added read status to messages
   }>;
   archived?: boolean; // Added archived field
 };
@@ -61,6 +62,8 @@ type AuthContextType = {
   ) => Promise<void>;
   deleteChallenge: (challengeId: string) => Promise<void>;
   archiveChallenge: (challengeId: string) => void; // Added archiveChallenge method
+  getUnreadMessageCount: (challengeId: string) => number;
+  markMessagesAsRead: (challengeId: string) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType>({
@@ -76,6 +79,8 @@ const AuthContext = createContext<AuthContextType>({
   updateChallengeStatus: () => {},
   updateChallengeCoach: async () => {},
   deleteChallenge: async () => {},
+  getUnreadMessageCount: () => 0,
+  markMessagesAsRead: async () => {},
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -262,6 +267,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const processedChallenges = fetchedChallenges.map((challenge) => ({
           ...challenge,
           id: challenge.id.toString(),
+          messages: challenge.messages?.map(msg => ({...msg, read: false})) || [] // Initialize messages as unread
         }));
         setChallenges(processedChallenges);
       } else {
@@ -276,6 +282,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
     }
   };
+
+  const getUnreadMessageCount = (challengeId: string): number => {
+    const challenge = challenges.find((c) => c.id === challengeId);
+    return challenge?.messages?.filter((msg) => !msg.read).length || 0;
+  };
+
+  const markMessagesAsRead = async (challengeId: string): Promise<void> => {
+    const updatedChallenges = challenges.map((c) => {
+      if (c.id === challengeId) {
+        return { ...c, messages: c.messages?.map(msg => ({...msg, read: true})) || [] };
+      }
+      return c;
+    });
+    setChallenges(updatedChallenges);
+    await AsyncStorage.setItem("challenges", JSON.stringify(updatedChallenges));
+  };
+
 
   return (
     <AuthContext.Provider
@@ -295,6 +318,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         updateChallengeCoach,
         deleteChallenge,
         archiveChallenge,
+        getUnreadMessageCount,
+        markMessagesAsRead,
       }}
     >
       {children}

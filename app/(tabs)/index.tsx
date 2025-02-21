@@ -54,8 +54,9 @@ export default function IndexScreen() {
 
   const allChallenges = filteredChallenges();
 
+  const { getUnreadMessageCount } = useAuth();
   const getUnreadCount = (challenge) => {
-    return (challenge.messages || []).filter(m => !m.is_read && m.user_id !== user?.id).length;
+    return getUnreadMessageCount(challenge.id);
   };
 
   const renderChallengeSection = (item) => (
