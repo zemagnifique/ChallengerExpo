@@ -106,26 +106,24 @@ export default function ChatScreen() {
       socket.emit("joinRoom", challengeId);
     });
 
-    socket.on("newMessage", (message) => {
-      console.log("Received message:", message);
-      if (message && message.challenge_id === challengeId) {
-        const newMessage = {
-          id: message.id,
-          text: message.text,
-          user_id: message.user_id,
-          imageUrl: message.image_url,
-          isProof: message.is_proof,
-          isValidated: message.is_validated,
-          read: message.user_id === user?.id,
-          timestamp: new Date(message.created_at),
-        };
-
-        if (challenge) {
-          updateChallenge({
-            ...challenge,
-            messages: [...(challenge.messages || []), newMessage],
-          });
-        }
+    socket.on("updateMessages", (messages) => {
+      console.log("Received messages update");
+      if (challenge) {
+        const processedMessages = messages.map(msg => ({
+          id: msg.id,
+          text: msg.text,
+          user_id: msg.user_id,
+          imageUrl: msg.image_url,
+          isProof: msg.is_proof,
+          isValidated: msg.is_validated,
+          read: msg.user_id === user?.id,
+          timestamp: new Date(msg.created_at)
+        }));
+        
+        updateChallenge({
+          ...challenge,
+          messages: processedMessages
+        });
       }
     });
 
