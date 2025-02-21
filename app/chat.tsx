@@ -87,7 +87,11 @@ export default function ChatScreen() {
   }, []);
 
   React.useEffect(() => {
-    const socket = io(ApiClient.getApiUrl());
+    const socket = io(ApiClient.getApiUrl(), {
+  transports: ['websocket', 'polling'],
+  reconnection: true,
+  reconnectionAttempts: 5
+});
 
     socket.on("connect", () => {
       console.log("Connected to WebSocket");
