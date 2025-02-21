@@ -47,11 +47,15 @@ export default function ChatScreen() {
       try {
         if (challenge?.status !== "pending") {
           const messages = await ApiClient.getMessages(challengeId as string);
+          const processedMessages = messages.map(msg => ({
+            ...msg,
+            read: msg.userId === user?.id // Only mark own messages as read initially
+          }));
           updateChallenge({
             ...challenge,
-            messages: messages || [],
+            messages: processedMessages || [],
           });
-          // Mark messages as read when chat is opened
+          // Mark received messages as read when chat is opened
           await markMessagesAsRead(challengeId as string);
         }
       } catch (error) {
