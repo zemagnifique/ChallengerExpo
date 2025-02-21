@@ -213,6 +213,7 @@ export default function ChatScreen() {
       </ThemedView>
     );
   }
+  const textColor = useThemeColor({}, "text");
 
   return (
     <ThemedView style={styles.container}>
@@ -228,11 +229,7 @@ export default function ChatScreen() {
           style={styles.backButton}
           onPress={() => router.back()}
         >
-          <IconSymbol
-            name="chevron.left"
-            size={24}
-            color={useThemeColor({}, "text")}
-          />
+          <IconSymbol name="chevron.left" size={24} color={textColor} />
         </TouchableOpacity>
         <View style={styles.headerContent}>
           <ThemedText style={styles.title}>{challenge.title}</ThemedText>
@@ -349,11 +346,7 @@ export default function ChatScreen() {
             multiline
           />
           <TouchableOpacity style={styles.attachButton} onPress={pickImage}>
-            <IconSymbol
-              name="paperclip"
-              size={24}
-              color={useThemeColor({}, "text")}
-            />
+            <IconSymbol name="paperclip" size={24} color={textColor} />
           </TouchableOpacity>
           <TouchableOpacity
             style={[
