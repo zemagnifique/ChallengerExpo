@@ -32,9 +32,17 @@ export default function ChatScreen() {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [socketConnected, setSocketConnected] = React.useState(false);
 
-  const challenge = React.useMemo(() => challenges.find((c) => c.id === challengeId), [challenges, challengeId]);
-  const isCoach = challenge ? parseInt(user?.id) === challenge.coach_id : false;
-  const messages = challenge?.status === "pending" ? [] : (challenge?.messages ?? []);
+  const [currentChallenge, setCurrentChallenge] = React.useState(null);
+  
+  React.useEffect(() => {
+    const found = challenges.find((c) => c.id === challengeId);
+    if (found) {
+      setCurrentChallenge(found);
+    }
+  }, [challenges, challengeId]);
+
+  const isCoach = currentChallenge ? parseInt(user?.id) === currentChallenge.coach_id : false;
+  const messages = currentChallenge?.status === "pending" ? [] : (currentChallenge?.messages ?? []);
 
   React.useEffect(() => {
     const loadMessages = async () => {
@@ -134,7 +142,9 @@ export default function ChatScreen() {
     try {
       setIsSubmitting(true);
       await updateChallengeStatus(challengeId, "active");
-      router.back();
+      setTimeout(() => {
+        router.back();
+      }, 100);
     } catch (error) {
       console.error("Error accepting challenge:", error);
     } finally {
