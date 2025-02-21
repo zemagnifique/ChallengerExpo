@@ -137,14 +137,19 @@ export default function ChatScreen() {
     if (isSubmitting || !challengeId) return;
     try {
       setIsSubmitting(true);
-      await updateChallengeStatus(challengeId, "active");
-      router.back();
+      await ApiClient.updateChallengeStatus(challengeId, "active");
+      if (challenge) {
+        await updateChallenge({ ...challenge, status: "active" });
+      }
+      setTimeout(() => {
+        router.back();
+      }, 100);
     } catch (error) {
       console.error("Error accepting challenge:", error);
     } finally {
       setIsSubmitting(false);
     }
-  }, [challengeId, isSubmitting, updateChallengeStatus, router]);
+  }, [challengeId, isSubmitting, challenge, updateChallenge, router]);
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
