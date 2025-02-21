@@ -31,6 +31,7 @@ export default function ChatScreen() {
   const [lastTap, setLastTap] = React.useState(null);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [socketConnected, setSocketConnected] = React.useState(false);
+  const textColor = useThemeColor({}, "text");
 
   const challenge = React.useMemo(
     () => challenges.find((c) => c.id === challengeId),
@@ -96,17 +97,17 @@ export default function ChatScreen() {
     if (!challengeId || !challenge) return;
 
     const socket = io(ApiClient.getApiUrl(), {
-      transports: ['websocket'],
-      reconnection: true
+      transports: ["websocket"],
+      reconnection: true,
     });
 
-    socket.on('connect', () => {
-      console.log('Connected to chat socket');
+    socket.on("connect", () => {
+      console.log("Connected to chat socket");
       socket.emit("joinRoom", challengeId);
     });
-    
+
     socket.on("newMessage", (message) => {
-      console.log('Received message:', message);
+      console.log("Received message:", message);
       if (message && message.challenge_id === challengeId) {
         const newMessage = {
           id: message.id,
@@ -116,13 +117,13 @@ export default function ChatScreen() {
           isProof: message.is_proof,
           isValidated: message.is_validated,
           read: message.user_id === user?.id,
-          timestamp: new Date(message.created_at)
+          timestamp: new Date(message.created_at),
         };
-        
+
         if (challenge) {
           updateChallenge({
             ...challenge,
-            messages: [...(challenge.messages || []), newMessage]
+            messages: [...(challenge.messages || []), newMessage],
           });
         }
       }
@@ -245,7 +246,6 @@ export default function ChatScreen() {
       </ThemedView>
     );
   }
-  const textColor = useThemeColor({}, "text");
 
   return (
     <ThemedView style={styles.container}>
