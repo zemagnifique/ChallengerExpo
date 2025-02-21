@@ -1,11 +1,11 @@
-import { StyleSheet, TouchableOpacity } from 'react-native';
-import { useRouter } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { useAuth } from '@/contexts/AuthContext';
+import { StyleSheet, TouchableOpacity } from "react-native";
+import { useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Colors } from "@/constants/Colors";
+import { useColorScheme } from "@/hooks/useColorScheme";
+import { ThemedText } from "@/components/ThemedText";
+import { ThemedView } from "@/components/ThemedView";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function UserScreen() {
   const { user, logout, notifications, markNotificationAsRead } = useAuth();
@@ -14,35 +14,45 @@ export default function UserScreen() {
 
   const { login } = useAuth();
 
-  const switchUser = async (userId: string) => {
+  const switchUser = async (user_id: string) => {
     await logout();
-    const success = await login(userId, userId);
+    const success = await login(user_id, user_id);
     if (!success) {
-      console.error('Failed to switch user');
+      console.error("Failed to switch user");
     }
   };
 
   const handleLogout = async () => {
     await logout();
-    router.replace('/login');
+    router.replace("/login");
   };
 
   return (
     <ThemedView style={styles.container}>
       <ThemedText type="title">Profile</ThemedText>
-      <ThemedText style={[styles.username, { color: Colors[colorScheme].text }]}>{user?.username}</ThemedText>
+      <ThemedText
+        style={[styles.username, { color: Colors[colorScheme].text }]}
+      >
+        {user?.username}
+      </ThemedText>
 
       <ThemedView style={styles.notificationsContainer}>
         <ThemedText type="subtitle">Notifications</ThemedText>
         {notifications.length === 0 ? (
           <ThemedText>No notifications</ThemedText>
         ) : (
-          notifications.map(notification => (
+          notifications.map((notification) => (
             <TouchableOpacity
               key={notification.id}
-              style={[styles.notification, notification.read && styles.notificationRead]}
-              onPress={() => markNotificationAsRead(notification.id)}>
-              <ThemedText style={styles.notificationText}>{notification.message}</ThemedText>
+              style={[
+                styles.notification,
+                notification.read && styles.notificationRead,
+              ]}
+              onPress={() => markNotificationAsRead(notification.id)}
+            >
+              <ThemedText style={styles.notificationText}>
+                {notification.message}
+              </ThemedText>
               <ThemedText style={styles.notificationDate}>
                 {new Date(notification.createdAt).toLocaleDateString()}
               </ThemedText>
@@ -53,15 +63,24 @@ export default function UserScreen() {
 
       <ThemedView style={styles.testControls}>
         <ThemedText type="subtitle">Test Controls</ThemedText>
-        <TouchableOpacity style={styles.button} onPress={() => switchUser('user1')}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => switchUser("user1")}
+        >
           <ThemedText style={styles.buttonText}>Switch to User 1</ThemedText>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => switchUser('user2')}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => switchUser("user2")}
+        >
           <ThemedText style={styles.buttonText}>Switch to User 2</ThemedText>
         </TouchableOpacity>
       </ThemedView>
 
-      <TouchableOpacity style={[styles.button, styles.logoutButton]} onPress={handleLogout}>
+      <TouchableOpacity
+        style={[styles.button, styles.logoutButton]}
+        onPress={handleLogout}
+      >
         <ThemedText style={styles.buttonText}>Logout</ThemedText>
       </TouchableOpacity>
     </ThemedView>
@@ -73,11 +92,11 @@ const styles = StyleSheet.create({
     marginTop: 20,
     padding: 15,
     borderRadius: 8,
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: "rgba(255,255,255,0.1)",
     gap: 10,
   },
   logoutButton: {
-    backgroundColor: '#ff6b6b',
+    backgroundColor: "#ff6b6b",
   },
   container: {
     flex: 1,
@@ -94,10 +113,10 @@ const styles = StyleSheet.create({
   notification: {
     padding: 15,
     borderRadius: 8,
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: "rgba(255,255,255,0.1)",
     marginVertical: 5,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.15)',
+    borderColor: "rgba(255,255,255,0.15)",
   },
   notificationRead: {
     opacity: 0.6,
@@ -111,14 +130,14 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   button: {
-    backgroundColor: '#ff6b6b',
+    backgroundColor: "#ff6b6b",
     padding: 15,
     borderRadius: 8,
     marginTop: 20,
-    alignItems: 'center',
+    alignItems: "center",
   },
   buttonText: {
-    color: 'white',
+    color: "white",
     fontSize: 16,
   },
 });

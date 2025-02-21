@@ -41,15 +41,15 @@ export default function ChatScreen() {
     challenge?.status === "pending" ? [] : (challenge?.messages ?? []);
 
   const { markMessagesAsRead } = useAuth();
-  
+
   React.useEffect(() => {
     const loadMessages = async () => {
       try {
         if (challenge?.status !== "pending") {
           const messages = await ApiClient.getMessages(challengeId as string);
-          const processedMessages = messages.map(msg => ({
+          const processedMessages = messages.map((msg) => ({
             ...msg,
-            read: msg.userId === user?.id // Only mark own messages as read initially
+            read: msg.user_id === user?.id, // Only mark own messages as read initially
           }));
           updateChallenge({
             ...challenge,
@@ -94,10 +94,10 @@ export default function ChatScreen() {
 
   React.useEffect(() => {
     const socket = io(ApiClient.getApiUrl(), {
-  transports: ['websocket', 'polling'],
-  reconnection: true,
-  reconnectionAttempts: 5
-});
+      transports: ["websocket", "polling"],
+      reconnection: true,
+      reconnectionAttempts: 5,
+    });
 
     socket.on("connect", () => {
       console.log("Connected to WebSocket");
@@ -124,7 +124,7 @@ export default function ChatScreen() {
 
     try {
       const newMessage = await ApiClient.sendMessage(challengeId as string, {
-        userId: user?.id || "",
+        user_id: user?.id || "",
         text: message.trim(),
         imageUrl: selectedImage,
         isProof: false,
@@ -194,11 +194,11 @@ export default function ChatScreen() {
   const handleDoubleTap = async (message: any) => {
     const now = Date.now();
     if (lastTap && now - lastTap < 300) {
-      if (isCoach && message.isProof && message.userId !== user?.id) {
+      if (isCoach && message.isProof && message.user_id !== user?.id) {
         const updatedMessages = challenge.messages.map((msg) => {
           if (
             msg.timestamp === message.timestamp &&
-            msg.userId === message.userId
+            msg.user_id === message.user_id
           ) {
             return { ...msg, isValidated: !msg.isValidated };
           }
@@ -206,11 +206,11 @@ export default function ChatScreen() {
         });
         const updatedChallenge = { ...challenge, messages: updatedMessages };
         await updateChallenge(updatedChallenge);
-      } else if (!isCoach && message.userId === user?.id) {
+      } else if (!isCoach && message.user_id === user?.id) {
         const updatedMessages = challenge.messages.map((msg) => {
           if (
             msg.timestamp === message.timestamp &&
-            msg.userId === message.userId
+            msg.user_id === message.user_id
           ) {
             return { ...msg, isProof: !msg.isProof };
           }
@@ -287,7 +287,7 @@ export default function ChatScreen() {
           const suggestionText =
             isCoach && item.isProof && !item.isValidated
               ? "Double tap to approve proof"
-              : !isCoach && item.userId === user?.id
+              : !isCoach && item.user_id === user?.id
                 ? "Double tap to submit as proof"
                 : "";
 
@@ -296,7 +296,7 @@ export default function ChatScreen() {
               <View
                 style={[
                   styles.messageBubble,
-                  item.userId === user?.id
+                  item.user_id === user?.id
                     ? [
                         styles.ownMessage,
                         {
@@ -339,7 +339,7 @@ export default function ChatScreen() {
                 <ThemedText
                   style={[
                     styles.suggestionText,
-                    item.userId === user?.id
+                    item.user_id === user?.id
                       ? { alignSelf: "flex-end", marginRight: 8 }
                       : { alignSelf: "flex-start", marginLeft: 8 },
                   ]}

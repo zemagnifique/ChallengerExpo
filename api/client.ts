@@ -54,14 +54,14 @@ export const ApiClient = {
     }
   },
 
-  getChallenges: async (userId: string) => {
+  getChallenges: async (user_id: string) => {
     try {
       console.log(
         "Fetching challenges from:",
-        `${API_URL}/api/challenges?userId=${userId}`,
+        `${API_URL}/api/challenges?user_id=${user_id}`,
       );
       const response = await fetch(
-        `${API_URL}/api/challenges?userId=${userId}`,
+        `${API_URL}/api/challenges?user_id=${user_id}`,
       );
       if (!response.ok) {
         const errorText = await response.text();
@@ -70,15 +70,15 @@ export const ApiClient = {
         );
       }
       const challenges = await response.json();
-      
+
       // Fetch messages for each challenge
       const challengesWithMessages = await Promise.all(
         challenges.map(async (challenge) => {
           const messages = await ApiClient.getMessages(challenge.id);
           return { ...challenge, messages };
-        })
+        }),
       );
-      
+
       return challengesWithMessages;
     } catch (error) {
       console.error("API Error:", error);
@@ -129,7 +129,7 @@ export const ApiClient = {
   sendMessage: async (
     challengeId: string,
     message: {
-      userId: string;
+      user_id: string;
       text?: string;
       imageUrl?: string;
       isProof?: boolean;
@@ -174,14 +174,14 @@ export const ApiClient = {
     }
   },
 
-  markMessagesAsRead: async (challengeId: string, userId: string) => {
+  markMessagesAsRead: async (challengeId: string, user_id: string) => {
     try {
       const response = await fetch(
         `${API_URL}/api/challenges/${challengeId}/messages/read`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId }),
+          body: JSON.stringify({ user_id }),
         },
       );
       if (!response.ok) {

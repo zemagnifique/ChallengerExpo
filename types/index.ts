@@ -1,4 +1,3 @@
-
 export type User = {
   id: string;
   username: string;
@@ -13,12 +12,12 @@ export type Challenge = {
   frequency: string;
   proofRequirements: string;
   status: string;
-  userId: string;
+  user_id: string;
   coachId: string;
   createdAt: Date;
   messages?: Array<{
     text: string;
-    userId: string;
+    user_id: string;
     timestamp: Date;
   }>;
   archived?: boolean;
@@ -29,5 +28,5 @@ export type Notification = {
   message: string;
   read: boolean;
   createdAt: Date;
-  userId?: string;
+  user_id?: string;
 };

@@ -73,7 +73,7 @@ export default function CreateChallengeScreen() {
         frequency,
         proofRequirements,
         status: "pending",
-        userId: parseInt(user?.id),
+        user_id: parseInt(user?.id),
         coachId: selectedCoach,
         createdAt: new Date(),
       };
@@ -217,11 +217,13 @@ export default function CreateChallengeScreen() {
               onChange={(e) => setSelectedCoach(parseInt(e.target.value))}
             >
               <option value="">Select a coach</option>
-              {users.filter(u => u.id !== user?.id).map((otherUser) => (
-                <option key={otherUser.id} value={otherUser.id}>
-                  {otherUser.username}
-                </option>
-              ))}
+              {users
+                .filter((u) => u.id !== user?.id)
+                .map((otherUser) => (
+                  <option key={otherUser.id} value={otherUser.id}>
+                    {otherUser.username}
+                  </option>
+                ))}
             </select>
           ) : (
             <View style={styles.coachSelectContainer}>
@@ -233,13 +235,15 @@ export default function CreateChallengeScreen() {
                 style={styles.picker}
               >
                 <Picker.Item label="Select a coach" value="" />
-                {users.filter(u => u.id !== user?.id).map((otherUser) => (
-                  <Picker.Item
-                    key={otherUser.id}
-                    label={`${otherUser.username}`}
-                    value={otherUser.id}
-                  />
-                ))}
+                {users
+                  .filter((u) => u.id !== user?.id)
+                  .map((otherUser) => (
+                    <Picker.Item
+                      key={otherUser.id}
+                      label={`${otherUser.username}`}
+                      value={otherUser.id}
+                    />
+                  ))}
               </Picker>
             </View>
           )}

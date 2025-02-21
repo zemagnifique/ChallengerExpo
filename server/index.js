@@ -85,10 +85,10 @@ app.get("/api/users", async (req, res) => {
 // Get all challenges
 app.get("/api/challenges", async (req, res) => {
   try {
-    const userId = req.query.userId;
+    const user_id = req.query.user_id;
     const result = await pool.query(
       "SELECT * FROM challenges WHERE user_id = $1 OR coach_id = $1 ORDER BY created_at DESC",
-      [userId],
+      [user_id],
     );
     res.json(result.rows);
   } catch (error) {
@@ -106,7 +106,7 @@ app.post("/api/challenges", async (req, res) => {
     endDate,
     frequency,
     proofRequirements,
-    userId,
+    user_id,
     coachId,
   } = req.body;
 
@@ -118,7 +118,7 @@ app.post("/api/challenges", async (req, res) => {
     !endDate ||
     !frequency ||
     !proofRequirements ||
-    !userId ||
+    !user_id ||
     !coachId
   ) {
     return res.status(400).json({
@@ -130,7 +130,7 @@ app.post("/api/challenges", async (req, res) => {
         "endDate",
         "frequency",
         "proofRequirements",
-        "userId",
+        "user_id",
         "coachId",
       ],
     });
@@ -140,7 +140,7 @@ app.post("/api/challenges", async (req, res) => {
     // Validate users exist
     const userCheck = await pool.query(
       "SELECT id FROM users WHERE id = $1 OR id = $2",
-      [userId, coachId],
+      [user_id, coachId],
     );
     if (userCheck.rows.length < 2) {
       return res.status(400).json({ error: "Invalid user or coach ID" });
@@ -158,7 +158,7 @@ app.post("/api/challenges", async (req, res) => {
         frequency,
         proofRequirements,
         "pending",
-        userId,
+        user_id,
         coachId,
       ],
     );
@@ -170,7 +170,7 @@ app.post("/api/challenges", async (req, res) => {
     const challenge = {
       ...result.rows[0],
       id: result.rows[0].id.toString(),
-      userId: result.rows[0].user_id,
+      user_id: result.rows[0].user_id,
       coachId: result.rows[0].coach_id,
       startDate: result.rows[0].start_date,
       endDate: result.rows[0].end_date,
@@ -201,7 +201,7 @@ app.get("/api/challenges/:challengeId/messages", async (req, res) => {
     const messages = result.rows.map((msg) => ({
       id: msg.id,
       text: msg.text,
-      userId: msg.user_id,
+      user_id: msg.user_id,
       imageUrl: msg.image_url,
       isProof: msg.is_proof,
       isValidated: msg.is_validated,
@@ -244,14 +244,14 @@ app.put("/api/challenges/:challengeId/status", async (req, res) => {
 
 // Add a message to a challenge
 app.post("/api/challenges/:challengeId/messages", async (req, res) => {
-  const { userId, text, imageUrl, isProof } = req.body;
+  const { user_id, text, imageUrl, isProof } = req.body;
 
   try {
     const result = await pool.query(
       `INSERT INTO messages (challenge_id, user_id, text, image_url, is_proof, created_at)
        VALUES ($1, $2, $3, $4, $5, NOW())
        RETURNING *`,
-      [req.params.challengeId, userId, text, imageUrl, isProof],
+      [req.params.challengeId, user_id, text, imageUrl, isProof],
     );
 
     const newMessage = result.rows[0];
@@ -288,12 +288,12 @@ app.put("/api/messages/:messageId/validate", async (req, res) => {
 });
 
 app.put("/api/challenges/:challengeId/messages/read", async (req, res) => {
-  const { userId } = req.body;
+  const { user_id } = req.body;
   
   try {
     const result = await pool.query(
       "UPDATE messages SET is_read = true WHERE challenge_id = $1 AND user_id != $2 RETURNING *",
-      [req.params.challengeId, userId]
+      [req.params.challengeId, user_id]
     );
     
     res.json(result.rows);
