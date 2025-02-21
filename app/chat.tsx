@@ -97,18 +97,17 @@ export default function ChatScreen() {
     socket.emit("joinRoom", challengeId);
     
     socket.on("newMessage", (message) => {
-      if (challenge) {
-        const updatedMessages = [...(challenge.messages || [])];
-        const newMessage = {
-          ...message,
-          read: message.user_id === user?.id,
-          timestamp: new Date(message.created_at)
-        };
-        updatedMessages.push(newMessage);
-        
+      if (challenge && message.challenge_id === challengeId) {
         updateChallenge({
           ...challenge,
-          messages: updatedMessages
+          messages: [
+            ...(challenge.messages || []),
+            {
+              ...message,
+              read: message.user_id === user?.id,
+              timestamp: new Date(message.created_at)
+            }
+          ]
         });
       }
     });

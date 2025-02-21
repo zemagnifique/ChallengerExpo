@@ -256,10 +256,17 @@ app.post("/api/challenges/:challengeId/messages", async (req, res) => {
       [req.params.challengeId, user_id, text, imageUrl, isProof],
     );
 
-    const newMessage = result.rows[0];
+    const newMessage = {
+      ...result.rows[0],
+      read: false,
+      timestamp: new Date(),
+    };
 
     // Emit the new message to all clients in the challenge room
-    io.to(`challenge_${req.params.challengeId}`).emit("newMessage", newMessage);
+    io.to(`challenge_${req.params.challengeId}`).emit("newMessage", {
+      ...newMessage,
+      challenge_id: req.params.challengeId
+    });
 
     res.status(201).json(newMessage);
   } catch (error) {
