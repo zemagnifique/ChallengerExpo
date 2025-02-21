@@ -128,7 +128,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                   ...challenge,
                   messages: updatedMessages.map((msg) => ({
                     ...msg,
-                    read: msg.is_read,
+                    is_read: msg.is_read,
                     timestamp: new Date(msg.created_at),
                   })),
                 };
@@ -150,7 +150,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                   ...challenge,
                   messages: challenge.messages?.map((msg) => ({
                     ...msg,
-                    read: msg.user_id === user_id ? true : msg.read,
+                    is_read: msg.user_id === user_id ? true : msg.is_read,
                   })),
                 };
               }
@@ -337,7 +337,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           messages:
             challenge.messages?.map((msg) => ({
               ...msg,
-              read: false,
+              is_read: msg.is_read,
               user_id: msg.user_id,
               timestamp: new Date(msg.created_at),
             })) || [],
@@ -359,9 +359,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const getUnreadMessageCount = (challengeId: string): number => {
     const challenge = challenges.find((c) => c.id === challengeId);
     if (!challenge || !challenge.messages) return 0;
-
+    console.log(challenge.messages);
     return challenge.messages.filter(
-      (msg) => msg.user_id !== user?.id && !msg.read,
+      (msg) => msg.user_id !== user?.id && !msg.is_read,
     ).length;
   };
 

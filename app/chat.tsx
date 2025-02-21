@@ -50,7 +50,7 @@ export default function ChatScreen() {
           const messages = await ApiClient.getMessages(challengeId as string);
           const processedMessages = messages.map((msg) => ({
             ...msg,
-            read: false,
+            is_read: false,
           }));
           updateChallenge({
             ...challenge,
@@ -109,20 +109,20 @@ export default function ChatScreen() {
     socket.on("updateMessages", (messages) => {
       console.log("Received messages update");
       if (challenge) {
-        const processedMessages = messages.map(msg => ({
+        const processedMessages = messages.map((msg) => ({
           id: msg.id,
           text: msg.text,
           user_id: msg.user_id,
           imageUrl: msg.image_url,
           isProof: msg.is_proof,
           isValidated: msg.is_validated,
-          read: msg.user_id === user?.id,
-          timestamp: new Date(msg.created_at)
+          is_read: msg.user_id === user?.id,
+          timestamp: new Date(msg.created_at),
         }));
-        
+
         updateChallenge({
           ...challenge,
-          messages: processedMessages
+          messages: processedMessages,
         });
       }
     });
