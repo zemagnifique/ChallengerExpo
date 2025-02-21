@@ -14,7 +14,7 @@ export default function IndexScreen() {
   const colorScheme = useColorScheme();
   const [filter, setFilter] = useState('all');
   const router = useRouter();
-  const { challenges, user, updateChallengeStatus, updateChallengeCoach, deleteChallenge, archiveChallenge } = useAuth();
+  const { challenges, user, updateChallenge, updateChallengeStatus, updateChallengeCoach, deleteChallenge, archiveChallenge } = useAuth();
 
   const filteredChallenges = () => {
     let filtered = (challenges ?? []).filter(c => c.status !== 'rejected');
