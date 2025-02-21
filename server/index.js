@@ -9,10 +9,12 @@ const server = http.createServer(app);
 const io = require("socket.io")(server, {
   cors: {
     origin: "*",
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"]
   },
-  transports: ['websocket', 'polling']
+  transports: ['websocket', 'polling'],
+  allowEIO3: true
 });
 
 // WebSocket connection handling
