@@ -114,20 +114,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       socket.on("newMessage", (message) => {
+        if (!message || !message.challenge_id) return;
+        
         setChallenges(currentChallenges => 
           currentChallenges.map(challenge => {
             if (challenge.id === message.challenge_id) {
-              const updatedMessages = [...(challenge.messages || [])];
-              const newMessage = {
-                ...message,
-                read: message.user_id === user.id,
-                timestamp: new Date(message.created_at)
-              };
-              updatedMessages.push(newMessage);
-              
               return {
                 ...challenge,
-                messages: updatedMessages
+                messages: [
+                  ...(challenge.messages || []),
+                  {
+                    ...message,
+                    read: message.user_id === user.id,
+                    timestamp: new Date(message.created_at)
+                  }
+                ]
               };
             }
             return challenge;

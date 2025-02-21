@@ -98,16 +98,15 @@ export default function ChatScreen() {
     
     socket.on("newMessage", (message) => {
       if (challenge && message.challenge_id === challengeId) {
+        const newMessage = {
+          ...message,
+          read: message.user_id === user?.id,
+          timestamp: new Date(message.created_at)
+        };
+        
         updateChallenge({
           ...challenge,
-          messages: [
-            ...(challenge.messages || []),
-            {
-              ...message,
-              read: message.user_id === user?.id,
-              timestamp: new Date(message.created_at)
-            }
-          ]
+          messages: [...(challenge.messages || []), newMessage]
         });
       }
     });
