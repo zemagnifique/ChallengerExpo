@@ -55,7 +55,7 @@ export default function IndexScreen() {
   const allChallenges = filteredChallenges();
 
   const getUnreadCount = (challenge) => {
-    return (challenge.messages || []).filter(m => !m.is_read && m.userId !== user?.id).length;
+    return (challenge.messages || []).filter(m => !m.is_read && m.user_id !== user?.id).length;
   };
 
   const renderChallengeSection = (item) => (
@@ -445,15 +445,18 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   badge: {
-    backgroundColor: "#E8F5E9",
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 12,
+    backgroundColor: "#FF4444",
+    width: 20,
+    height: 20,
+    borderRadius: 10,
     marginLeft: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   badgeText: {
     fontSize: 12,
-    color: "#2E7D32",
+    color: "#FFFFFF",
+    fontWeight: 'bold',
   },
   typeLabel: {
     fontSize: 14,
