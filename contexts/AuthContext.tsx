@@ -358,11 +358,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const getUnreadMessageCount = (challengeId: string): number => {
     const challenge = challenges.find((c) => c.id === challengeId);
-    return (
-      challenge?.messages?.filter(
-        (msg) => !msg.read && msg.user_id !== user?.id,
-      ).length || 0
-    );
+    if (!challenge || !challenge.messages) return 0;
+    
+    return challenge.messages.filter(msg => 
+      msg.user_id !== user?.id && !msg.read
+    ).length;
   };
 
   const markMessagesAsRead = async (challengeId: string): Promise<void> => {
