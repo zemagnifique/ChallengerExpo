@@ -93,31 +93,13 @@ export default function ChatScreen() {
   }, []);
 
   React.useEffect(() => {
-    const socket = io(ApiClient.getApiUrl(), {
-      transports: ["websocket", "polling"],
-      reconnection: true,
-      reconnectionAttempts: 5,
-    });
-
-    socket.on("connect", () => {
-      console.log("Connected to WebSocket");
-      socket.emit("joinRoom", challengeId);
-    });
-
-    socket.on("newMessage", (message) => {
-      if (challenge) {
-        updateChallenge({
-          ...challenge,
-          messages: [...(challenge.messages || []), message],
-        });
-      }
-    });
-
+    const socket = io(ApiClient.getApiUrl());
+    socket.emit("joinRoom", challengeId);
+    
     return () => {
       socket.emit("leaveRoom", challengeId);
-      socket.disconnect();
     };
-  }, [challengeId, challenge]);
+  }, [challengeId]);
 
   const handleSendMessage = async () => {
     if (!message.trim() && !selectedImage) return;

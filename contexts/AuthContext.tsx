@@ -96,6 +96,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (user?.id) {
       loadChallenges();
+      
+      // Setup WebSocket connection
+      const socket = io(ApiClient.getApiUrl(), {
+        transports: ["websocket", "polling"],
+        reconnection: true,
+        reconnectionAttempts: 5,
+      });
+
+      socket.on("connect", () => {
+        console.log("Connected to main WebSocket");
+      });
+
+      socket.on("newMessage", (message) => {
+        setChallenges(currentChallenges => 
+          currentChallenges.map(challenge => {
+            if (challenge.id === message.challenge_id) {
+              return {
+                ...challenge,
+                messages: [...(challenge.messages || []), {
+                  ...message,
+                  read: message.user_id === user.id,
+                  timestamp: new Date(message.created_at)
+                }]
+              };
+            }
+            return challenge;
+          })
+        );
+      });
+
+      return () => {
+        socket.disconnect();
+      };
     }
   }, [user]);
 
