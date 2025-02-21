@@ -25,15 +25,14 @@ CREATE TABLE IF NOT EXISTS challenges (
 -- Create messages table
 CREATE TABLE IF NOT EXISTS messages (
   id SERIAL PRIMARY KEY,
-  challenge_id VARCHAR(255) NOT NULL,
-  user_id VARCHAR(255) NOT NULL,
+  challenge_id INTEGER REFERENCES challenges(id),
+  user_id VARCHAR(255) REFERENCES users(id),
   text TEXT,
   image_url TEXT,
   is_proof BOOLEAN DEFAULT FALSE,
   is_validated BOOLEAN DEFAULT FALSE,
   is_read BOOLEAN DEFAULT FALSE,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(id)
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Insert test users
