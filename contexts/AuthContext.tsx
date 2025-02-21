@@ -128,7 +128,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                   ...challenge,
                   messages: updatedMessages.map((msg) => ({
                     ...msg,
-                    is_read: msg.user_id === user?.id ? true : msg.is_read,
+                    is_read: msg.is_read,
                     timestamp: new Date(msg.created_at),
                   })),
                 };
@@ -136,9 +136,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               return challenge;
             }),
           );
-          
-          // Trigger a full challenges refresh to update counts
-          loadChallenges();
         } catch (error) {
           console.error("Error fetching updated messages:", error);
         }
