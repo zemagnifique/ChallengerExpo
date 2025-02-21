@@ -17,7 +17,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import * as ImagePicker from "expo-image-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { ApiClient } from '@/api/client';
+import { ApiClient } from "@/api/client";
 import { io } from "socket.io-client";
 
 type Challenge = {
@@ -47,7 +47,7 @@ type Challenge = {
 export default function ChatScreen() {
   const flatListRef = React.useRef<FlatList<any>>(null); // Added generic type to FlatList
   const { challengeId } = useLocalSearchParams<{ challengeId: string }>();
-  console.log('Challenge ID:', challengeId);
+  console.log("Challenge ID:", challengeId);
   const { challenges, user, updateChallengeStatus, updateChallenge } =
     useAuth();
   const router = useRouter();
@@ -56,24 +56,24 @@ export default function ChatScreen() {
   const [keyboardHeight, setKeyboardHeight] = React.useState(0);
   const [selectedImage, setSelectedImage] = React.useState(null);
   const [lastTap, setLastTap] = useState(null); // Added state for double tap detection
-  console.log('Looking for challenge:', challengeId);
-  console.log('Available challenges:', challenges);
+  console.log("Looking for challenge:", challengeId);
+  console.log("Available challenges:", challenges);
   const challenge = challenges.find((c) => c.id === challengeId);
-  console.log('Found challenge:', challenge);
+  console.log("Found challenge:", challenge);
 
   // Load initial messages
   React.useEffect(() => {
     const loadMessages = async () => {
       try {
-        if (challenge?.status !== 'pending') {
+        if (challenge?.status !== "pending") {
           const messages = await ApiClient.getMessages(challengeId as string);
           updateChallenge({
             ...challenge,
-            messages: messages || []
+            messages: messages || [],
           });
         }
       } catch (error) {
-        console.error('Error loading messages:', error);
+        console.error("Error loading messages:", error);
       }
     };
 
@@ -114,20 +114,20 @@ export default function ChatScreen() {
         userId: user?.id || "",
         text: message.trim(),
         imageUrl: selectedImage,
-        isProof: false
+        isProof: false,
       });
 
       // Fetch messages again to ensure consistency
       const messages = await ApiClient.getMessages(challengeId as string);
       updateChallenge({
         ...challenge,
-        messages
+        messages,
       });
 
       setMessage("");
       setSelectedImage(null);
     } catch (error) {
-      console.error('Error sending message:', error);
+      console.error("Error sending message:", error);
     }
   };
 
@@ -135,20 +135,20 @@ export default function ChatScreen() {
   React.useEffect(() => {
     const socket = io(ApiClient.getApiUrl());
 
-    socket.on('connect', () => {
-      console.log('Connected to WebSocket');
-      socket.emit('joinRoom', challengeId);
+    socket.on("connect", () => {
+      console.log("Connected to WebSocket");
+      socket.emit("joinRoom", challengeId);
     });
 
-    socket.on('newMessage', (message) => {
+    socket.on("newMessage", (message) => {
       updateChallenge({
         ...challenge,
-        messages: [...(challenge?.messages || []), message]
+        messages: [...(challenge?.messages || []), message],
       });
     });
 
     return () => {
-      socket.emit('leaveRoom', challengeId);
+      socket.emit("leaveRoom", challengeId);
       socket.disconnect();
     };
   }, [challengeId, challenge]);
@@ -208,7 +208,6 @@ export default function ChatScreen() {
 
   const [messages, setMessages] = useState<any[]>([]);
   const [isCoach, setIsCoach] = useState(false);
-  const [lastTap, setLastTap] = useState(null);
 
   const handleDoubleTap = async (message: any) => {
     const now = Date.now();
@@ -246,7 +245,9 @@ export default function ChatScreen() {
 
   useEffect(() => {
     if (challenge) {
-      setMessages(challenge.status === 'pending' ? [] : (challenge.messages ?? []));
+      setMessages(
+        challenge.status === "pending" ? [] : (challenge.messages ?? []),
+      );
       setIsCoach(parseInt(user?.id) === challenge.coach_id);
     }
   }, [challenge, user]);
@@ -266,7 +267,9 @@ export default function ChatScreen() {
           styles.header,
           {
             backgroundColor:
-              parseInt(user?.id) === challenge?.coach_id ? "#2B5876" : "#B71C1C",
+              parseInt(user?.id) === challenge?.coach_id
+                ? "#2B5876"
+                : "#B71C1C",
           },
         ]}
       >
@@ -282,22 +285,25 @@ export default function ChatScreen() {
         </TouchableOpacity>
         <View style={styles.headerContent}>
           <ThemedText style={styles.title}>{challenge.title}</ThemedText>
-          {challenge.status === "pending" && parseInt(user?.id) === challenge.coach_id && (
-            <View style={styles.actionButtons}>
-              <TouchableOpacity
-                style={[styles.actionButton, styles.acceptButton]}
-                onPress={handleAcceptChallenge}
-              >
-                <ThemedText style={styles.buttonText}>Accept</ThemedText>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.actionButton, styles.rejectButton]}
-                onPress={() => updateChallengeStatus(challenge.id, "rejected")}
-              >
-                <ThemedText style={styles.buttonText}>Reject</ThemedText>
-              </TouchableOpacity>
-            </View>
-          )}
+          {challenge.status === "pending" &&
+            parseInt(user?.id) === challenge.coach_id && (
+              <View style={styles.actionButtons}>
+                <TouchableOpacity
+                  style={[styles.actionButton, styles.acceptButton]}
+                  onPress={handleAcceptChallenge}
+                >
+                  <ThemedText style={styles.buttonText}>Accept</ThemedText>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.actionButton, styles.rejectButton]}
+                  onPress={() =>
+                    updateChallengeStatus(challenge.id, "rejected")
+                  }
+                >
+                  <ThemedText style={styles.buttonText}>Reject</ThemedText>
+                </TouchableOpacity>
+              </View>
+            )}
           <ThemedText style={styles.subtitle}>
             {isCoach
               ? `Challenger: User ${challenge.user_id}`
@@ -373,7 +379,9 @@ export default function ChatScreen() {
                 ]}
               >
                 {item.text && (
-                  <ThemedText style={styles.messageText}>{item.text}</ThemedText>
+                  <ThemedText style={styles.messageText}>
+                    {item.text}
+                  </ThemedText>
                 )}
                 {item.image && (
                   <Image
@@ -401,7 +409,8 @@ export default function ChatScreen() {
               </View>
               {((isCoach && item.isProof && !item.isValidated) ||
                 (!isCoach &&
-                  messages[messages.length - 1].timestamp === item.timestamp)) && (
+                  messages[messages.length - 1].timestamp ===
+                    item.timestamp)) && (
                 <ThemedText
                   style={[
                     styles.suggestionText,
