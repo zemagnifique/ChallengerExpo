@@ -290,18 +290,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const getUnreadMessageCount = (challengeId: string): number => {
     const challenge = challenges.find((c) => c.id === challengeId);
-    return challenge?.messages?.filter((msg) => !msg.read).length || 0;
+    return challenge?.messages?.filter((msg) => !msg.read && msg.userId !== user?.id).length || 0;
   };
 
   const markMessagesAsRead = async (challengeId: string): Promise<void> => {
     const updatedChallenges = challenges.map((c) => {
       if (c.id === challengeId) {
-        return { ...c, messages: c.messages?.map(msg => ({...msg, read: true})) || [] };
+        return {
+          ...c,
+          messages: c.messages?.map(msg => ({
+            ...msg,
+            read: msg.userId !== user?.id ? true : msg.read
+          })) || []
+        };
       }
       return c;
     });
     setChallenges(updatedChallenges);
-    await AsyncStorage.setItem("challenges", JSON.stringify(updatedChallenges));
+    await ApiClient.markMessagesAsRead(challengeId, user?.id || "");
   };
 
 
