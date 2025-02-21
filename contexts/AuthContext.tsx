@@ -267,7 +267,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const processedChallenges = fetchedChallenges.map((challenge) => ({
           ...challenge,
           id: challenge.id.toString(),
-          messages: challenge.messages?.map(msg => ({...msg, read: false})) || [] // Initialize messages as unread
+          messages: challenge.messages?.map(msg => ({
+            ...msg,
+            read: false,
+            userId: msg.user_id,
+            timestamp: new Date(msg.created_at)
+          })) || []
         }));
         setChallenges(processedChallenges);
       } else {

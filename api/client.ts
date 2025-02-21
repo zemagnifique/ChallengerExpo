@@ -69,7 +69,17 @@ export const ApiClient = {
           `Failed to fetch challenges: ${response.status} ${response.statusText} - ${errorText}`,
         );
       }
-      return response.json();
+      const challenges = await response.json();
+      
+      // Fetch messages for each challenge
+      const challengesWithMessages = await Promise.all(
+        challenges.map(async (challenge) => {
+          const messages = await ApiClient.getMessages(challenge.id);
+          return { ...challenge, messages };
+        })
+      );
+      
+      return challengesWithMessages;
     } catch (error) {
       console.error("API Error:", error);
       console.error("API URL:", API_URL);
