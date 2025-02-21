@@ -93,20 +93,31 @@ export default function ChatScreen() {
   }, []);
 
   React.useEffect(() => {
-    const socket = io(ApiClient.getApiUrl());
-    socket.emit("joinRoom", challengeId);
+    if (!challengeId || !challenge) return;
+
+    const socket = io(ApiClient.getApiUrl(), {
+      transports: ['websocket'],
+      reconnection: true
+    });
+
+    socket.on('connect', () => {
+      console.log('Connected to chat socket');
+      socket.emit("joinRoom", challengeId);
+    });
     
     socket.on("newMessage", (message) => {
-      if (challenge && message.challenge_id === challengeId) {
-        const newMessage = {
-          ...message,
-          read: message.user_id === user?.id,
-          timestamp: new Date(message.created_at)
-        };
-        
+      console.log('Received message:', message);
+      if (message.challenge_id === challengeId) {
         updateChallenge({
           ...challenge,
-          messages: [...(challenge.messages || []), newMessage]
+          messages: [
+            ...(challenge.messages || []),
+            {
+              ...message,
+              read: message.user_id === user?.id,
+              timestamp: new Date(message.created_at)
+            }
+          ]
         });
       }
     });
