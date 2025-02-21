@@ -107,21 +107,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       socket.on("connect", () => {
         console.log("Connected to main WebSocket");
+        // Join all challenge rooms
+        challenges.forEach(challenge => {
+          socket.emit("joinRoom", challenge.id);
+        });
       });
 
       socket.on("newMessage", (message) => {
         setChallenges(currentChallenges => 
           currentChallenges.map(challenge => {
             if (challenge.id === message.challenge_id) {
-              const newMessage = {
-                ...message,
-                read: message.user_id === user.id,
-                timestamp: new Date(message.created_at)
-              };
-              return {
-                ...challenge,
-                messages: [...(challenge.messages || []), newMessage]
-              };
+              const existingMessage = challenge.messages?.find(msg => msg.id === message.id);
+              if (!existingMessage) {
+                const newMessage = {
+                  ...message,
+                  read: message.user_id === user.id,
+                  timestamp: new Date(message.created_at)
+                };
+                return {
+                  ...challenge,
+                  messages: [...(challenge.messages || []), newMessage]
+                };
+              }
             }
             return challenge;
           })

@@ -96,10 +96,24 @@ export default function ChatScreen() {
     const socket = io(ApiClient.getApiUrl());
     socket.emit("joinRoom", challengeId);
     
+    socket.on("newMessage", (message) => {
+      if (challenge) {
+        updateChallenge({
+          ...challenge,
+          messages: [...(challenge.messages || []), {
+            ...message,
+            read: message.user_id === user?.id,
+            timestamp: new Date(message.created_at)
+          }]
+        });
+      }
+    });
+
     return () => {
       socket.emit("leaveRoom", challengeId);
+      socket.disconnect();
     };
-  }, [challengeId]);
+  }, [challengeId, challenge?.id]);
 
   const handleSendMessage = async () => {
     if (!message.trim() && !selectedImage) return;
