@@ -136,11 +136,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         );
       });
 
-      socket.on("updateMessages", async (messages) => {
-        if (!messages || !messages.length) return;
-        const challenge_id = messages[0].challenge_id;
-        await updateChallengeMessages(challenge_id, messages);
-      });
 
       socket.on("messagesRead", ({ challenge_id, user_id }) => {
         if (user_id !== user.id) {
