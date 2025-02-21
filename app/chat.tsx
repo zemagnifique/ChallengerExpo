@@ -7,7 +7,6 @@ import {
   FlatList,
   Keyboard,
   Image,
-  ViewToken,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { IconSymbol } from "@/components/ui/IconSymbol";
@@ -16,53 +15,27 @@ import { ThemedText } from "@/components/ThemedText";
 import { useAuth } from "@/contexts/AuthContext";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import * as ImagePicker from "expo-image-picker";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ApiClient } from "@/api/client";
 import { io } from "socket.io-client";
 
-type Challenge = {
-  id: string;
-  title: string;
-  description: string;
-  startDate: Date;
-  endDate: Date;
-  frequency: string;
-  proofRequirements: string;
-  status: string;
-  userId: string;
-  coachId: string;
-  createdAt: Date;
-  messages?: Array<{
-    text: string;
-    userId: string;
-    timestamp: Date;
-    image?: string;
-    isValidated?: boolean;
-    isProof?: boolean; // Added isProof property
-    isSystem?: boolean; // Added isSystem property
-    suggestionText?: string; //Added suggestionText property
-  }>;
-};
-
 export default function ChatScreen() {
-  const flatListRef = React.useRef<FlatList<any>>(null); // Added generic type to FlatList
+  const flatListRef = React.useRef<FlatList<any>>(null);
   const { challengeId } = useLocalSearchParams<{ challengeId: string }>();
-  console.log("Challenge ID:", challengeId);
-  const { challenges, user, updateChallengeStatus, updateChallenge } =
-    useAuth();
+  const { challenges, user, updateChallengeStatus, updateChallenge } = useAuth();
   const router = useRouter();
-  const [message, setMessage] = React.useState("");
-  const [localStatus, setLocalStatus] = React.useState("");
-  const [keyboardHeight, setKeyboardHeight] = React.useState(0);
-  const [selectedImage, setSelectedImage] = React.useState(null);
-  const [lastTap, setLastTap] = useState(null); // Added state for double tap detection
-  console.log("Looking for challenge:", challengeId);
-  console.log("Available challenges:", challenges);
-  const challenge = challenges.find((c) => c.id === challengeId);
-  console.log("Found challenge:", challenge);
 
-  // Load initial messages
-  React.useEffect(() => {
+  // All useState declarations
+  const [message, setMessage] = useState("");
+  const [localStatus, setLocalStatus] = useState("");
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [lastTap, setLastTap] = useState(null);
+
+  const challenge = challenges.find((c) => c.id === challengeId);
+  const isCoach = challenge ? parseInt(user?.id) === challenge.coach_id : false;
+  const messages = challenge?.status === "pending" ? [] : (challenge?.messages ?? []);
+
+  useEffect(() => {
     const loadMessages = async () => {
       try {
         if (challenge?.status !== "pending") {
@@ -82,7 +55,7 @@ export default function ChatScreen() {
     }
   }, [challengeId, challenge?.id, challenge?.status]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const keyboardWillShow = (e: any) => {
       setKeyboardHeight(e.endCoordinates.height);
     };
@@ -106,6 +79,29 @@ export default function ChatScreen() {
     };
   }, []);
 
+  useEffect(() => {
+    const socket = io(ApiClient.getApiUrl());
+
+    socket.on("connect", () => {
+      console.log("Connected to WebSocket");
+      socket.emit("joinRoom", challengeId);
+    });
+
+    socket.on("newMessage", (message) => {
+      if (challenge) {
+        updateChallenge({
+          ...challenge,
+          messages: [...(challenge.messages || []), message],
+        });
+      }
+    });
+
+    return () => {
+      socket.emit("leaveRoom", challengeId);
+      socket.disconnect();
+    };
+  }, [challengeId, challenge]);
+
   const handleSendMessage = async () => {
     if (!message.trim() && !selectedImage) return;
 
@@ -117,12 +113,13 @@ export default function ChatScreen() {
         isProof: false,
       });
 
-      // Fetch messages again to ensure consistency
       const messages = await ApiClient.getMessages(challengeId as string);
-      updateChallenge({
-        ...challenge,
-        messages,
-      });
+      if (challenge) {
+        updateChallenge({
+          ...challenge,
+          messages,
+        });
+      }
 
       setMessage("");
       setSelectedImage(null);
@@ -130,28 +127,6 @@ export default function ChatScreen() {
       console.error("Error sending message:", error);
     }
   };
-
-  // WebSocket connection and message handling
-  React.useEffect(() => {
-    const socket = io(ApiClient.getApiUrl());
-
-    socket.on("connect", () => {
-      console.log("Connected to WebSocket");
-      socket.emit("joinRoom", challengeId);
-    });
-
-    socket.on("newMessage", (message) => {
-      updateChallenge({
-        ...challenge,
-        messages: [...(challenge?.messages || []), message],
-      });
-    });
-
-    return () => {
-      socket.emit("leaveRoom", challengeId);
-      socket.disconnect();
-    };
-  }, [challengeId, challenge]);
 
   const handleAcceptChallenge = async () => {
     try {
@@ -177,16 +152,17 @@ export default function ChatScreen() {
         userId: user?.id || "",
         timestamp: new Date(),
         image: result.assets[0].uri,
-        isValidated: false, // Initially not validated
-        isProof: false, // Initially not marked as proof
+        isValidated: false,
+        isProof: false,
       };
 
-      const updatedChallenge = {
-        ...challenge,
-        messages: [...(challenge.messages || []), newMessage],
-      };
-
-      await updateChallenge(updatedChallenge);
+      if (challenge) {
+        const updatedChallenge = {
+          ...challenge,
+          messages: [...(challenge.messages || []), newMessage],
+        };
+        await updateChallenge(updatedChallenge);
+      }
     }
   };
 
@@ -206,12 +182,10 @@ export default function ChatScreen() {
     await updateChallenge(updatedChallenge);
   };
 
-
   const handleDoubleTap = async (message: any) => {
     const now = Date.now();
     if (lastTap && now - lastTap < 300) {
       if (isCoach && message.isProof && message.userId !== user?.id) {
-        // Coach validating a proof
         const updatedMessages = challenge.messages.map((msg) => {
           if (
             msg.timestamp === message.timestamp &&
@@ -224,7 +198,6 @@ export default function ChatScreen() {
         const updatedChallenge = { ...challenge, messages: updatedMessages };
         await updateChallenge(updatedChallenge);
       } else if (!isCoach && message.userId === user?.id) {
-        // Challenger marking their message as proof
         const updatedMessages = challenge.messages.map((msg) => {
           if (
             msg.timestamp === message.timestamp &&
@@ -249,20 +222,13 @@ export default function ChatScreen() {
     );
   }
 
-  const isCoach = parseInt(user?.id) === challenge.coach_id;
-  const messages = challenge.status === "pending" ? [] : (challenge.messages ?? []);
-
-
   return (
     <ThemedView style={styles.container}>
       <View
         style={[
           styles.header,
           {
-            backgroundColor:
-              parseInt(user?.id) === challenge?.coach_id
-                ? "#2B5876"
-                : "#B71C1C",
+            backgroundColor: isCoach ? "#2B5876" : "#B71C1C",
           },
         ]}
       >
@@ -278,48 +244,30 @@ export default function ChatScreen() {
         </TouchableOpacity>
         <View style={styles.headerContent}>
           <ThemedText style={styles.title}>{challenge.title}</ThemedText>
-          {challenge.status === "pending" &&
-            parseInt(user?.id) === challenge.coach_id && (
-              <View style={styles.actionButtons}>
-                <TouchableOpacity
-                  style={[styles.actionButton, styles.acceptButton]}
-                  onPress={handleAcceptChallenge}
-                >
-                  <ThemedText style={styles.buttonText}>Accept</ThemedText>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.actionButton, styles.rejectButton]}
-                  onPress={() =>
-                    updateChallengeStatus(challenge.id, "rejected")
-                  }
-                >
-                  <ThemedText style={styles.buttonText}>Reject</ThemedText>
-                </TouchableOpacity>
-              </View>
-            )}
+          {challenge.status === "pending" && isCoach && (
+            <View style={styles.actionButtons}>
+              <TouchableOpacity
+                style={[styles.actionButton, styles.acceptButton]}
+                onPress={handleAcceptChallenge}
+              >
+                <ThemedText style={styles.buttonText}>Accept</ThemedText>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.actionButton, styles.rejectButton]}
+                onPress={() =>
+                  updateChallengeStatus(challenge.id, "rejected")
+                }
+              >
+                <ThemedText style={styles.buttonText}>Reject</ThemedText>
+              </TouchableOpacity>
+            </View>
+          )}
           <ThemedText style={styles.subtitle}>
             {isCoach
               ? `Challenger: User ${challenge.user_id}`
               : `Coach: User ${challenge.coach_id}`}
           </ThemedText>
         </View>
-
-        {challenge.status === "pending" && !isCoach && (
-          <View style={styles.actionButtons}>
-            <TouchableOpacity
-              style={[styles.actionButton, styles.changeCoachButton]}
-              onPress={() => handleChangeCoach(challenge.id, "newCoachId")}
-            >
-              <ThemedText style={styles.buttonText}>Change Coach</ThemedText>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.actionButton, styles.deleteButton]}
-              onPress={() => deleteChallenge(challenge.id)}
-            >
-              <ThemedText style={styles.buttonText}>Delete</ThemedText>
-            </TouchableOpacity>
-          </View>
-        )}
       </View>
 
       <FlatList
@@ -332,7 +280,6 @@ export default function ChatScreen() {
         }
         onLayout={() => flatListRef.current?.scrollToEnd({ animated: true })}
         renderItem={({ item }) => {
-          const isCoach = parseInt(user?.id) === challenge.coach_id;
           let suggestionText = "";
           if (isCoach && item.isProof && !item.isValidated) {
             suggestionText = "Double tap to approve proof";
@@ -362,10 +309,7 @@ export default function ChatScreen() {
                     ? [
                         styles.ownMessage,
                         {
-                          backgroundColor:
-                            parseInt(user?.id) === challenge?.coach_id
-                              ? "#2B5876"
-                              : "#B71C1C",
+                          backgroundColor: isCoach ? "#2B5876" : "#B71C1C",
                         },
                       ]
                     : styles.otherMessage,
@@ -441,8 +385,7 @@ export default function ChatScreen() {
             style={[
               styles.sendButton,
               {
-                backgroundColor:
-                  challenge?.coachId === user?.id ? "#2B5876" : "#B71C1C",
+                backgroundColor: isCoach ? "#2B5876" : "#B71C1C",
               },
             ]}
             onPress={handleSendMessage}
@@ -474,56 +417,6 @@ export default function ChatScreen() {
 }
 
 const styles = StyleSheet.create({
-  backButton: {
-    padding: 8,
-    marginRight: 8,
-  },
-  actionContainer: {
-    marginTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: "rgba(0,0,0,0.1)",
-    paddingTop: 16,
-  },
-  actionButtons: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    gap: 10,
-  },
-  actionButton: {
-    flex: 1,
-    padding: 10,
-    borderRadius: 8,
-    alignItems: "center",
-  },
-  acceptButton: {
-    backgroundColor: "#4CAF50",
-  },
-  rejectButton: {
-    backgroundColor: "#f44336",
-  },
-  changeCoachButton: {
-    backgroundColor: "#2196F3",
-  },
-  deleteButton: {
-    backgroundColor: "#f44336",
-  },
-  buttonText: {
-    color: "#fff",
-    fontWeight: "bold",
-  },
-  disabledInput: {
-    opacity: 0.7,
-    backgroundColor: "#f5f5f5",
-  },
-  disabledTextInput: {
-    color: "#666",
-  },
-  disabledButton: {
-    backgroundColor: "#ccc",
-  },
-  disabledButtonText: {
-    color: "#666",
-  },
   container: {
     flex: 1,
   },
@@ -537,10 +430,9 @@ const styles = StyleSheet.create({
     marginLeft: 40,
     marginTop: -30,
   },
-  actionButtons: {
-    flexDirection: "row",
-    gap: 10,
-    marginVertical: 8,
+  backButton: {
+    padding: 8,
+    marginRight: 8,
   },
   title: {
     fontSize: 20,
@@ -552,6 +444,27 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#FFFFFF",
     opacity: 0.7,
+  },
+  actionButtons: {
+    flexDirection: "row",
+    gap: 10,
+    marginVertical: 8,
+  },
+  actionButton: {
+    flex: 1,
+    padding: 10,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  acceptButton: {
+    backgroundColor: "#4CAF50",
+  },
+  rejectButton: {
+    backgroundColor: "#f44336",
+  },
+  buttonText: {
+    color: "#fff",
+    fontWeight: "bold",
   },
   messageList: {
     flex: 1,
@@ -594,6 +507,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#F0F0F0",
     marginRight: 8,
   },
+  attachButton: {
+    padding: 8,
+    justifyContent: "center",
+  },
   sendButton: {
     padding: 12,
     borderRadius: 20,
@@ -602,10 +519,6 @@ const styles = StyleSheet.create({
   sendButtonText: {
     color: "#fff",
     fontWeight: "bold",
-  },
-  attachButton: {
-    padding: 8,
-    justifyContent: "center",
   },
   messageImage: {
     width: 200,
@@ -625,21 +538,17 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     fontStyle: "italic",
   },
-  imagePreview: {
-    position: "relative",
-    margin: 8,
-    marginTop: 0,
+  disabledInput: {
+    opacity: 0.7,
+    backgroundColor: "#f5f5f5",
   },
-  previewImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 8,
+  disabledTextInput: {
+    color: "#666",
   },
-  removeImage: {
-    position: "absolute",
-    top: -8,
-    right: -8,
-    backgroundColor: "white",
-    borderRadius: 12,
+  disabledButton: {
+    backgroundColor: "#ccc",
+  },
+  disabledButtonText: {
+    color: "#666",
   },
 });
