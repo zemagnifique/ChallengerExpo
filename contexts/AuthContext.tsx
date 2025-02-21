@@ -113,22 +113,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
       });
 
-      socket.on("newMessage", (message) => {
-        if (!message || !message.challenge_id) return;
+      socket.on("updateMessages", (messages) => {
+        if (!messages || !messages.length) return;
         
+        const challengeId = messages[0].challenge_id;
         setChallenges(currentChallenges => 
           currentChallenges.map(challenge => {
-            if (challenge.id === message.challenge_id) {
+            if (challenge.id === challengeId) {
               return {
                 ...challenge,
-                messages: [
-                  ...(challenge.messages || []),
-                  {
-                    ...message,
-                    read: message.user_id === user.id,
-                    timestamp: new Date(message.created_at)
-                  }
-                ]
+                messages: messages.map(msg => ({
+                  ...msg,
+                  read: msg.user_id === user.id,
+                  timestamp: new Date(msg.created_at)
+                }))
               };
             }
             return challenge;
