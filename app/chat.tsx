@@ -206,8 +206,6 @@ export default function ChatScreen() {
     await updateChallenge(updatedChallenge);
   };
 
-  const [messages, setMessages] = useState<any[]>([]);
-  const [isCoach, setIsCoach] = useState(false);
 
   const handleDoubleTap = async (message: any) => {
     const now = Date.now();
@@ -243,15 +241,6 @@ export default function ChatScreen() {
     setLastTap(now);
   };
 
-  useEffect(() => {
-    if (challenge) {
-      setMessages(
-        challenge.status === "pending" ? [] : (challenge.messages ?? []),
-      );
-      setIsCoach(parseInt(user?.id) === challenge.coach_id);
-    }
-  }, [challenge, user]);
-
   if (!challenge) {
     return (
       <ThemedView style={styles.container}>
@@ -259,6 +248,10 @@ export default function ChatScreen() {
       </ThemedView>
     );
   }
+
+  const isCoach = parseInt(user?.id) === challenge.coach_id;
+  const messages = challenge.status === "pending" ? [] : (challenge.messages ?? []);
+
 
   return (
     <ThemedView style={styles.container}>
