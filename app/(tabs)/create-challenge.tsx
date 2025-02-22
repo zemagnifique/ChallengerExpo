@@ -6,8 +6,8 @@ import {
   ScrollView,
   View,
   Platform,
-  Picker,
 } from "react-native";
+import { Picker } from '@react-native-picker/picker';
 import { ApiClient } from "@/api/client";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
