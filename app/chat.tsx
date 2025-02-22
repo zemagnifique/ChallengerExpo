@@ -278,7 +278,7 @@ export default function ChatScreen() {
                   {new Date(item.timestamp).toLocaleTimeString()}
                 </ThemedText>
                 {(item.isValidated || item.isProof) && (
-                  <View>
+                  <View style={styles.iconContainer}>
                     <IconSymbol
                       name={
                         item.isValidated
@@ -475,6 +475,10 @@ const styles = StyleSheet.create({
     marginTop: 4,
     marginBottom: 16,
     fontStyle: "italic",
+  },
+  iconContainer: {
+    marginTop: 4,
+    alignSelf: "flex-end",
   },
   disabledInput: {
     opacity: 0.7,
