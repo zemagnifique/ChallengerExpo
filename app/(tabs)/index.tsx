@@ -36,6 +36,23 @@ export default function IndexScreen() {
     setChallenges,
   } = useAuth();
 
+  // Instead of directly setting challenges, we now update them via updateChallenge
+  // so that cached username fields aren’t overwritten.
+  useEffect(() => {
+    if (user?.id) {
+      (async () => {
+        try {
+          const fetchedChallenges = await ApiClient.getChallenges(user.id);
+          fetchedChallenges.forEach((challenge) => {
+            updateChallenge(challenge);
+          });
+        } catch (error) {
+          console.error("Error loading challenges:", error);
+        }
+      })();
+    }
+  }, [user, updateChallenge]);
+
   const filteredChallenges = () => {
     let filtered = (challenges ?? []).filter((c) => c.status !== "rejected");
 
@@ -282,18 +299,6 @@ export default function IndexScreen() {
     }
   };
 
-  const loadChallenges = async (userId) => {
-    setRefreshing(true);
-    try {
-      const challenges = await ApiClient.getChallenges(userId);
-      setChallenges(challenges);
-    } catch (error) {
-      console.error("Error loading challenges:", error);
-    } finally {
-      setRefreshing(false);
-    }
-  };
-
   const handleRefresh = useCallback(async () => {
     if (!user?.id) return;
     setRefreshing(true);
@@ -308,12 +313,6 @@ export default function IndexScreen() {
       setRefreshing(false);
     }
   }, [user?.id, updateChallenge]);
-
-  useEffect(() => {
-    if (user?.id) {
-      loadChallenges(user.id);
-    }
-  }, [user]);
 
   const HeaderComponent = () => (
     <ThemedView style={styles.globalHeader}>

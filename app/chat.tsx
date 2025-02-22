@@ -68,7 +68,13 @@ export default function ChatScreen() {
             ...msg,
             is_read: false,
           }));
-          updateChallenge({ ...challenge, messages: processedMessages || [] });
+          // Preserve username and coachUsername when updating
+          updateChallenge({
+            ...challenge,
+            messages: processedMessages || [],
+            username: challenge.username,
+            coachUsername: challenge.coachUsername,
+          });
           // Mark received messages as read when chat is opened
           await markMessagesAsRead(challenge_id as string);
         }
@@ -119,7 +125,12 @@ export default function ChatScreen() {
       });
       const messages = await ApiClient.getMessages(challenge_id as string);
       if (challenge) {
-        updateChallenge({ ...challenge, messages });
+        updateChallenge({
+          ...challenge,
+          messages,
+          username: challenge.username,
+          coachUsername: challenge.coachUsername,
+        });
       }
       setMessage("");
       setSelectedImage(null);
@@ -134,7 +145,12 @@ export default function ChatScreen() {
       setIsSubmitting(true);
       await ApiClient.updateChallengeStatus(challenge_id, "active");
       if (challenge) {
-        await updateChallenge({ ...challenge, status: "active" });
+        await updateChallenge({
+          ...challenge,
+          status: "active",
+          username: challenge.username,
+          coachUsername: challenge.coachUsername,
+        });
       }
       setTimeout(() => router.back(), 100);
     } catch (error) {
@@ -164,6 +180,8 @@ export default function ChatScreen() {
         const updatedChallenge = {
           ...challenge,
           messages: [...(challenge.messages || []), newMessage],
+          username: challenge.username,
+          coachUsername: challenge.coachUsername,
         };
         await updateChallenge(updatedChallenge);
       }
@@ -183,7 +201,12 @@ export default function ChatScreen() {
           }
           return msg;
         });
-        await updateChallenge({ ...challenge, messages: updatedMessages });
+        await updateChallenge({
+          ...challenge,
+          messages: updatedMessages,
+          username: challenge.username,
+          coachUsername: challenge.coachUsername,
+        });
       } else if (!isCoach && message.user_id === user?.id) {
         const updatedMessages = challenge.messages.map((msg) => {
           if (
@@ -194,7 +217,12 @@ export default function ChatScreen() {
           }
           return msg;
         });
-        await updateChallenge({ ...challenge, messages: updatedMessages });
+        await updateChallenge({
+          ...challenge,
+          messages: updatedMessages,
+          username: challenge.username,
+          coachUsername: challenge.coachUsername,
+        });
       }
     }
     setLastTap(now);
@@ -242,8 +270,8 @@ export default function ChatScreen() {
           )}
           <ThemedText style={styles.chatSubtitle}>
             {isCoach
-              ? `Challenger: User ${challenge.user_id}`
-              : `Coach: User ${challenge.coach_id}`}
+              ? `Challenger: ${challenge.username || "User " + challenge.user_id}`
+              : `Coach: ${challenge.coachUsername || "User " + challenge.coach_id}`}
           </ThemedText>
         </View>
       </View>
