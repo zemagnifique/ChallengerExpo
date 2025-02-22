@@ -96,21 +96,15 @@ export default function ChatScreen() {
   React.useEffect(() => {
     if (!challenge_id || !challenge) return;
 
-    const socket = io(ApiClient.getApiUrl(), {
-      transports: ["websocket"],
-      reconnection: true,
-    });
-
-    socket.on("connect", () => {
-      console.log("Connected to chat socket");
-      socket.emit("joinRoom", challenge_id);
-    });
-
-    return () => {
-      socket.emit("leaveRoom", challenge_id);
-      socket.disconnect();
+    // Mark messages as read when chat is opened
+    const handleInitialLoad = async () => {
+      if (challenge.messages?.some(msg => !msg.is_read && msg.user_id !== user?.id)) {
+        await markMessagesAsRead(challenge_id);
+      }
     };
-  }, [challenge_id, challenge?.id]);
+
+    handleInitialLoad();
+  }, [challenge_id, challenge?.messages]);
 
   const handleSendMessage = async () => {
     if (!message.trim() && !selectedImage) return;
