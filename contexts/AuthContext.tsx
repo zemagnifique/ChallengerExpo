@@ -121,32 +121,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       };
 
       socket.on("updateMessages", async (messages) => {
-        console.log("Received messages update 2");
+        console.log("Received messages update");
         if (!messages || !messages.length) return;
+        
         const challenge_id = messages[0].challenge_id;
-        const processedMessages = messages.map(msg => ({
-          id: msg.id,
-          text: msg.text,
-          user_id: msg.user_id,
-          imageUrl: msg.image_url,
-          isProof: msg.is_proof,
-          isValidated: msg.is_validated,
-          is_read: msg.user_id === user.id,
-          timestamp: new Date(msg.created_at),
-        }));
+        try {
+          // Fetch all messages to ensure we have the complete state
+          const updatedMessages = await ApiClient.getMessages(challenge_id);
+          const processedMessages = updatedMessages.map(msg => ({
+            id: msg.id,
+            text: msg.text,
+            user_id: msg.user_id,
+            imageUrl: msg.image_url,
+            isProof: msg.is_proof,
+            isValidated: msg.is_validated,
+            is_read: msg.user_id === user.id,
+            timestamp: new Date(msg.created_at),
+          }));
 
-        setChallenges(currentChallenges => {
-          return currentChallenges.map(challenge => {
-            if (challenge.id === challenge_id) {
-              console.log("Updating challenge messages:", challenge_id);
-              return {
-                ...challenge,
-                messages: processedMessages,
-              };
-            }
-            return challenge;
+          setChallenges(currentChallenges => {
+            return currentChallenges.map(challenge => {
+              if (challenge.id === challenge_id) {
+                console.log("Updating challenge messages:", challenge_id, processedMessages);
+                return {
+                  ...challenge,
+                  messages: processedMessages,
+                };
+              }
+              return challenge;
+            });
           });
-        });
+        } catch (error) {
+          console.error("Error updating messages:", error);
+        }
       });
 
 

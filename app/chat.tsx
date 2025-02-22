@@ -95,8 +95,20 @@ export default function ChatScreen() {
 
   React.useEffect(() => {
     if (!challenge_id || !challenge) return;
+
+    const socket = io(ApiClient.getApiUrl(), {
+      transports: ["websocket"],
+      reconnection: true,
+    });
+
+    socket.on("connect", () => {
+      console.log("Connected to chat socket");
+      socket.emit("joinRoom", challenge_id);
+    });
+
     return () => {
-      // Cleanup if needed
+      socket.emit("leaveRoom", challenge_id);
+      socket.disconnect();
     };
   }, [challenge_id, challenge?.id]);
 
