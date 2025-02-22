@@ -6,6 +6,7 @@ import {
   View,
   Animated,
   RefreshControl,
+  ScrollView,
 } from "react-native";
 import { ApiClient } from "@/api/client";
 import { useColorScheme } from "@/hooks/useColorScheme";
@@ -315,78 +316,80 @@ export default function IndexScreen() {
     <ThemedView style={styles.header}>
       <ThemedText style={styles.headerTitle}>Challenges</ThemedText>
       <View style={styles.filterContainer}>
-        <TouchableOpacity
-          style={[
-            styles.filterButton,
-            filter === "all" && styles.filterButtonActive,
-          ]}
-          onPress={() => setFilter("all")}
-        >
-          <ThemedText
-            style={
-              filter === "all" &&
-              (colorScheme === "dark"
-                ? styles.filterTextActive
-                : styles.filterTextActiveLight)
-            }
+        <ScrollView horizontal={true} style={styles.filterContentContainer} showsHorizontalScrollIndicator={false}>
+          <TouchableOpacity
+            style={[
+              styles.filterButton,
+              filter === "all" && styles.filterButtonActive,
+            ]}
+            onPress={() => setFilter("all")}
           >
-            All
-          </ThemedText>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.filterButton,
-            filter === "challenger" && styles.filterButtonActive,
-          ]}
-          onPress={() => setFilter("challenger")}
-        >
-          <ThemedText
-            style={
-              filter === "challenger" &&
-              (colorScheme === "dark"
-                ? styles.filterTextActive
-                : styles.filterTextActiveLight)
-            }
+            <ThemedText
+              style={
+                filter === "all" &&
+                (colorScheme === "dark"
+                  ? styles.filterTextActive
+                  : styles.filterTextActiveLight)
+              }
+            >
+              All
+            </ThemedText>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.filterButton,
+              filter === "challenger" && styles.filterButtonActive,
+            ]}
+            onPress={() => setFilter("challenger")}
           >
-            My Challenges
-          </ThemedText>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.filterButton,
-            filter === "coaching" && styles.filterButtonActive,
-          ]}
-          onPress={() => setFilter("coaching")}
-        >
-          <ThemedText
-            style={
-              filter === "coaching" &&
-              (colorScheme === "dark"
-                ? styles.filterTextActive
-                : styles.filterTextActiveLight)
-            }
+            <ThemedText
+              style={
+                filter === "challenger" &&
+                (colorScheme === "dark"
+                  ? styles.filterTextActive
+                  : styles.filterTextActiveLight)
+              }
+            >
+              My Challenges
+            </ThemedText>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.filterButton,
+              filter === "coaching" && styles.filterButtonActive,
+            ]}
+            onPress={() => setFilter("coaching")}
           >
-            Coaching
-          </ThemedText>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.filterButton,
-            filter === "archived" && styles.filterButtonActive,
-          ]}
-          onPress={() => setFilter("archived")}
-        >
-          <ThemedText
-            style={
-              filter === "archived" &&
-              (colorScheme === "dark"
-                ? styles.filterTextActive
-                : styles.filterTextActiveLight)
-            }
+            <ThemedText
+              style={
+                filter === "coaching" &&
+                (colorScheme === "dark"
+                  ? styles.filterTextActive
+                  : styles.filterTextActiveLight)
+              }
+            >
+              Coaching
+            </ThemedText>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.filterButton,
+              filter === "archived" && styles.filterButtonActive,
+            ]}
+            onPress={() => setFilter("archived")}
           >
-            Archived
-          </ThemedText>
-        </TouchableOpacity>
+            <ThemedText
+              style={
+                filter === "archived" &&
+                (colorScheme === "dark"
+                  ? styles.filterTextActive
+                  : styles.filterTextActiveLight)
+              }
+            >
+              Archived
+            </ThemedText>
+          </TouchableOpacity>
+        </ScrollView>
       </View>
     </ThemedView>
   );
@@ -542,8 +545,12 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   filterContainer: {
+    marginTop: 10,
+  },
+  filterContentContainer: {
     flexDirection: "row",
     gap: 10,
+    paddingHorizontal: 10,
   },
   filterButton: {
     padding: 8,
