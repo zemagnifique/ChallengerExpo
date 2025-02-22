@@ -95,12 +95,13 @@ export default function ChatScreen() {
 
   // Messages are now handled through AuthContext state
   React.useEffect(() => {
+    console.log("REACTUSEEFFECT");
     const loadMessages = async () => {
       if (challenge?.status !== "pending") {
         await markMessagesAsRead(challenge_id as string);
       }
     };
-    
+
     if (challenge?.id) {
       loadMessages();
     }
