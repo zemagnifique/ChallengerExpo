@@ -73,8 +73,8 @@ export default function CreateChallengeScreen() {
         frequency,
         proofRequirements,
         status: "pending",
-        user_id: parseInt(user?.id),
-        coachId: selectedCoach,
+        user_id: user?.id?.toString() || "",
+        coachId: selectedCoach?.toString(),
         createdAt: new Date(),
       };
       addChallenge(challenge);
