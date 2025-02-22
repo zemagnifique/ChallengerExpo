@@ -20,7 +20,8 @@ import { ApiClient } from "@/api/client";
 export default function ChatScreen() {
   const flatListRef = React.useRef<FlatList<any>>(null);
   const router = useRouter();
-  const { challenge_id } = useLocalSearchParams<{ challenge_id: string }>();
+  const { challenge_id, challengeId } = useLocalSearchParams<{ challenge_id?: string, challengeId?: string }>();
+  const currentChallengeId = challenge_id || challengeId;
   const {
     challenges,
     user,
@@ -37,8 +38,8 @@ export default function ChatScreen() {
   const textColor = useThemeColor({}, "text");
 
   const challenge = React.useMemo(
-    () => challenges.find((c) => c.id === challenge_id),
-    [challenges, challenge_id],
+    () => challenges.find((c) => c.id === currentChallengeId),
+    [challenges, currentChallengeId],
   );
   const isCoach = challenge ? parseInt(user?.id) === challenge.coach_id : false;
   const messages =
