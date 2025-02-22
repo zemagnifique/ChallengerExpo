@@ -292,16 +292,18 @@ export default function ChatScreen() {
                 )}
               </ThemedView>
               {suggestionText && (
-                <ThemedText
-                  style={[
-                    styles.suggestionText,
-                    item.user_id === user?.id
-                      ? { alignSelf: "flex-end", marginRight: 8 }
-                      : { alignSelf: "flex-start", marginLeft: 8 },
-                  ]}
-                >
-                  {suggestionText}
-                </ThemedText>
+                <ThemedView>
+                  <ThemedText
+                    style={[
+                      styles.suggestionText,
+                      item.user_id === user?.id
+                        ? { alignSelf: "flex-end", marginRight: 8 }
+                        : { alignSelf: "flex-start", marginLeft: 8 },
+                    ]}
+                  >
+                    {suggestionText}
+                  </ThemedText>
+                </ThemedView>
               )}
             </TouchableOpacity>
           );
