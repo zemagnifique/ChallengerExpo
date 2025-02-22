@@ -330,7 +330,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const processedChallenges = await Promise.all(
           fetchedChallenges.map(async (challenge: any) => {
             const username = await ApiClient.getUsername(challenge.user_id);
-            const coachUsername = await ApiClient.getUsername(challenge.coach_id);
+            const coachUsername = await ApiClient.getUsername(
+              challenge.coach_id,
+            );
             return {
               ...challenge,
               username,
@@ -343,11 +345,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                     user_id: msg.user_id,
                     timestamp: new Date(msg.created_at),
                   }))
-                : []
+                : [],
             };
-          })
+          }),
         );
-        }));
         setChallenges(processedChallenges);
         await AsyncStorage.setItem(
           "challenges",
