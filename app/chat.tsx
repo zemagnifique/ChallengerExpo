@@ -37,16 +37,9 @@ export default function ChatScreen() {
     () => challenges.find((c) => c.id === challenge_id),
     [challenges, challenge_id],
   );
-  const isCoach = challenge ? user?.id === challenge.coach_id.toString() : false;
-  const messages = React.useMemo(() => {
-    if (!challenge || challenge.status === "pending") return [];
-    return challenge.messages || [];
-  }, [challenge, challenge?.messages]);
-
-  // Debug logging
-  React.useEffect(() => {
-    console.log("Messages updated in chat:", messages.length);
-  }, [messages]);
+  const isCoach = challenge ? parseInt(user?.id) === challenge.coach_id : false;
+  const messages =
+    challenge?.status === "pending" ? [] : (challenge?.messages ?? []);
 
   const { markMessagesAsRead } = useAuth();
 
@@ -100,18 +93,19 @@ export default function ChatScreen() {
     };
   }, []);
 
+  // Messages are now handled through AuthContext state
   React.useEffect(() => {
-    if (!challenge_id || !challenge) return;
-
-    // Mark messages as read when chat is opened
-    const handleInitialLoad = async () => {
-      if (challenge.messages?.some(msg => !msg.is_read && msg.user_id !== user?.id)) {
-        await markMessagesAsRead(challenge_id);
+    console.log("REACTUSEEFFECT");
+    const loadMessages = async () => {
+      if (challenge?.status !== "pending") {
+        await markMessagesAsRead(challenge_id as string);
       }
     };
 
-    handleInitialLoad();
-  }, [challenge_id, challenge?.messages]);
+    if (challenge?.id) {
+      loadMessages();
+    }
+  }, [challenge_id, challenge?.id]);
 
   const handleSendMessage = async () => {
     if (!message.trim() && !selectedImage) return;
@@ -123,7 +117,6 @@ export default function ChatScreen() {
         imageUrl: selectedImage,
         isProof: false,
       });
-
       const messages = await ApiClient.getMessages(challenge_id as string);
       if (challenge) {
         updateChallenge({

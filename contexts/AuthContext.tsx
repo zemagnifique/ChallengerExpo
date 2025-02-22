@@ -121,41 +121,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       };
 
       socket.on("updateMessages", async (messages) => {
-        console.log("Received messages update in AuthContext");
         if (!messages || !messages.length) return;
-        
         const challenge_id = messages[0].challenge_id;
-        try {
-          const updatedMessages = await ApiClient.getMessages(challenge_id);
-          const processedMessages = updatedMessages.map(msg => ({
-            id: msg.id,
-            text: msg.text,
-            user_id: msg.user_id,
-            imageUrl: msg.image_url,
-            isProof: msg.is_proof,
-            isValidated: msg.is_validated,
-            is_read: msg.user_id === user.id,
-            timestamp: new Date(msg.created_at),
-          }));
+        
+        // Process the messages directly
+        const processedMessages = messages.map(msg => ({
+          ...msg,
+          is_read: msg.user_id === user.id,
+          timestamp: new Date(msg.created_at),
+        }));
 
-          setChallenges(prevChallenges => {
-            console.log("Updating challenges state with new messages");
-            const newChallenges = prevChallenges.map(challenge => {
-              if (challenge.id === challenge_id) {
-                return {
+        setChallenges(currentChallenges =>
+          currentChallenges.map(challenge =>
+            challenge.id === challenge_id
+              ? {
                   ...challenge,
                   messages: processedMessages,
-                };
-              }
-              return challenge;
-            });
-            return newChallenges;
-          });
-        } catch (error) {
-          console.error("Error updating messages:", error);
-        }
+                }
+              : challenge
+          )
+        );
       });
-
 
       socket.on("messagesRead", ({ challenge_id, user_id }) => {
         if (user_id !== user.id) {
