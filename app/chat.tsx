@@ -93,44 +93,17 @@ export default function ChatScreen() {
     };
   }, []);
 
+  // Messages are now handled through AuthContext state
   React.useEffect(() => {
-    if (!challenge_id || !challenge) return;
-
-    const socket = io(ApiClient.getApiUrl(), {
-      transports: ["websocket"],
-      reconnection: true,
-    });
-
-    socket.on("connect", () => {
-      console.log("Connected to chat socket");
-      socket.emit("joinRoom", challenge_id);
-    });
-
-    socket.on("updateMessages", (messages) => {
-      console.log("Received messages update");
-      if (challenge) {
-        const processedMessages = messages.map((msg) => ({
-          id: msg.id,
-          text: msg.text,
-          user_id: msg.user_id,
-          imageUrl: msg.image_url,
-          isProof: msg.is_proof,
-          isValidated: msg.is_validated,
-          is_read: msg.user_id === user?.id,
-          timestamp: new Date(msg.created_at),
-        }));
-
-        updateChallenge({
-          ...challenge,
-          messages: processedMessages,
-        });
+    const loadMessages = async () => {
+      if (challenge?.status !== "pending") {
+        await markMessagesAsRead(challenge_id as string);
       }
-    });
-
-    return () => {
-      socket.emit("leaveRoom", challenge_id);
-      socket.disconnect();
     };
+    
+    if (challenge?.id) {
+      loadMessages();
+    }
   }, [challenge_id, challenge?.id]);
 
   const handleSendMessage = async () => {
