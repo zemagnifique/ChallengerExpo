@@ -300,7 +300,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const challenge = challenges.find((c) => c.id === challenge_id);
     if (!challenge || !challenge.messages) return 0;
     return challenge.messages.filter(
-      (msg) => msg.user_id !== user?.id && !msg.read,
+      (msg) => msg.user_id !== user?.id && !msg.is_read,
     ).length;
   };
 
