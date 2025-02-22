@@ -16,21 +16,24 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import * as ImagePicker from "expo-image-picker";
 import { ApiClient } from "@/api/client";
-import { io } from "socket.io-client";
 
 export default function ChatScreen() {
   const flatListRef = React.useRef<FlatList<any>>(null);
   const router = useRouter();
   const { challenge_id } = useLocalSearchParams<{ challenge_id: string }>();
-  const { challenges, user, updateChallengeStatus, updateChallenge } =
-    useAuth();
+  const {
+    challenges,
+    user,
+    updateChallengeStatus,
+    updateChallenge,
+    markMessagesAsRead,
+  } = useAuth();
 
   const [message, setMessage] = React.useState("");
   const [keyboardHeight, setKeyboardHeight] = React.useState(0);
   const [selectedImage, setSelectedImage] = React.useState(null);
-  const [lastTap, setLastTap] = React.useState(null);
+  const [lastTap, setLastTap] = React.useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [socketConnected, setSocketConnected] = React.useState(false);
   const textColor = useThemeColor({}, "text");
 
   const challenge = React.useMemo(
@@ -41,8 +44,6 @@ export default function ChatScreen() {
   const messages =
     challenge?.status === "pending" ? [] : (challenge?.messages ?? []);
 
-  const { markMessagesAsRead } = useAuth();
-
   React.useEffect(() => {
     const loadMessages = async () => {
       try {
@@ -52,10 +53,7 @@ export default function ChatScreen() {
             ...msg,
             is_read: false,
           }));
-          updateChallenge({
-            ...challenge,
-            messages: processedMessages || [],
-          });
+          updateChallenge({ ...challenge, messages: processedMessages || [] });
           // Mark received messages as read when chat is opened
           await markMessagesAsRead(challenge_id as string);
         }
@@ -93,49 +91,10 @@ export default function ChatScreen() {
     };
   }, []);
 
-  React.useEffect(() => {
-    if (!challenge_id || !challenge) return;
-
-    const socket = io(ApiClient.getApiUrl(), {
-      transports: ["websocket"],
-      reconnection: true,
-    });
-
-    socket.on("connect", () => {
-      console.log("Connected to chat socket");
-      socket.emit("joinRoom", challenge_id);
-    });
-
-    socket.on("updateMessages", (messages) => {
-      console.log("Received messages update");
-      if (challenge) {
-        const processedMessages = messages.map((msg) => ({
-          id: msg.id,
-          text: msg.text,
-          user_id: msg.user_id,
-          imageUrl: msg.image_url,
-          isProof: msg.is_proof,
-          isValidated: msg.is_validated,
-          is_read: msg.user_id === user?.id,
-          timestamp: new Date(msg.created_at),
-        }));
-
-        updateChallenge({
-          ...challenge,
-          messages: processedMessages,
-        });
-      }
-    });
-
-    return () => {
-      socket.emit("leaveRoom", challenge_id);
-      socket.disconnect();
-    };
-  }, [challenge_id, challenge?.id]);
+  // Socket handling is now centralized in AuthContext
 
   const handleSendMessage = async () => {
     if (!message.trim() && !selectedImage) return;
-
     try {
       const newMessage = await ApiClient.sendMessage(challenge_id as string, {
         user_id: user?.id || "",
@@ -143,15 +102,10 @@ export default function ChatScreen() {
         imageUrl: selectedImage,
         isProof: false,
       });
-
       const messages = await ApiClient.getMessages(challenge_id as string);
       if (challenge) {
-        updateChallenge({
-          ...challenge,
-          messages,
-        });
+        updateChallenge({ ...challenge, messages });
       }
-
       setMessage("");
       setSelectedImage(null);
     } catch (error) {
@@ -167,9 +121,7 @@ export default function ChatScreen() {
       if (challenge) {
         await updateChallenge({ ...challenge, status: "active" });
       }
-      setTimeout(() => {
-        router.back();
-      }, 100);
+      setTimeout(() => router.back(), 100);
     } catch (error) {
       console.error("Error accepting challenge:", error);
     } finally {
@@ -184,7 +136,6 @@ export default function ChatScreen() {
       aspect: [4, 3],
       quality: 1,
     });
-
     if (!result.cancelled && !result.canceled) {
       const newMessage = {
         text: "",
@@ -194,7 +145,6 @@ export default function ChatScreen() {
         isValidated: false,
         isProof: false,
       };
-
       if (challenge) {
         const updatedChallenge = {
           ...challenge,
@@ -218,8 +168,7 @@ export default function ChatScreen() {
           }
           return msg;
         });
-        const updatedChallenge = { ...challenge, messages: updatedMessages };
-        await updateChallenge(updatedChallenge);
+        await updateChallenge({ ...challenge, messages: updatedMessages });
       } else if (!isCoach && message.user_id === user?.id) {
         const updatedMessages = challenge.messages.map((msg) => {
           if (
@@ -230,8 +179,7 @@ export default function ChatScreen() {
           }
           return msg;
         });
-        const updatedChallenge = { ...challenge, messages: updatedMessages };
-        await updateChallenge(updatedChallenge);
+        await updateChallenge({ ...challenge, messages: updatedMessages });
       }
     }
     setLastTap(now);
@@ -250,9 +198,7 @@ export default function ChatScreen() {
       <View
         style={[
           styles.header,
-          {
-            backgroundColor: isCoach ? "#2B5876" : "#B71C1C",
-          },
+          { backgroundColor: isCoach ? "#2B5876" : "#B71C1C" },
         ]}
       >
         <TouchableOpacity
@@ -303,7 +249,6 @@ export default function ChatScreen() {
               : !isCoach && item.user_id === user?.id
                 ? "Double tap to submit as proof"
                 : "";
-
           return (
             <TouchableOpacity onPress={() => handleDoubleTap(item)}>
               <View
@@ -312,9 +257,7 @@ export default function ChatScreen() {
                   item.user_id === user?.id
                     ? [
                         styles.ownMessage,
-                        {
-                          backgroundColor: isCoach ? "#2B5876" : "#B71C1C",
-                        },
+                        { backgroundColor: isCoach ? "#2B5876" : "#B71C1C" },
                       ]
                     : styles.otherMessage,
                 ]}
@@ -381,9 +324,7 @@ export default function ChatScreen() {
           <TouchableOpacity
             style={[
               styles.sendButton,
-              {
-                backgroundColor: isCoach ? "#2B5876" : "#B71C1C",
-              },
+              { backgroundColor: isCoach ? "#2B5876" : "#B71C1C" },
             ]}
             onPress={handleSendMessage}
           >
