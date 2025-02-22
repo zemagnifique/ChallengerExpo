@@ -251,7 +251,7 @@ export default function ChatScreen() {
                 : "";
           return (
             <TouchableOpacity onPress={() => handleDoubleTap(item)}>
-              <View
+              <ThemedView
                 style={[
                   styles.messageBubble,
                   item.user_id === user?.id
@@ -290,7 +290,7 @@ export default function ChatScreen() {
                     />
                   </View>
                 )}
-              </View>
+              </ThemedView>
               {suggestionText && (
                 <ThemedText
                   style={[
