@@ -20,6 +20,7 @@ export const ApiClient = {
   getUsername: async (userId: string) => {
     try {
       const response = await fetch(`${API_URL}/api/users/${userId}`);
+      console.log(response);
       if (!response.ok) {
         return "Unknown User";
       }

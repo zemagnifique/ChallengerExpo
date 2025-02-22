@@ -326,13 +326,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const loadChallenges = async (userId: string) => {
     try {
       const fetchedChallenges = await ApiClient.getChallenges(userId);
+      console.log("getChallenges");
       if (Array.isArray(fetchedChallenges)) {
+        console.log("getChallenges2");
         const processedChallenges = await Promise.all(
           fetchedChallenges.map(async (challenge: any) => {
+            console.log("getChallenges3");
             const username = await ApiClient.getUsername(challenge.user_id);
             const coachUsername = await ApiClient.getUsername(
               challenge.coach_id,
             );
+            console.log(username);
             return {
               ...challenge,
               username,
