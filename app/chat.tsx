@@ -20,7 +20,10 @@ import { ApiClient } from "@/api/client";
 export default function ChatScreen() {
   const flatListRef = React.useRef<FlatList<any>>(null);
   const router = useRouter();
-  const { challenge_id, challengeId } = useLocalSearchParams<{ challenge_id?: string, challengeId?: string }>();
+  const { challenge_id, challengeId } = useLocalSearchParams<{
+    challenge_id?: string;
+    challengeId?: string;
+  }>();
   const currentChallengeId = challenge_id || challengeId;
   const {
     challenges,
@@ -37,20 +40,25 @@ export default function ChatScreen() {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const textColor = useThemeColor({}, "text");
 
-  const challenge = React.useMemo(
-    () => {
-      const found = challenges.find((c) => String(c.id) === String(currentChallengeId));
-      if (!found) {
-        console.log('No challenge found with ID:', currentChallengeId);
-        console.log('Available challenges:', challenges.map(c => c.id));
-      }
-      return found;
-    },
-    [challenges, currentChallengeId],
-  );
-  
-  const isCoach = challenge ? String(user?.id) === String(challenge.coach_id) : false;
-  const messages = challenge?.status === "pending" ? [] : (challenge?.messages ?? []);
+  const challenge = React.useMemo(() => {
+    const found = challenges.find(
+      (c) => String(c.id) === String(currentChallengeId),
+    );
+    if (!found) {
+      console.log("No challenge found with ID:", currentChallengeId);
+      console.log(
+        "Available challenges:",
+        challenges.map((c) => c.id),
+      );
+    }
+    return found;
+  }, [challenges, currentChallengeId]);
+
+  const isCoach = challenge
+    ? String(user?.id) === String(challenge.coach_id)
+    : false;
+  const messages =
+    challenge?.status === "pending" ? [] : (challenge?.messages ?? []);
 
   React.useEffect(() => {
     const loadMessages = async () => {
@@ -362,139 +370,5 @@ export default function ChatScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  header: {
-    padding: 16,
-    paddingTop: 48,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(0,0,0,0.1)",
-  },
-  headerContent: {
-    marginLeft: 40,
-    marginTop: -30,
-  },
-  backButton: {
-    padding: 8,
-    marginRight: 8,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginLeft: 8,
-    color: "#FFFFFF",
-  },
-  subtitle: {
-    fontSize: 14,
-    color: "#FFFFFF",
-    opacity: 0.7,
-  },
-  actionButtons: {
-    flexDirection: "row",
-    gap: 10,
-    marginVertical: 8,
-  },
-  actionButton: {
-    flex: 1,
-    padding: 10,
-    borderRadius: 8,
-    alignItems: "center",
-  },
-  acceptButton: {
-    backgroundColor: "#4CAF50",
-  },
-  rejectButton: {
-    backgroundColor: "#f44336",
-  },
-  buttonText: {
-    color: "#fff",
-    fontWeight: "bold",
-  },
-  messageList: {
-    flex: 1,
-    padding: 16,
-  },
-  messageBubble: {
-    padding: 12,
-    borderRadius: 16,
-    marginBottom: 8,
-    maxWidth: "80%",
-  },
-  ownMessage: {
-    alignSelf: "flex-end",
-    borderBottomRightRadius: 4,
-  },
-  otherMessage: {
-    backgroundColor: "#1C1C1E",
-    alignSelf: "flex-start",
-    borderBottomLeftRadius: 4,
-  },
-  messageText: {
-    fontSize: 16,
-    color: "#FFFFFF",
-  },
-  messageTime: {
-    fontSize: 12,
-    opacity: 0.7,
-    marginTop: 4,
-  },
-  inputContainer: {
-    flexDirection: "row",
-    padding: 16,
-    borderTopWidth: 1,
-    borderTopColor: "rgba(0,0,0,0.1)",
-  },
-  input: {
-    flex: 1,
-    padding: 12,
-    borderRadius: 20,
-    backgroundColor: "#F0F0F0",
-    marginRight: 8,
-  },
-  attachButton: {
-    padding: 8,
-    justifyContent: "center",
-  },
-  sendButton: {
-    padding: 12,
-    borderRadius: 20,
-    justifyContent: "center",
-  },
-  sendButtonText: {
-    color: "#fff",
-    fontWeight: "bold",
-  },
-  messageImage: {
-    width: 200,
-    height: 200,
-    borderRadius: 8,
-    marginVertical: 8,
-    alignSelf: "center",
-  },
-  checkmarkContainer: {
-    marginTop: 4,
-    alignSelf: "flex-end",
-  },
-  suggestionText: {
-    fontSize: 12,
-    color: "#666666",
-    marginTop: 4,
-    marginBottom: 16,
-    fontStyle: "italic",
-  },
-  disabledInput: {
-    opacity: 0.7,
-    backgroundColor: "#f5f5f5",
-  },
-  disabledTextInput: {
-    color: "#666",
-  },
-  disabledButton: {
-    backgroundColor: "#ccc",
-  },
-  disabledButtonText: {
-    color: "#666",
-  },
-});
+import { GlobalStyles } from "@/constants/Styles";
+const styles = GlobalStyles;
