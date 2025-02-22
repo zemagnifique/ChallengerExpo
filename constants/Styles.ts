@@ -310,4 +310,144 @@ export const GlobalStyles = StyleSheet.create({
     gap: 4,
     height: "100%",
   },
+  // Chat styles
+  chatHeader: {
+    padding: 16,
+    paddingTop: 48,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(0,0,0,0.1)",
+  },
+  chatHeaderContent: {
+    marginLeft: 40,
+    marginTop: -30,
+  },
+  backButton: {
+    padding: 8,
+    marginRight: 8,
+  },
+  chatTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginLeft: 8,
+    color: "#FFFFFF",
+  },
+  chatSubtitle: {
+    fontSize: 14,
+    color: "#FFFFFF",
+    opacity: 0.7,
+  },
+  messageList: {
+    flex: 1,
+    padding: 16,
+  },
+  messageBubble: {
+    padding: 12,
+    borderRadius: 16,
+    marginBottom: 8,
+    maxWidth: "80%",
+  },
+  ownMessage: {
+    alignSelf: "flex-end",
+    borderBottomRightRadius: 4,
+  },
+  otherMessage: {
+    backgroundColor: "#1C1C1E",
+    alignSelf: "flex-start",
+    borderBottomLeftRadius: 4,
+  },
+  messageText: {
+    fontSize: 16,
+    color: "#FFFFFF",
+  },
+  messageTime: {
+    fontSize: 12,
+    opacity: 0.7,
+    marginTop: 4,
+  },
+  inputContainer: {
+    flexDirection: "row",
+    padding: 16,
+    borderTopWidth: 1,
+    borderTopColor: "rgba(0,0,0,0.1)",
+  },
+  input: {
+    flex: 1,
+    padding: 12,
+    borderRadius: 20,
+    backgroundColor: "#F0F0F0",
+    marginRight: 8,
+  },
+  attachButton: {
+    padding: 8,
+    justifyContent: "center",
+  },
+  messageImage: {
+    width: 200,
+    height: 200,
+    borderRadius: 8,
+    marginVertical: 8,
+    alignSelf: "center",
+  },
+  checkmarkContainer: {
+    marginTop: 4,
+    alignSelf: "flex-end",
+  },
+  suggestionText: {
+    fontSize: 12,
+    color: "#666666",
+    marginTop: 4,
+    marginBottom: 16,
+    fontStyle: "italic",
+  },
+  disabledInput: {
+    opacity: 0.7,
+    backgroundColor: "#f5f5f5",
+  },
+  disabledTextInput: {
+    color: "#666",
+  },
+  disabledButton: {
+    backgroundColor: "#ccc",
+  },
+  disabledButtonText: {
+    color: "#666",
+  },
+  // User styles
+  testControls: {
+    marginTop: 20,
+    padding: 15,
+    borderRadius: 8,
+    backgroundColor: "rgba(255,255,255,0.1)",
+    gap: 10,
+  },
+  logoutButton: {
+    backgroundColor: "#F44336",
+  },
+  username: {
+    fontSize: 24,
+    marginVertical: 10,
+  },
+  notificationsContainer: {
+    marginTop: 20,
+    gap: 10,
+  },
+  notification: {
+    padding: 15,
+    borderRadius: 8,
+    backgroundColor: "rgba(255,255,255,0.1)",
+    marginVertical: 5,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.15)",
+  },
+  notificationRead: {
+    opacity: 0.6,
+  },
+  notificationText: {
+    fontSize: 16,
+    marginBottom: 5,
+  },
+  notificationDate: {
+    fontSize: 12,
+    opacity: 0.7,
+  },
 });
