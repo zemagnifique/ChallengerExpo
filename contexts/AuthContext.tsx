@@ -121,22 +121,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       };
 
       socket.on("updateMessages", async (messages) => {
-        console.log("updateMessages");
         if (!messages || !messages.length) return;
         const challenge_id = messages[0].challenge_id;
-        const updatedMessages = await updateChallengeMessages(challenge_id);
-        console.log("ChallengeID", challenge_id);
-        setChallenges((currentChallenges) => {
-          console.log("setChallenges", currentChallenges);
-          return currentChallenges.map((challenge) =>
+        
+        // Process the messages directly
+        const processedMessages = messages.map(msg => ({
+          ...msg,
+          is_read: msg.user_id === user.id,
+          timestamp: new Date(msg.created_at),
+        }));
+
+        setChallenges(currentChallenges =>
+          currentChallenges.map(challenge =>
             challenge.id === challenge_id
               ? {
                   ...challenge,
-                  messages: updatedMessages,
+                  messages: processedMessages,
                 }
-              : challenge,
-          );
-        });
+              : challenge
+          )
+        );
       });
 
       socket.on("messagesRead", ({ challenge_id, user_id }) => {
