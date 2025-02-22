@@ -109,7 +109,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const updateChallengeMessages = async (challenge_id: string) => {
         try {
           const updatedMessages = await ApiClient.getMessages(challenge_id);
-          return updatedMessages.map(msg => ({
+          return updatedMessages.map((msg) => ({
             ...msg,
             is_read: msg.is_read,
             timestamp: new Date(msg.created_at),
@@ -121,21 +121,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       };
 
       socket.on("updateMessages", async (messages) => {
+        console.log("Received messages update 2");
         if (!messages || !messages.length) return;
         const challenge_id = messages[0].challenge_id;
         const updatedMessages = await updateChallengeMessages(challenge_id);
-        setChallenges(currentChallenges =>
-          currentChallenges.map(challenge => 
-            challenge.id === challenge_id 
+        setChallenges((currentChallenges) =>
+          currentChallenges.map((challenge) =>
+            challenge.id === challenge_id
               ? {
                   ...challenge,
                   messages: updatedMessages,
                 }
-              : challenge
-          )
+              : challenge,
+          ),
         );
       });
 
+      // socket.on("updateMessages", (messages) => {
+      //   console.log("Received messages update");
+      //   if (messages[0].challenge_id) {
+      //     const processedMessages = messages.map((msg) => ({
+      //       id: msg.id,
+      //       text: msg.text,
+      //       user_id: msg.user_id,
+      //       imageUrl: msg.image_url,
+      //       isProof: msg.is_proof,
+      //       isValidated: msg.is_validated,
+      //       is_read: msg.user_id === user?.id,
+      //       timestamp: new Date(msg.created_at),
+      //     }));
+
+      //     updateChallenge({
+      //       ...challenge,
+      //       messages: processedMessages,
+      //     });
+      //   }
+      // });
 
       socket.on("messagesRead", ({ challenge_id, user_id }) => {
         if (user_id !== user.id) {
