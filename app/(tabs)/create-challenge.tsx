@@ -74,7 +74,7 @@ export default function CreateChallengeScreen() {
         proofRequirements,
         status: "pending",
         user_id: user?.id?.toString() || "",
-        coachId: selectedCoach?.toString(),
+        coach_id: selectedCoach?.toString() || "",
         createdAt: new Date(),
       };
       addChallenge(challenge);
