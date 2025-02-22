@@ -72,14 +72,51 @@ export default function UserScreen() {
         </TouchableOpacity>
       </ThemedView>
 
-      <TouchableOpacity
-        style={[styles.button, styles.logoutButton]}
-        onPress={handleLogout}
-      >
-        <ThemedText style={styles.buttonText}>Logout</ThemedText>
-      </TouchableOpacity>
-    </ThemedView>
-  );
-}
-
-import { GlobalStyles as styles } from '@/constants/Styles';
+      const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      padding: 20,
+    },
+    username: {
+      fontSize: 24,
+      marginVertical: 10,
+    },
+    button: {
+      backgroundColor: '#4CAF50',
+      padding: 15,
+      borderRadius: 8,
+      alignItems: 'center',
+      marginTop: 20,
+    },
+    logoutButton: {
+      backgroundColor: '#F44336',
+    },
+    buttonText: {
+      color: 'white',
+      fontSize: 16,
+      fontWeight: 'bold',
+    },
+    notificationsContainer: {
+      marginTop: 20,
+      gap: 10,
+    },
+    notification: {
+      padding: 15,
+      borderRadius: 8,
+      backgroundColor: "rgba(255,255,255,0.1)",
+      marginVertical: 5,
+      borderWidth: 1,
+      borderColor: "rgba(255,255,255,0.15)",
+    },
+    notificationRead: {
+      opacity: 0.6,
+    },
+    notificationText: {
+      fontSize: 16,
+      marginBottom: 5,
+    },
+    notificationDate: {
+      fontSize: 12,
+      opacity: 0.7,
+    },
+  });

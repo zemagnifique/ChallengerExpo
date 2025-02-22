@@ -48,7 +48,7 @@ export default function ChatScreen() {
     },
     [challenges, currentChallengeId],
   );
-  
+
   const isCoach = challenge ? String(user?.id) === String(challenge.coach_id) : false;
   const messages = challenge?.status === "pending" ? [] : (challenge?.messages ?? []);
 
