@@ -278,7 +278,7 @@ export default function ChatScreen() {
                   {new Date(item.timestamp).toLocaleTimeString()}
                 </ThemedText>
                 {(item.isValidated || item.isProof) && (
-                  <View style={styles.checkmarkContainer}>
+                  <View>
                     <IconSymbol
                       name={
                         item.isValidated
