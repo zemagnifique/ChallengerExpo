@@ -33,7 +33,6 @@ export default function IndexScreen() {
     updateChallengeCoach,
     deleteChallenge,
     archiveChallenge,
-    setChallenges, // Added to update challenges state
   } = useAuth();
 
   const filteredChallenges = () => {
@@ -295,13 +294,15 @@ export default function IndexScreen() {
     setRefreshing(true);
     try {
       const refreshedChallenges = await ApiClient.getChallenges(user.id);
-      setChallenges(refreshedChallenges);
+      refreshedChallenges.forEach(challenge => {
+        updateChallenge(challenge);
+      });
     } catch (error) {
       console.error('Error refreshing challenges:', error);
     } finally {
       setRefreshing(false);
     }
-  }, [user?.id, setChallenges]);
+  }, [user?.id, updateChallenge]);
 
   useEffect(() => {
     if (user?.id) {
