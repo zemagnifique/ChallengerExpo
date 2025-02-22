@@ -7,7 +7,7 @@ import {
   View,
   Platform,
 } from "react-native";
-import { Picker } from '@react-native-picker/picker';
+import { Picker } from "@react-native-picker/picker";
 import { ApiClient } from "@/api/client";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
@@ -351,8 +351,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   frequencyButtonActive: {
-    backgroundColor: "#4CAF50",
-    borderColor: "#4CAF50",
+    backgroundColor: "#F44336",
+    borderColor: "#F44336",
   },
   frequencyTextActive: {
     color: "#fff",
@@ -371,15 +371,11 @@ const styles = StyleSheet.create({
     minWidth: 100,
     alignItems: "center",
   },
-  coachButtonActive: {
-    backgroundColor: "#4CAF50",
-    borderColor: "#4CAF50",
-  },
   coachTextActive: {
     color: "#fff",
   },
   button: {
-    backgroundColor: "#4CAF50",
+    backgroundColor: "#F44336",
     padding: 15,
     borderRadius: 8,
     alignItems: "center",
