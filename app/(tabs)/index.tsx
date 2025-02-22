@@ -33,6 +33,7 @@ export default function IndexScreen() {
     updateChallengeCoach,
     deleteChallenge,
     archiveChallenge,
+    setChallenges,
   } = useAuth();
 
   const filteredChallenges = () => {
