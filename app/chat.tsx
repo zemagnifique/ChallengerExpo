@@ -1,6 +1,5 @@
 import React from "react";
 import {
-  StyleSheet,
   View,
   TextInput,
   TouchableOpacity,
@@ -203,17 +202,17 @@ export default function ChatScreen() {
 
   if (!challenge) {
     return (
-      <ThemedView style={styles.container}>
+      <ThemedView style={styles.chatContainer}>
         <ThemedText>Challenge not found</ThemedText>
       </ThemedView>
     );
   }
 
   return (
-    <ThemedView style={styles.container}>
+    <ThemedView style={styles.chatContainer}>
       <View
         style={[
-          styles.header,
+          styles.chatHeader,
           { backgroundColor: isCoach ? "#2B5876" : "#B71C1C" },
         ]}
       >
@@ -223,25 +222,25 @@ export default function ChatScreen() {
         >
           <IconSymbol name="chevron.left" size={24} color={textColor} />
         </TouchableOpacity>
-        <View style={styles.headerContent}>
-          <ThemedText style={styles.title}>{challenge.title}</ThemedText>
+        <View style={styles.chatHeaderContent}>
+          <ThemedText style={styles.chatTitle}>{challenge.title}</ThemedText>
           {challenge.status === "pending" && isCoach && (
-            <View style={styles.actionButtons}>
+            <View style={styles.chatActionButtons}>
               <TouchableOpacity
-                style={[styles.actionButton, styles.acceptButton]}
+                style={[styles.chatActionButton, styles.chatAcceptButton]}
                 onPress={handleAcceptChallenge}
               >
-                <ThemedText style={styles.buttonText}>Accept</ThemedText>
+                <ThemedText style={styles.chatButtonText}>Accept</ThemedText>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.actionButton, styles.rejectButton]}
+                style={[styles.chatActionButton, styles.chatRejectButton]}
                 onPress={() => updateChallengeStatus(challenge.id, "rejected")}
               >
-                <ThemedText style={styles.buttonText}>Reject</ThemedText>
+                <ThemedText style={styles.chatButtonText}>Reject</ThemedText>
               </TouchableOpacity>
             </View>
           )}
-          <ThemedText style={styles.subtitle}>
+          <ThemedText style={styles.chatSubtitle}>
             {isCoach
               ? `Challenger: User ${challenge.user_id}`
               : `Coach: User ${challenge.coach_id}`}
@@ -327,7 +326,7 @@ export default function ChatScreen() {
       {challenge.status === "active" ? (
         <View style={[styles.inputContainer, { marginBottom: keyboardHeight }]}>
           <TextInput
-            style={styles.input}
+            style={styles.chatInput}
             value={message}
             onChangeText={setMessage}
             placeholder="Type a message..."
@@ -344,13 +343,13 @@ export default function ChatScreen() {
             ]}
             onPress={handleSendMessage}
           >
-            <ThemedText style={styles.sendButtonText}>Send</ThemedText>
+            <ThemedText style={styles.chatSendButtonText}>Send</ThemedText>
           </TouchableOpacity>
         </View>
       ) : (
         <View style={[styles.inputContainer, styles.disabledInput]}>
           <TextInput
-            style={[styles.input, styles.disabledTextInput]}
+            style={[styles.chatInput, styles.disabledTextInput]}
             value="Chat available after challenge is accepted"
             editable={false}
           />
@@ -359,7 +358,7 @@ export default function ChatScreen() {
             disabled
           >
             <ThemedText
-              style={[styles.sendButtonText, styles.disabledButtonText]}
+              style={[styles.chatSendButtonText, styles.disabledButtonText]}
             >
               Send
             </ThemedText>

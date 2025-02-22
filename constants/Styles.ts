@@ -2,13 +2,14 @@ import { StyleSheet } from "react-native";
 import { Colors } from "./Colors";
 
 export const GlobalStyles = StyleSheet.create({
+  // Challenge & Coaching Styles
   challengeAvatar: {
-    backgroundColor: "", //"#FFEBEE",
+    backgroundColor: "", // e.g., "#FFEBEE"
     borderColor: "#F44336",
     borderWidth: 2,
   },
   coachingAvatar: {
-    backgroundColor: "", //"#E3F2FD",
+    backgroundColor: "", // e.g., "#E3F2FD"
     borderColor: "#2196F3",
     borderWidth: 2,
   },
@@ -20,7 +21,8 @@ export const GlobalStyles = StyleSheet.create({
     borderLeftWidth: 4,
     borderLeftColor: "#2196F3",
   },
-  typeLabel: {
+  // Renamed to avoid duplication with chat
+  challengeTypeLabel: {
     fontSize: 12,
     opacity: 0.6,
     fontStyle: "italic",
@@ -30,7 +32,9 @@ export const GlobalStyles = StyleSheet.create({
     opacity: 0.6,
     marginTop: 4,
   },
-  container: {
+
+  // General Layout Styles
+  baseContainer: {
     flex: 1,
     backgroundColor: "#fff",
   },
@@ -107,11 +111,8 @@ export const GlobalStyles = StyleSheet.create({
     color: "#FFFFFF",
     fontWeight: "bold",
   },
-  typeLabel: {
-    fontSize: 14,
-    opacity: 0.8,
-    fontStyle: "italic",
-  },
+
+  // Card & Section Styles
   coachingCard: {
     borderColor: "#98D8A1",
     borderWidth: 2,
@@ -122,11 +123,11 @@ export const GlobalStyles = StyleSheet.create({
   activeCard: {
     borderStyle: "solid",
   },
-  container: {
+  cardContainer: {
     flex: 1,
     gap: 20,
   },
-  header: {
+  globalHeader: {
     padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: "rgba(255,255,255,0.15)",
@@ -220,7 +221,7 @@ export const GlobalStyles = StyleSheet.create({
     gap: 4,
     height: "100%",
   },
-  buttonText: {
+  defaultButtonText: {
     fontSize: 12,
     color: "#fff",
     textAlign: "center",
@@ -312,17 +313,16 @@ export const GlobalStyles = StyleSheet.create({
   },
 
   // Chat Styles
-
-  container: {
+  chatContainer: {
     flex: 1,
   },
-  header: {
+  chatHeader: {
     padding: 16,
     paddingTop: 48,
     borderBottomWidth: 1,
     borderBottomColor: "rgba(0,0,0,0.1)",
   },
-  headerContent: {
+  chatHeaderContent: {
     marginLeft: 40,
     marginTop: -30,
   },
@@ -330,35 +330,35 @@ export const GlobalStyles = StyleSheet.create({
     padding: 8,
     marginRight: 8,
   },
-  title: {
+  chatTitle: {
     fontSize: 20,
     fontWeight: "bold",
     marginLeft: 8,
     color: "#FFFFFF",
   },
-  subtitle: {
+  chatSubtitle: {
     fontSize: 14,
     color: "#FFFFFF",
     opacity: 0.7,
   },
-  actionButtons: {
+  chatActionButtons: {
     flexDirection: "row",
     gap: 10,
     marginVertical: 8,
   },
-  actionButton: {
+  chatActionButton: {
     flex: 1,
     padding: 10,
     borderRadius: 8,
     alignItems: "center",
   },
-  acceptButton: {
+  chatAcceptButton: {
     backgroundColor: "#4CAF50",
   },
-  rejectButton: {
+  chatRejectButton: {
     backgroundColor: "#f44336",
   },
-  buttonText: {
+  chatButtonText: {
     color: "#fff",
     fontWeight: "bold",
   },
@@ -396,7 +396,7 @@ export const GlobalStyles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: "rgba(0,0,0,0.1)",
   },
-  input: {
+  chatInput: {
     flex: 1,
     padding: 12,
     borderRadius: 20,
@@ -412,7 +412,7 @@ export const GlobalStyles = StyleSheet.create({
     borderRadius: 20,
     justifyContent: "center",
   },
-  sendButtonText: {
+  chatSendButtonText: {
     color: "#fff",
     fontWeight: "bold",
   },
@@ -449,6 +449,10 @@ export const GlobalStyles = StyleSheet.create({
   },
 
   // User Styles
+  userContainer: {
+    flex: 1,
+    padding: 20,
+  },
   testControls: {
     marginTop: 20,
     padding: 15,
@@ -458,10 +462,6 @@ export const GlobalStyles = StyleSheet.create({
   },
   logoutButton: {
     backgroundColor: "#F44336",
-  },
-  container: {
-    flex: 1,
-    padding: 20,
   },
   username: {
     fontSize: 24,
@@ -490,14 +490,14 @@ export const GlobalStyles = StyleSheet.create({
     fontSize: 12,
     opacity: 0.7,
   },
-  button: {
+  userButton: {
     backgroundColor: "#F44336",
     padding: 15,
     borderRadius: 8,
     marginTop: 20,
     alignItems: "center",
   },
-  buttonText: {
+  userButtonText: {
     color: "white",
     fontSize: 16,
   },

@@ -1,4 +1,4 @@
-import { StyleSheet, TouchableOpacity } from "react-native";
+import { TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Colors } from "@/constants/Colors";
@@ -28,8 +28,8 @@ export default function UserScreen() {
   };
 
   return (
-    <ThemedView style={styles.container}>
-      <ThemedText type="title">Profile: {user?.username}</ThemedText>
+    <ThemedView style={styles.userContainer}>
+      <ThemedText style={styles.username}>Profile: {user?.username}</ThemedText>
 
       <ThemedView style={styles.notificationsContainer}>
         <ThemedText type="subtitle">Notifications</ThemedText>
@@ -59,24 +59,28 @@ export default function UserScreen() {
       <ThemedView style={styles.testControls}>
         <ThemedText type="subtitle">Test Controls</ThemedText>
         <TouchableOpacity
-          style={styles.button}
+          style={styles.userButton}
           onPress={() => switchUser("user1")}
         >
-          <ThemedText style={styles.buttonText}>Switch to User 1</ThemedText>
+          <ThemedText style={styles.userButtonText}>
+            Switch to User 1
+          </ThemedText>
         </TouchableOpacity>
         <TouchableOpacity
-          style={styles.button}
+          style={styles.userButton}
           onPress={() => switchUser("user2")}
         >
-          <ThemedText style={styles.buttonText}>Switch to User 2</ThemedText>
+          <ThemedText style={styles.userButtonText}>
+            Switch to User 2
+          </ThemedText>
         </TouchableOpacity>
       </ThemedView>
 
       <TouchableOpacity
-        style={[styles.button, styles.logoutButton]}
+        style={[styles.userButton, styles.logoutButton]}
         onPress={handleLogout}
       >
-        <ThemedText style={styles.buttonText}>Logout</ThemedText>
+        <ThemedText style={styles.userButtonText}>Logout</ThemedText>
       </TouchableOpacity>
     </ThemedView>
   );

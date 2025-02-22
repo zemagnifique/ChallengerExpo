@@ -1,6 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
 import {
-  StyleSheet,
   TouchableOpacity,
   FlatList,
   View,
@@ -90,7 +89,7 @@ export default function IndexScreen() {
                           size={24}
                           color="#fff"
                         />
-                        <ThemedText style={styles.buttonText}>
+                        <ThemedText style={styles.defaultButtonText}>
                           Accept
                         </ThemedText>
                       </TouchableOpacity>
@@ -103,7 +102,7 @@ export default function IndexScreen() {
                           size={24}
                           color="#fff"
                         />
-                        <ThemedText style={styles.buttonText}>
+                        <ThemedText style={styles.defaultButtonText}>
                           Reject
                         </ThemedText>
                       </TouchableOpacity>
@@ -119,7 +118,9 @@ export default function IndexScreen() {
                         size={24}
                         color="#fff"
                       />
-                      <ThemedText style={styles.buttonText}>Archive</ThemedText>
+                      <ThemedText style={styles.defaultButtonText}>
+                        Archive
+                      </ThemedText>
                     </TouchableOpacity>
                   )}
                 </>
@@ -132,7 +133,7 @@ export default function IndexScreen() {
                         onPress={() => handleChangeCoach(item.id, "newCoachId")}
                       >
                         <IconSymbol name="biceps" size={24} color="#fff" />
-                        <ThemedText style={styles.buttonText}>
+                        <ThemedText style={styles.defaultButtonText}>
                           Change Coach
                         </ThemedText>
                       </TouchableOpacity>
@@ -141,7 +142,7 @@ export default function IndexScreen() {
                         onPress={() => handleDeleteChallenge(item.id)}
                       >
                         <IconSymbol name="trash.fill" size={24} color="#fff" />
-                        <ThemedText style={styles.buttonText}>
+                        <ThemedText style={styles.defaultButtonText}>
                           Delete
                         </ThemedText>
                       </TouchableOpacity>
@@ -157,7 +158,9 @@ export default function IndexScreen() {
                         size={24}
                         color="#fff"
                       />
-                      <ThemedText style={styles.buttonText}>Archive</ThemedText>
+                      <ThemedText style={styles.defaultButtonText}>
+                        Archive
+                      </ThemedText>
                     </TouchableOpacity>
                   )}
                 </>
@@ -170,7 +173,7 @@ export default function IndexScreen() {
             onPress={() =>
               router.push({
                 pathname: "/chat",
-                params: { challenge_id: item.id }, // Corrected parameter name
+                params: { challenge_id: item.id },
               })
             }
           >
@@ -280,14 +283,14 @@ export default function IndexScreen() {
   };
 
   const loadChallenges = async (userId) => {
-    setRefreshing(true); // Set refreshing to true
+    setRefreshing(true);
     try {
-      const challenges = await ApiClient.getChallenges(userId); // Replace with your API call
-      setChallenges(challenges); // Update challenges state
+      const challenges = await ApiClient.getChallenges(userId);
+      setChallenges(challenges);
     } catch (error) {
       console.error("Error loading challenges:", error);
     } finally {
-      setRefreshing(false); // Set refreshing to false after API call
+      setRefreshing(false);
     }
   };
 
@@ -313,10 +316,14 @@ export default function IndexScreen() {
   }, [user]);
 
   const HeaderComponent = () => (
-    <ThemedView style={styles.header}>
+    <ThemedView style={styles.globalHeader}>
       <ThemedText style={styles.headerTitle}>Challenges</ThemedText>
       <View style={styles.filterContainer}>
-        <ScrollView horizontal={true} style={styles.filterContentContainer} showsHorizontalScrollIndicator={false}>
+        <ScrollView
+          horizontal={true}
+          style={styles.filterContentContainer}
+          showsHorizontalScrollIndicator={false}
+        >
           <TouchableOpacity
             style={[
               styles.filterButton,
@@ -395,7 +402,7 @@ export default function IndexScreen() {
   );
 
   return (
-    <ThemedView style={styles.container}>
+    <ThemedView style={styles.baseContainer}>
       <ParallaxScrollView
         headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
         data={allChallenges}
@@ -409,5 +416,5 @@ export default function IndexScreen() {
   );
 }
 
-import { GlobalStyles } from '@/constants/Styles';
+import { GlobalStyles } from "@/constants/Styles";
 const styles = GlobalStyles;
