@@ -169,7 +169,7 @@ export default function IndexScreen() {
             onPress={() =>
               router.push({
                 pathname: "/chat",
-                params: { challengeId: item.id }, // Corrected parameter name
+                params: { challenge_id: item.id }, // Corrected parameter name
               })
             }
           >
@@ -295,11 +295,11 @@ export default function IndexScreen() {
     setRefreshing(true);
     try {
       const refreshedChallenges = await ApiClient.getChallenges(user.id);
-      refreshedChallenges.forEach(challenge => {
+      refreshedChallenges.forEach((challenge) => {
         updateChallenge(challenge);
       });
     } catch (error) {
-      console.error('Error refreshing challenges:', error);
+      console.error("Error refreshing challenges:", error);
     } finally {
       setRefreshing(false);
     }
@@ -310,7 +310,6 @@ export default function IndexScreen() {
       loadChallenges(user.id);
     }
   }, [user]);
-
 
   const HeaderComponent = () => (
     <ThemedView style={styles.header}>
