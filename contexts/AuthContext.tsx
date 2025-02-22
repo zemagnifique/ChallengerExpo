@@ -121,12 +121,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       };
 
       socket.on("updateMessages", async (messages) => {
-        console.log("Received messages update");
+        console.log("Received messages update in AuthContext");
         if (!messages || !messages.length) return;
         
         const challenge_id = messages[0].challenge_id;
         try {
-          // Fetch all messages to ensure we have the complete state
           const updatedMessages = await ApiClient.getMessages(challenge_id);
           const processedMessages = updatedMessages.map(msg => ({
             id: msg.id,
@@ -139,10 +138,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             timestamp: new Date(msg.created_at),
           }));
 
-          setChallenges(currentChallenges => {
-            return currentChallenges.map(challenge => {
+          setChallenges(prevChallenges => {
+            console.log("Updating challenges state with new messages");
+            const newChallenges = prevChallenges.map(challenge => {
               if (challenge.id === challenge_id) {
-                console.log("Updating challenge messages:", challenge_id, processedMessages);
                 return {
                   ...challenge,
                   messages: processedMessages,
@@ -150,6 +149,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               }
               return challenge;
             });
+            return newChallenges;
           });
         } catch (error) {
           console.error("Error updating messages:", error);

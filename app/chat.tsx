@@ -37,9 +37,16 @@ export default function ChatScreen() {
     () => challenges.find((c) => c.id === challenge_id),
     [challenges, challenge_id],
   );
-  const isCoach = challenge ? parseInt(user?.id) === challenge.coach_id : false;
-  const messages =
-    challenge?.status === "pending" ? [] : (challenge?.messages ?? []);
+  const isCoach = challenge ? user?.id === challenge.coach_id.toString() : false;
+  const messages = React.useMemo(() => {
+    if (!challenge || challenge.status === "pending") return [];
+    return challenge.messages || [];
+  }, [challenge, challenge?.messages]);
+
+  // Debug logging
+  React.useEffect(() => {
+    console.log("Messages updated in chat:", messages.length);
+  }, [messages]);
 
   const { markMessagesAsRead } = useAuth();
 
