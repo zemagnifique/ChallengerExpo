@@ -519,7 +519,7 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
   filterTextActiveLight: {
-    color: "#000",
+    color: "#fff",
   },
   participantsContainer: {
     flexDirection: "row",
