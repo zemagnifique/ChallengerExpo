@@ -195,7 +195,7 @@ export default function ChatScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <View
+      <ThemedView
         style={[
           styles.header,
           { backgroundColor: isCoach ? "#2B5876" : "#B71C1C" },
@@ -223,15 +223,15 @@ export default function ChatScreen() {
               >
                 <ThemedText style={styles.buttonText}>Reject</ThemedText>
               </TouchableOpacity>
-            </View>
+            </ThemedView>
           )}
           <ThemedText style={styles.subtitle}>
             {isCoach
               ? `Challenger: User ${challenge.user_id}`
               : `Coach: User ${challenge.coach_id}`}
           </ThemedText>
-        </View>
-      </View>
+        </ThemedView>
+      </ThemedView>
 
       <FlatList
         ref={flatListRef}
@@ -288,7 +288,7 @@ export default function ChatScreen() {
                       size={24}
                       color={item.isValidated ? "#2196F3" : "#4CAF50"}
                     />
-                  </View>
+                  </ThemedView>
                 )}
               </ThemedView>
               {suggestionText && (
@@ -309,7 +309,9 @@ export default function ChatScreen() {
       />
 
       {challenge.status === "active" ? (
-        <View style={[styles.inputContainer, { marginBottom: keyboardHeight }]}>
+        <ThemedView
+          style={[styles.inputContainer, { marginBottom: keyboardHeight }]}
+        >
           <TextInput
             style={styles.input}
             value={message}
@@ -330,9 +332,9 @@ export default function ChatScreen() {
           >
             <ThemedText style={styles.sendButtonText}>Send</ThemedText>
           </TouchableOpacity>
-        </View>
+        </ThemedView>
       ) : (
-        <View style={[styles.inputContainer, styles.disabledInput]}>
+        <ThemedView style={[styles.inputContainer, styles.disabledInput]}>
           <TextInput
             style={[styles.input, styles.disabledTextInput]}
             value="Chat available after challenge is accepted"
@@ -348,7 +350,7 @@ export default function ChatScreen() {
               Send
             </ThemedText>
           </TouchableOpacity>
-        </View>
+        </ThemedView>
       )}
     </ThemedView>
   );
