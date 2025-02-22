@@ -29,12 +29,7 @@ export default function UserScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <ThemedText type="title">Profile</ThemedText>
-      <ThemedText
-        style={[styles.username, { color: Colors[colorScheme].text }]}
-      >
-        {user?.username}
-      </ThemedText>
+      <ThemedText type="title">Profile: {user?.username}</ThemedText>
 
       <ThemedView style={styles.notificationsContainer}>
         <ThemedText type="subtitle">Notifications</ThemedText>
@@ -96,7 +91,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   logoutButton: {
-    backgroundColor: "#ff6b6b",
+    backgroundColor: "#F44336",
   },
   container: {
     flex: 1,
@@ -130,7 +125,7 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   button: {
-    backgroundColor: "#ff6b6b",
+    backgroundColor: "#F44336",
     padding: 15,
     borderRadius: 8,
     marginTop: 20,
