@@ -38,12 +38,19 @@ export default function ChatScreen() {
   const textColor = useThemeColor({}, "text");
 
   const challenge = React.useMemo(
-    () => challenges.find((c) => c.id === currentChallengeId),
+    () => {
+      const found = challenges.find((c) => String(c.id) === String(currentChallengeId));
+      if (!found) {
+        console.log('No challenge found with ID:', currentChallengeId);
+        console.log('Available challenges:', challenges.map(c => c.id));
+      }
+      return found;
+    },
     [challenges, currentChallengeId],
   );
-  const isCoach = challenge ? parseInt(user?.id) === challenge.coach_id : false;
-  const messages =
-    challenge?.status === "pending" ? [] : (challenge?.messages ?? []);
+  
+  const isCoach = challenge ? String(user?.id) === String(challenge.coach_id) : false;
+  const messages = challenge?.status === "pending" ? [] : (challenge?.messages ?? []);
 
   React.useEffect(() => {
     const loadMessages = async () => {
