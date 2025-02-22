@@ -1,12 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import {
-  TouchableOpacity,
-  FlatList,
-  View,
-  Animated,
-  RefreshControl,
-  ScrollView,
-} from "react-native";
+import { TouchableOpacity, View, ScrollView } from "react-native";
 import { ApiClient } from "@/api/client";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { ThemedText } from "@/components/ThemedText";
@@ -15,10 +8,8 @@ import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { useRouter } from "expo-router";
 import { useAuth } from "@/contexts/AuthContext";
-import {
-  Swipeable,
-  GestureHandlerRootView,
-} from "react-native-gesture-handler";
+import { ChallengeItem } from "@/components/ChallengeItem";
+import { GlobalStyles as styles } from "@/constants/Styles";
 
 export default function IndexScreen() {
   const colorScheme = useColorScheme();
@@ -28,40 +19,41 @@ export default function IndexScreen() {
   const {
     challenges,
     user,
-    updateChallenge,
     updateChallengeStatus,
     updateChallengeCoach,
     deleteChallenge,
     archiveChallenge,
+    updateChallenge,
     setChallenges,
   } = useAuth();
 
-  // Instead of directly setting challenges, we now update them via updateChallenge
-  // so that cached username fields aren’t overwritten.
+  // Load challenges on mount using updateChallenge so that merge logic preserves username fields.
+  const loadChallenges = async (userId: string) => {
+    setRefreshing(true);
+    try {
+      const fetchedChallenges = await ApiClient.getChallenges(userId);
+      fetchedChallenges.forEach((challenge) => {
+        updateChallenge(challenge);
+      });
+    } catch (error) {
+      console.error("Error loading challenges:", error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   useEffect(() => {
     if (user?.id) {
-      (async () => {
-        try {
-          const fetchedChallenges = await ApiClient.getChallenges(user.id);
-          fetchedChallenges.forEach((challenge) => {
-            updateChallenge(challenge);
-          });
-        } catch (error) {
-          console.error("Error loading challenges:", error);
-        }
-      })();
+      loadChallenges(user.id);
     }
-  }, [user, updateChallenge]);
+  }, [user]);
 
   const filteredChallenges = () => {
     let filtered = (challenges ?? []).filter((c) => c.status !== "rejected");
-
     if (filter === "archived") {
       return filtered.filter((c) => c.archived);
     }
-
     filtered = filtered.filter((c) => !c.archived);
-
     if (filter === "challenger") {
       return filtered.filter((c) => parseInt(c.user_id) === parseInt(user?.id));
     } else if (filter === "coaching") {
@@ -75,189 +67,14 @@ export default function IndexScreen() {
   const allChallenges = filteredChallenges();
 
   const { getUnreadMessageCount } = useAuth();
-  const getUnreadCount = (challenge) => {
-    return getUnreadMessageCount(challenge.id);
-  };
+  const getUnreadCount = (challenge) => getUnreadMessageCount(challenge.id);
 
-  const renderChallengeSection = (item) => {
-    console.log("renderChallengeSection");
-    return (
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <Swipeable
-          ref={(ref) => {
-            if (ref && !rowRefs.has(item.id)) {
-              rowRefs.set(item.id, ref);
-            }
-          }}
-          friction={2}
-          rightThreshold={40}
-          renderRightActions={(progress, dragX) => (
-            <View style={styles.swipeableButtons}>
-              {parseInt(item.coach_id) === parseInt(user?.id) ? (
-                <>
-                  {item.status === "pending" && (
-                    <>
-                      <TouchableOpacity
-                        style={[styles.actionButton, styles.acceptButton]}
-                        onPress={() => handleAcceptChallenge(item)}
-                      >
-                        <IconSymbol
-                          name="checkmark.circle.fill"
-                          size={24}
-                          color="#fff"
-                        />
-                        <ThemedText style={styles.defaultButtonText}>
-                          Accept
-                        </ThemedText>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        style={[styles.actionButton, styles.rejectButton]}
-                        onPress={() => handleRejectChallenge(item)}
-                      >
-                        <IconSymbol
-                          name="xmark.circle.fill"
-                          size={24}
-                          color="#fff"
-                        />
-                        <ThemedText style={styles.defaultButtonText}>
-                          Reject
-                        </ThemedText>
-                      </TouchableOpacity>
-                    </>
-                  )}
-                  {item.status === "active" && (
-                    <TouchableOpacity
-                      style={[styles.actionButton, styles.archiveButton]}
-                      onPress={() => handleArchiveChallenge(item.id)}
-                    >
-                      <IconSymbol
-                        name="tray.and.arrow.down.fill"
-                        size={24}
-                        color="#fff"
-                      />
-                      <ThemedText style={styles.defaultButtonText}>
-                        Archive
-                      </ThemedText>
-                    </TouchableOpacity>
-                  )}
-                </>
-              ) : (
-                <>
-                  {item.status === "pending" && (
-                    <>
-                      <TouchableOpacity
-                        style={[styles.actionButton, styles.changeCoachButton]}
-                        onPress={() => handleChangeCoach(item.id, "newCoachId")}
-                      >
-                        <IconSymbol name="biceps" size={24} color="#fff" />
-                        <ThemedText style={styles.defaultButtonText}>
-                          Change Coach
-                        </ThemedText>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        style={[styles.actionButton, styles.deleteButton]}
-                        onPress={() => handleDeleteChallenge(item.id)}
-                      >
-                        <IconSymbol name="trash.fill" size={24} color="#fff" />
-                        <ThemedText style={styles.defaultButtonText}>
-                          Delete
-                        </ThemedText>
-                      </TouchableOpacity>
-                    </>
-                  )}
-                  {item.status === "active" && (
-                    <TouchableOpacity
-                      style={[styles.actionButton, styles.archiveButton]}
-                      onPress={() => handleArchiveChallenge(item.id)}
-                    >
-                      <IconSymbol
-                        name="tray.and.arrow.down.fill"
-                        size={24}
-                        color="#fff"
-                      />
-                      <ThemedText style={styles.defaultButtonText}>
-                        Archive
-                      </ThemedText>
-                    </TouchableOpacity>
-                  )}
-                </>
-              )}
-            </View>
-          )}
-        >
-          <TouchableOpacity
-            activeOpacity={1}
-            onPress={() =>
-              router.push({
-                pathname: "/chat",
-                params: { challenge_id: item.id },
-              })
-            }
-          >
-            <ThemedView
-              style={[
-                styles.listItem,
-                parseInt(user?.id) === item.coach_id
-                  ? styles.coachingItem
-                  : styles.challengeItem,
-              ]}
-            >
-              <View style={styles.avatarContainer}>
-                <View
-                  style={[
-                    styles.avatar,
-                    parseInt(user?.id) === item.coach_id
-                      ? styles.coachingAvatar
-                      : styles.challengeAvatar,
-                  ]}
-                >
-                  <ThemedText style={styles.avatarText}>
-                    {item.title.charAt(0).toUpperCase()}
-                  </ThemedText>
-                </View>
-              </View>
-              <View style={styles.contentContainer}>
-                <View style={styles.titleContainer}>
-                  <ThemedText style={styles.title}>{item.title}</ThemedText>
-                  {getUnreadCount(item) > 0 && (
-                    <View style={styles.badge}>
-                      <ThemedText style={styles.badgeText}>
-                        {getUnreadCount(item)}
-                      </ThemedText>
-                    </View>
-                  )}
-                </View>
-                <View style={styles.previewRow}>
-                  <ThemedText numberOfLines={1} style={styles.preview}>
-                    {item.description || `Frequency: ${item.frequency}`}
-                  </ThemedText>
-                  {item.status === "pending" && (
-                    <View style={styles.badge}>
-                      <ThemedText style={styles.badgeText}>Pending</ThemedText>
-                    </View>
-                  )}
-                </View>
-                <ThemedText style={styles.participantInfo}>
-                  {parseInt(user?.id) === parseInt(item.coach_id)
-                    ? `Challenger: ${item.username}`
-                    : `Coach: ${item.coachUsername}`}
-                </ThemedText>
-              </View>
-            </ThemedView>
-          </TouchableOpacity>
-        </Swipeable>
-      </GestureHandlerRootView>
-    );
-  };
-
-  const rowRefs = new Map();
-
+  // Handlers for swipeable actions passed to ChallengeItem
   const handleAcceptChallenge = async (challenge) => {
     try {
       await ApiClient.updateChallengeStatus(challenge.id, "active");
       const updatedChallenge = { ...challenge, status: "active" };
       await updateChallenge(updatedChallenge);
-      rowRefs.get(challenge.id)?.close();
     } catch (error) {
       console.error("Error accepting challenge:", error);
     }
@@ -266,7 +83,6 @@ export default function IndexScreen() {
   const handleRejectChallenge = async (challenge) => {
     try {
       await updateChallengeStatus(challenge.id, "rejected");
-      rowRefs.get(challenge.id)?.close();
     } catch (error) {
       console.error("Error rejecting challenge:", error);
     }
@@ -275,7 +91,6 @@ export default function IndexScreen() {
   const handleChangeCoach = async (challenge_id, newCoachId) => {
     try {
       await updateChallengeCoach(challenge_id, newCoachId);
-      rowRefs.get(challenge_id)?.close();
     } catch (error) {
       console.error("Error changing coach:", error);
     }
@@ -284,7 +99,6 @@ export default function IndexScreen() {
   const handleDeleteChallenge = async (challenge_id) => {
     try {
       await deleteChallenge(challenge_id);
-      rowRefs.get(challenge_id)?.close();
     } catch (error) {
       console.error("Error deleting challenge:", error);
     }
@@ -293,7 +107,6 @@ export default function IndexScreen() {
   const handleArchiveChallenge = async (challenge_id) => {
     try {
       await archiveChallenge(challenge_id);
-      rowRefs.get(challenge_id)?.close();
     } catch (error) {
       console.error("Error archiving challenge:", error);
     }
@@ -405,7 +218,17 @@ export default function IndexScreen() {
       <ParallaxScrollView
         headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
         data={allChallenges}
-        renderItem={({ item }) => renderChallengeSection(item)}
+        renderItem={({ item }) => (
+          <ChallengeItem
+            item={item}
+            getUnreadCount={getUnreadCount}
+            onAccept={handleAcceptChallenge}
+            onReject={handleRejectChallenge}
+            onChangeCoach={handleChangeCoach}
+            onDelete={handleDeleteChallenge}
+            onArchive={handleArchiveChallenge}
+          />
+        )}
         ListHeaderComponent={HeaderComponent}
         onRefresh={handleRefresh}
         refreshing={refreshing}
@@ -414,6 +237,3 @@ export default function IndexScreen() {
     </ThemedView>
   );
 }
-
-import { GlobalStyles } from "@/constants/Styles";
-const styles = GlobalStyles;
