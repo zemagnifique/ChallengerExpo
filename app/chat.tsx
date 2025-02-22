@@ -195,7 +195,7 @@ export default function ChatScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <ThemedView
+      <View
         style={[
           styles.header,
           { backgroundColor: isCoach ? "#2B5876" : "#B71C1C" },
@@ -207,10 +207,10 @@ export default function ChatScreen() {
         >
           <IconSymbol name="chevron.left" size={24} color={textColor} />
         </TouchableOpacity>
-        <ThemedView style={styles.headerContent}>
+        <View style={styles.headerContent}>
           <ThemedText style={styles.title}>{challenge.title}</ThemedText>
           {challenge.status === "pending" && isCoach && (
-            <ThemedView style={styles.actionButtons}>
+            <View style={styles.actionButtons}>
               <TouchableOpacity
                 style={[styles.actionButton, styles.acceptButton]}
                 onPress={handleAcceptChallenge}
@@ -223,15 +223,15 @@ export default function ChatScreen() {
               >
                 <ThemedText style={styles.buttonText}>Reject</ThemedText>
               </TouchableOpacity>
-            </ThemedView>
+            </View>
           )}
           <ThemedText style={styles.subtitle}>
             {isCoach
               ? `Challenger: User ${challenge.user_id}`
               : `Coach: User ${challenge.coach_id}`}
           </ThemedText>
-        </ThemedView>
-      </ThemedView>
+        </View>
+      </View>
 
       <FlatList
         ref={flatListRef}
@@ -251,7 +251,7 @@ export default function ChatScreen() {
                 : "";
           return (
             <TouchableOpacity onPress={() => handleDoubleTap(item)}>
-              <ThemedView
+              <View
                 style={[
                   styles.messageBubble,
                   item.user_id === user?.id
@@ -278,7 +278,7 @@ export default function ChatScreen() {
                   {new Date(item.timestamp).toLocaleTimeString()}
                 </ThemedText>
                 {(item.isValidated || item.isProof) && (
-                  <ThemedView style={styles.iconContainer}>
+                  <View style={styles.checkmarkContainer}>
                     <IconSymbol
                       name={
                         item.isValidated
@@ -288,22 +288,20 @@ export default function ChatScreen() {
                       size={24}
                       color={item.isValidated ? "#2196F3" : "#4CAF50"}
                     />
-                  </ThemedView>
+                  </View>
                 )}
-              </ThemedView>
+              </View>
               {suggestionText && (
-                <ThemedView>
-                  <ThemedText
-                    style={[
-                      styles.suggestionText,
-                      item.user_id === user?.id
-                        ? { alignSelf: "flex-end", marginRight: 8 }
-                        : { alignSelf: "flex-start", marginLeft: 8 },
-                    ]}
-                  >
-                    {suggestionText}
-                  </ThemedText>
-                </ThemedView>
+                <ThemedText
+                  style={[
+                    styles.suggestionText,
+                    item.user_id === user?.id
+                      ? { alignSelf: "flex-end", marginRight: 8 }
+                      : { alignSelf: "flex-start", marginLeft: 8 },
+                  ]}
+                >
+                  {suggestionText}
+                </ThemedText>
               )}
             </TouchableOpacity>
           );
@@ -311,9 +309,7 @@ export default function ChatScreen() {
       />
 
       {challenge.status === "active" ? (
-        <ThemedView
-          style={[styles.inputContainer, { marginBottom: keyboardHeight }]}
-        >
+        <View style={[styles.inputContainer, { marginBottom: keyboardHeight }]}>
           <TextInput
             style={styles.input}
             value={message}
@@ -334,9 +330,9 @@ export default function ChatScreen() {
           >
             <ThemedText style={styles.sendButtonText}>Send</ThemedText>
           </TouchableOpacity>
-        </ThemedView>
+        </View>
       ) : (
-        <ThemedView style={[styles.inputContainer, styles.disabledInput]}>
+        <View style={[styles.inputContainer, styles.disabledInput]}>
           <TextInput
             style={[styles.input, styles.disabledTextInput]}
             value="Chat available after challenge is accepted"
@@ -352,7 +348,7 @@ export default function ChatScreen() {
               Send
             </ThemedText>
           </TouchableOpacity>
-        </ThemedView>
+        </View>
       )}
     </ThemedView>
   );
@@ -479,10 +475,6 @@ const styles = StyleSheet.create({
     marginTop: 4,
     marginBottom: 16,
     fontStyle: "italic",
-  },
-  iconContainer: {
-    marginTop: 4,
-    alignSelf: "flex-end",
   },
   disabledInput: {
     opacity: 0.7,
