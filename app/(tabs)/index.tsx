@@ -169,7 +169,7 @@ export default function IndexScreen() {
             onPress={() =>
               router.push({
                 pathname: "/chat",
-                params: { challenge_id: item.id },
+                params: { challengeId: item.id }, // Corrected parameter name
               })
             }
           >
