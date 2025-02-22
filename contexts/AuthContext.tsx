@@ -124,39 +124,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.log("Received messages update 2");
         if (!messages || !messages.length) return;
         const challenge_id = messages[0].challenge_id;
-        const updatedMessages = await updateChallengeMessages(challenge_id);
-        setChallenges((currentChallenges) =>
-          currentChallenges.map((challenge) =>
-            challenge.id === challenge_id
-              ? {
-                  ...challenge,
-                  messages: updatedMessages,
-                }
-              : challenge,
-          ),
-        );
+        const processedMessages = messages.map(msg => ({
+          id: msg.id,
+          text: msg.text,
+          user_id: msg.user_id,
+          imageUrl: msg.image_url,
+          isProof: msg.is_proof,
+          isValidated: msg.is_validated,
+          is_read: msg.user_id === user.id,
+          timestamp: new Date(msg.created_at),
+        }));
+
+        setChallenges(currentChallenges => {
+          return currentChallenges.map(challenge => {
+            if (challenge.id === challenge_id) {
+              console.log("Updating challenge messages:", challenge_id);
+              return {
+                ...challenge,
+                messages: processedMessages,
+              };
+            }
+            return challenge;
+          });
+        });
       });
 
-      // socket.on("updateMessages", (messages) => {
-      //   console.log("Received messages update");
-      //   if (messages[0].challenge_id) {
-      //     const processedMessages = messages.map((msg) => ({
-      //       id: msg.id,
-      //       text: msg.text,
-      //       user_id: msg.user_id,
-      //       imageUrl: msg.image_url,
-      //       isProof: msg.is_proof,
-      //       isValidated: msg.is_validated,
-      //       is_read: msg.user_id === user?.id,
-      //       timestamp: new Date(msg.created_at),
-      //     }));
-
-      //     updateChallenge({
-      //       ...challenge,
-      //       messages: processedMessages,
-      //     });
-      //   }
-      // });
 
       socket.on("messagesRead", ({ challenge_id, user_id }) => {
         if (user_id !== user.id) {
