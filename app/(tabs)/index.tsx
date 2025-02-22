@@ -35,7 +35,6 @@ export default function IndexScreen() {
     deleteChallenge,
     archiveChallenge,
     setChallenges,
-    getUnreadMessageCount,
   } = useAuth();
 
   const filteredChallenges = () => {
@@ -59,20 +58,13 @@ export default function IndexScreen() {
 
   const allChallenges = filteredChallenges();
 
-  const getUnreadCount = useCallback((challengeId) => {
-    return getUnreadMessageCount(challengeId);
-  }, [getUnreadMessageCount]);
+  const { getUnreadMessageCount } = useAuth();
+  const getUnreadCount = (challenge) => {
+    return getUnreadMessageCount(challenge.id);
+  };
 
-  const renderChallengeSection = useCallback((item) => {
-    const unreadCount = getUnreadCount(item.id);
-    const isChallenger = parseInt(item.user_id) === parseInt(user?.id);
-    const lastMessage = item.messages && item.messages.length > 0
-      ? item.messages[item.messages.length - 1].text
-      : 'No messages yet';
-    const truncatedMessage = lastMessage.length > 30
-      ? lastMessage.substring(0, 30) + '...'
-      : lastMessage;
-
+  const renderChallengeSection = (item) => {
+    console.log("renderChallengeSection");
     return (
       <GestureHandlerRootView style={{ flex: 1 }}>
         <Swipeable
@@ -178,7 +170,7 @@ export default function IndexScreen() {
             onPress={() =>
               router.push({
                 pathname: "/chat",
-                params: { challenge_id: item.id },
+                params: { challenge_id: item.id }, // Corrected parameter name
               })
             }
           >
@@ -203,27 +195,32 @@ export default function IndexScreen() {
                     {item.title.charAt(0).toUpperCase()}
                   </ThemedText>
                 </View>
-                <View style={styles.roleContainer}>
-                  <ThemedText style={styles.roleText}>
-                    {isChallenger
-                      ? `Coach: User ${item.coach_id}`
-                      : `Challenger: User ${item.user_id}`}
-                  </ThemedText>
-                </View>
               </View>
               <View style={styles.contentContainer}>
                 <View style={styles.titleContainer}>
                   <ThemedText style={styles.title}>{item.title}</ThemedText>
-                  {unreadCount > 0 && (
+                  {getUnreadCount(item) > 0 && (
                     <View style={styles.badge}>
                       <ThemedText style={styles.badgeText}>
-                        {unreadCount}
+                        {getUnreadCount(item)}
                       </ThemedText>
                     </View>
                   )}
                 </View>
-                <ThemedText style={styles.lastMessage} numberOfLines={1}>
-                  {truncatedMessage}
+                <View style={styles.previewRow}>
+                  <ThemedText numberOfLines={1} style={styles.preview}>
+                    {item.description || `Frequency: ${item.frequency}`}
+                  </ThemedText>
+                  {item.status === "pending" && (
+                    <View style={styles.badge}>
+                      <ThemedText style={styles.badgeText}>Pending</ThemedText>
+                    </View>
+                  )}
+                </View>
+                <ThemedText style={styles.participantInfo}>
+                  {parseInt(user?.id) === item.coach_id
+                    ? `Challenger: User ${item.user_id}`
+                    : `Coach: User ${item.coach_id}`}
                 </ThemedText>
               </View>
             </ThemedView>
@@ -231,7 +228,7 @@ export default function IndexScreen() {
         </Swipeable>
       </GestureHandlerRootView>
     );
-  }, [user?.id, getUnreadCount]);
+  };
 
   const rowRefs = new Map();
 
@@ -283,14 +280,14 @@ export default function IndexScreen() {
   };
 
   const loadChallenges = async (userId) => {
-    setRefreshing(true);
+    setRefreshing(true); // Set refreshing to true
     try {
-      const challenges = await ApiClient.getChallenges(userId);
-      setChallenges(challenges);
+      const challenges = await ApiClient.getChallenges(userId); // Replace with your API call
+      setChallenges(challenges); // Update challenges state
     } catch (error) {
       console.error("Error loading challenges:", error);
     } finally {
-      setRefreshing(false);
+      setRefreshing(false); // Set refreshing to false after API call
     }
   };
 
@@ -413,23 +410,51 @@ export default function IndexScreen() {
 }
 
 const styles = StyleSheet.create({
-  // ... existing styles ...
-  roleContainer: {
-    marginTop: 8,
+  challengeAvatar: {
+    backgroundColor: "", //"#FFEBEE",
+    borderColor: "#F44336",
+    borderWidth: 2,
   },
-  roleText: {
+  coachingAvatar: {
+    backgroundColor: "", //"#E3F2FD",
+    borderColor: "#2196F3",
+    borderWidth: 2,
+  },
+  challengeItem: {
+    borderLeftWidth: 4,
+    borderLeftColor: "#F44336",
+  },
+  coachingItem: {
+    borderLeftWidth: 4,
+    borderLeftColor: "#2196F3",
+  },
+  typeLabel: {
     fontSize: 12,
     opacity: 0.6,
+    fontStyle: "italic",
   },
-  lastMessage: {
-    fontSize: 14,
+  participantInfo: {
+    fontSize: 12,
     opacity: 0.6,
     marginTop: 4,
   },
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
+  listItem: {
+    flexDirection: "row",
+    padding: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(128, 128, 128, 0.2)",
+  },
+  separator: {
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: "#E0E0E0",
+    marginLeft: 76,
+  },
   avatarContainer: {
     marginRight: 16,
-    flexDirection: 'column', //added for vertical alignment
-    alignItems: 'center', //added for vertical alignment
   },
   avatar: {
     width: 50,
@@ -438,8 +463,258 @@ const styles = StyleSheet.create({
     backgroundColor: "#E8EAF6",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 8, //added for spacing
   },
-  // ... existing styles ...
-
+  avatarText: {
+    fontSize: 24,
+    fontWeight: "500",
+  },
+  contentContainer: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  titleRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 4,
+  },
+  titleContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  date: {
+    fontSize: 12,
+    opacity: 0.6,
+  },
+  previewRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  preview: {
+    fontSize: 14,
+    opacity: 0.6,
+    flex: 1,
+    marginRight: 8,
+  },
+  badge: {
+    backgroundColor: "#FF4444",
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    marginLeft: 8,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  badgeText: {
+    fontSize: 12,
+    color: "#FFFFFF",
+    fontWeight: "bold",
+  },
+  typeLabel: {
+    fontSize: 14,
+    opacity: 0.8,
+    fontStyle: "italic",
+  },
+  coachingCard: {
+    borderColor: "#98D8A1",
+    borderWidth: 2,
+  },
+  pendingCard: {
+    borderStyle: "dashed",
+  },
+  activeCard: {
+    borderStyle: "solid",
+  },
+  container: {
+    flex: 1,
+    gap: 20,
+  },
+  header: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(255,255,255,0.15)",
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 16,
+  },
+  filterContainer: {
+    marginTop: 10,
+  },
+  filterContentContainer: {
+    flexDirection: "row",
+    gap: 10,
+    paddingHorizontal: 10,
+  },
+  filterButton: {
+    padding: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.15)",
+  },
+  filterButtonActive: {
+    backgroundColor: "#F44336",
+    borderColor: "#F44336",
+  },
+  filterTextActive: {
+    color: "#fff",
+  },
+  filterTextActiveLight: {
+    color: "#fff",
+  },
+  participantsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 10,
+    padding: 8,
+    backgroundColor: "rgba(255,255,255,0.05)",
+    borderRadius: 8,
+  },
+  participantText: {
+    fontSize: 14,
+    opacity: 0.9,
+  },
+  actionsContainer: {
+    marginTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: "rgba(255,255,255,0.15)",
+    paddingTop: 16,
+  },
+  actionButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 10,
+  },
+  actionButton: {
+    flex: 1,
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 4,
+    paddingVertical: 8,
+  },
+  acceptButton: {
+    backgroundColor: "rgba(76, 175, 80, 0.8)",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: 4,
+    height: "100%",
+  },
+  rejectButton: {
+    backgroundColor: "rgba(244, 67, 54, 0.8)",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: 4,
+    height: "100%",
+  },
+  changeCoachButton: {
+    backgroundColor: "rgba(33, 150, 243, 0.8)",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: 4,
+    height: "100%",
+  },
+  deleteButton: {
+    backgroundColor: "rgba(244, 67, 54, 0.8)",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: 4,
+    height: "100%",
+  },
+  buttonText: {
+    fontSize: 12,
+    color: "#fff",
+    textAlign: "center",
+  },
+  challengerActions: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 10,
+  },
+  createButton: {
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#4CAF50",
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    position: "absolute",
+    bottom: 24,
+    right: 24,
+    elevation: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    zIndex: 1,
+  },
+  swipeableButtons: {
+    flexDirection: "row",
+    alignItems: "center",
+    width: 200,
+    gap: 8,
+    paddingHorizontal: 8,
+  },
+  swipeButton: {
+    flex: 1,
+    height: 70,
+    justifyContent: "center",
+  },
+  coachSection: {
+    backgroundColor: "rgba(161, 206, 220, 0.15)",
+    borderWidth: 1,
+    borderColor: "#A1CEDC",
+  },
+  section: {
+    padding: 20,
+    borderRadius: 20,
+    backgroundColor: "rgba(255,255,255,0.08)",
+    gap: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 5,
+  },
+  challengeCard: {
+    padding: 20,
+    borderRadius: 16,
+    backgroundColor: "rgba(255,255,255,0.08)",
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.15)",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  challengeTitle: {
+    fontSize: 22,
+    fontWeight: "800",
+    marginBottom: 12,
+    letterSpacing: 0.4,
+    color: "#0a7ea4",
+  },
+  dateContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 16,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: "rgba(255,255,255,0.15)",
+  },
+  archiveButton: {
+    backgroundColor: "rgba(128, 128, 128, 0.8)",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: 4,
+    height: "100%",
+  },
 });
