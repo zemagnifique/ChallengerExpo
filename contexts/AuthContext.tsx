@@ -53,6 +53,7 @@ type AuthContextType = {
   user: User | null;
   challenges: Challenge[];
   notifications: Notification[];
+  setChallenges: (challenges: Challenge[]) => void;
   login: (username: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
   getCoaches: () => User[];
@@ -371,6 +372,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         archiveChallenge,
         getUnreadMessageCount,
         markMessagesAsRead,
+        setChallenges,
       }}
     >
       {children}
