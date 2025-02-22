@@ -6,7 +6,6 @@ import { useColorScheme } from "@/hooks/useColorScheme";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { useAuth } from "@/contexts/AuthContext";
-import { GlobalStyles as styles } from '@/constants/Styles';
 
 export default function UserScreen() {
   const { user, logout, notifications, markNotificationAsRead } = useAuth();
@@ -71,13 +70,69 @@ export default function UserScreen() {
         >
           <ThemedText style={styles.buttonText}>Switch to User 2</ThemedText>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.button, styles.logoutButton]}
-          onPress={handleLogout}
-        >
-          <ThemedText style={styles.buttonText}>Logout</ThemedText>
-        </TouchableOpacity>
       </ThemedView>
+
+      <TouchableOpacity
+        style={[styles.button, styles.logoutButton]}
+        onPress={handleLogout}
+      >
+        <ThemedText style={styles.buttonText}>Logout</ThemedText>
+      </TouchableOpacity>
     </ThemedView>
   );
 }
+
+const styles = StyleSheet.create({
+  testControls: {
+    marginTop: 20,
+    padding: 15,
+    borderRadius: 8,
+    backgroundColor: "rgba(255,255,255,0.1)",
+    gap: 10,
+  },
+  logoutButton: {
+    backgroundColor: "#F44336",
+  },
+  container: {
+    flex: 1,
+    padding: 20,
+  },
+  username: {
+    fontSize: 24,
+    marginVertical: 10,
+  },
+  notificationsContainer: {
+    marginTop: 20,
+    gap: 10,
+  },
+  notification: {
+    padding: 15,
+    borderRadius: 8,
+    backgroundColor: "rgba(255,255,255,0.1)",
+    marginVertical: 5,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.15)",
+  },
+  notificationRead: {
+    opacity: 0.6,
+  },
+  notificationText: {
+    fontSize: 16,
+    marginBottom: 5,
+  },
+  notificationDate: {
+    fontSize: 12,
+    opacity: 0.7,
+  },
+  button: {
+    backgroundColor: "#F44336",
+    padding: 15,
+    borderRadius: 8,
+    marginTop: 20,
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "white",
+    fontSize: 16,
+  },
+});
