@@ -1,32 +1,141 @@
-
-import { StyleSheet } from 'react-native';
-import { Colors } from './Colors';
+import { StyleSheet } from "react-native";
+import { Colors } from "./Colors";
 
 export const GlobalStyles = StyleSheet.create({
-  // Container styles
+  challengeAvatar: {
+    backgroundColor: "", //"#FFEBEE",
+    borderColor: "#F44336",
+    borderWidth: 2,
+  },
+  coachingAvatar: {
+    backgroundColor: "", //"#E3F2FD",
+    borderColor: "#2196F3",
+    borderWidth: 2,
+  },
+  challengeItem: {
+    borderLeftWidth: 4,
+    borderLeftColor: "#F44336",
+  },
+  coachingItem: {
+    borderLeftWidth: 4,
+    borderLeftColor: "#2196F3",
+  },
+  typeLabel: {
+    fontSize: 12,
+    opacity: 0.6,
+    fontStyle: "italic",
+  },
+  participantInfo: {
+    fontSize: 12,
+    opacity: 0.6,
+    marginTop: 4,
+  },
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
+  listItem: {
+    flexDirection: "row",
+    padding: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(128, 128, 128, 0.2)",
+  },
+  separator: {
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: "#E0E0E0",
+    marginLeft: 76,
+  },
+  avatarContainer: {
+    marginRight: 16,
+  },
+  avatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: "#E8EAF6",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  avatarText: {
+    fontSize: 24,
+    fontWeight: "500",
+  },
+  contentContainer: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  titleRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 4,
+  },
+  titleContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  date: {
+    fontSize: 12,
+    opacity: 0.6,
+  },
+  previewRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  preview: {
+    fontSize: 14,
+    opacity: 0.6,
+    flex: 1,
+    marginRight: 8,
+  },
+  badge: {
+    backgroundColor: "#FF4444",
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    marginLeft: 8,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  badgeText: {
+    fontSize: 12,
+    color: "#FFFFFF",
+    fontWeight: "bold",
+  },
+  typeLabel: {
+    fontSize: 14,
+    opacity: 0.8,
+    fontStyle: "italic",
+  },
+  coachingCard: {
+    borderColor: "#98D8A1",
+    borderWidth: 2,
+  },
+  pendingCard: {
+    borderStyle: "dashed",
+  },
+  activeCard: {
+    borderStyle: "solid",
+  },
   container: {
     flex: 1,
     gap: 20,
   },
-  
-  // Header styles
   header: {
     padding: 16,
-    paddingTop: 48,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(0,0,0,0.1)",
+    borderBottomColor: "rgba(255,255,255,0.15)",
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 16,
   },
-  headerContent: {
-    marginLeft: 40,
-    marginTop: -30,
-  },
-
-  // Filter styles
   filterContainer: {
     marginTop: 10,
   },
@@ -51,83 +160,29 @@ export const GlobalStyles = StyleSheet.create({
   filterTextActiveLight: {
     color: "#fff",
   },
-
-  // List item styles
-  listItem: {
+  participantsContainer: {
     flexDirection: "row",
-    padding: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(128, 128, 128, 0.2)",
+    justifyContent: "space-between",
+    marginBottom: 10,
+    padding: 8,
+    backgroundColor: "rgba(255,255,255,0.05)",
+    borderRadius: 8,
   },
-  avatar: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: "#E8EAF6",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  avatarText: {
-    fontSize: 24,
-    fontWeight: "500",
-  },
-  challengeAvatar: {
-    backgroundColor: "",
-    borderColor: "#F44336",
-    borderWidth: 2,
-  },
-  coachingAvatar: {
-    backgroundColor: "",
-    borderColor: "#2196F3",
-    borderWidth: 2,
-  },
-  challengeItem: {
-    borderLeftWidth: 4,
-    borderLeftColor: "#F44336",
-  },
-  coachingItem: {
-    borderLeftWidth: 4,
-    borderLeftColor: "#2196F3",
-  },
-
-  // Content styles
-  contentContainer: {
-    flex: 1,
-    justifyContent: "center",
-  },
-  title: {
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  preview: {
+  participantText: {
     fontSize: 14,
-    opacity: 0.6,
-    flex: 1,
-    marginRight: 8,
+    opacity: 0.9,
   },
-  participantInfo: {
-    fontSize: 12,
-    opacity: 0.6,
-    marginTop: 4,
+  actionsContainer: {
+    marginTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: "rgba(255,255,255,0.15)",
+    paddingTop: 16,
   },
-
-  // Badge styles
-  badge: {
-    backgroundColor: "#FF4444",
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    marginLeft: 8,
-    justifyContent: "center",
-    alignItems: "center",
+  actionButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 10,
   },
-  badgeText: {
-    fontSize: 12,
-    color: "#FFFFFF",
-    fontWeight: "bold",
-  },
-
-  // Action button styles
   actionButton: {
     flex: 1,
     height: "100%",
@@ -164,51 +219,94 @@ export const GlobalStyles = StyleSheet.create({
     gap: 4,
     height: "100%",
   },
+  buttonText: {
+    fontSize: 12,
+    color: "#fff",
+    textAlign: "center",
+  },
+  challengerActions: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 10,
+  },
+  createButton: {
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#4CAF50",
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    position: "absolute",
+    bottom: 24,
+    right: 24,
+    elevation: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    zIndex: 1,
+  },
+  swipeableButtons: {
+    flexDirection: "row",
+    alignItems: "center",
+    width: 200,
+    gap: 8,
+    paddingHorizontal: 8,
+  },
+  swipeButton: {
+    flex: 1,
+    height: 70,
+    justifyContent: "center",
+  },
+  coachSection: {
+    backgroundColor: "rgba(161, 206, 220, 0.15)",
+    borderWidth: 1,
+    borderColor: "#A1CEDC",
+  },
+  section: {
+    padding: 20,
+    borderRadius: 20,
+    backgroundColor: "rgba(255,255,255,0.08)",
+    gap: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 5,
+  },
+  challengeCard: {
+    padding: 20,
+    borderRadius: 16,
+    backgroundColor: "rgba(255,255,255,0.08)",
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.15)",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  challengeTitle: {
+    fontSize: 22,
+    fontWeight: "800",
+    marginBottom: 12,
+    letterSpacing: 0.4,
+    color: "#0a7ea4",
+  },
+  dateContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 16,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: "rgba(255,255,255,0.15)",
+  },
   archiveButton: {
     backgroundColor: "rgba(128, 128, 128, 0.8)",
     flexDirection: "column",
     alignItems: "center",
     gap: 4,
     height: "100%",
-  },
-  buttonText: {
-    fontSize: 12,
-    color: "#fff",
-    textAlign: "center",
-  },
-
-  // Chat specific styles
-  input: {
-    flex: 1,
-    padding: 12,
-    borderRadius: 20,
-  },
-  messageList: {
-    flex: 1,
-    padding: 16,
-  },
-  messageBubble: {
-    padding: 12,
-    borderRadius: 16,
-    marginBottom: 8,
-    maxWidth: "80%",
-  },
-  ownMessage: {
-    alignSelf: "flex-end",
-    borderBottomRightRadius: 4,
-  },
-  otherMessage: {
-    backgroundColor: "#1C1C1E",
-    alignSelf: "flex-start",
-    borderBottomLeftRadius: 4,
-  },
-  messageText: {
-    fontSize: 16,
-    color: "#FFFFFF",
-  },
-  messageTime: {
-    fontSize: 12,
-    opacity: 0.7,
-    marginTop: 4,
   },
 });
