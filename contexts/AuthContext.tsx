@@ -109,7 +109,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const updateChallengeMessages = async (challenge_id: string) => {
         try {
           const updatedMessages = await ApiClient.getMessages(challenge_id);
-          return updatedMessages.map((msg) => ({
+          return updatedMessages.map(msg => ({
             ...msg,
             is_read: msg.is_read,
             timestamp: new Date(msg.created_at),
@@ -123,25 +123,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       socket.on("updateMessages", async (messages) => {
         if (!messages || !messages.length) return;
         const challenge_id = messages[0].challenge_id;
-        
-        // Process the messages directly
-        const processedMessages = messages.map(msg => ({
-          ...msg,
-          is_read: msg.user_id === user.id,
-          timestamp: new Date(msg.created_at),
-        }));
-
+        const updatedMessages = await updateChallengeMessages(challenge_id);
         setChallenges(currentChallenges =>
-          currentChallenges.map(challenge =>
-            challenge.id === challenge_id
+          currentChallenges.map(challenge => 
+            challenge.id === challenge_id 
               ? {
                   ...challenge,
-                  messages: processedMessages,
+                  messages: updatedMessages,
                 }
               : challenge
           )
         );
       });
+
 
       socket.on("messagesRead", ({ challenge_id, user_id }) => {
         if (user_id !== user.id) {
