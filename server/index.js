@@ -194,11 +194,11 @@ app.post("/api/challenges", async (req, res) => {
 
 // Get messages for a challenge
 // Get username by id
-app.get("/api/users/:user_id", async (req, res) => {
+app.get("/api/users", async (req, res) => {
   try {
     const result = await pool.query(
       "SELECT username FROM users WHERE id = $1",
-      [req.params.user_id]
+      [req.query.user_id]
     );
     if (result.rows.length === 0) {
       return res.status(404).json({ error: "User not found" });
