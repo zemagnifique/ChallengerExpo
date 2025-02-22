@@ -398,7 +398,8 @@ export default function IndexScreen() {
         renderItem={({ item }) => renderChallengeSection(item)}
         ListHeaderComponent={HeaderComponent}
         onRefresh={handleRefresh}
-        refreshing={refreshing} // Use refreshing state here
+        refreshing={refreshing}
+        headerImage={<></>}
       />
     </ThemedView>
   );

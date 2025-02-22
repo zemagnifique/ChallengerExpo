@@ -32,6 +32,8 @@ export default function ParallaxScrollView({
   data,
   renderItem,
   ListHeaderComponent,
+  onRefresh,
+  refreshing,
 }: Props) {
   const colorScheme = useColorScheme() ?? 'light';
   const scrollRef = useAnimatedRef<Animated.FlatList>();
