@@ -193,6 +193,20 @@ app.post("/api/challenges", async (req, res) => {
 });
 
 // Get messages for a challenge
+// Get username by id
+app.get("/api/users/:user_id", async (req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT username FROM users WHERE id = $1",
+      [req.params.user_id]
+    );
+    res.json(result.rows[0] || { username: "Unknown User" });
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 app.get("/api/challenges/:challenge_id/messages", async (req, res) => {
   try {
     const result = await pool.query(
