@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   StyleSheet,
   TouchableOpacity,
   FlatList,
   View,
   Animated,
+  RefreshControl,
 } from "react-native";
 import { ApiClient } from "@/api/client";
 import { useColorScheme } from "@/hooks/useColorScheme";
@@ -31,7 +32,10 @@ export default function IndexScreen() {
     updateChallengeCoach,
     deleteChallenge,
     archiveChallenge,
+    setChallenges, // Added to update challenges state
   } = useAuth();
+  const [refreshing, setRefreshing] = useState(false); // Added refreshing state
+
   const filteredChallenges = () => {
     let filtered = (challenges ?? []).filter((c) => c.status !== "rejected");
 
@@ -274,6 +278,26 @@ export default function IndexScreen() {
     }
   };
 
+  const loadChallenges = async (userId) => {
+    setRefreshing(true); // Set refreshing to true
+    try {
+      const challenges = await ApiClient.getChallenges(userId); // Replace with your API call
+      setChallenges(challenges); // Update challenges state
+    } catch (error) {
+      console.error("Error loading challenges:", error);
+    } finally {
+      setRefreshing(false); // Set refreshing to false after API call
+    }
+  };
+
+
+  useEffect(() => {
+    if (user?.id) {
+      loadChallenges(user.id);
+    }
+  }, [user]);
+
+
   const HeaderComponent = () => (
     <ThemedView style={styles.header}>
       <ThemedText style={styles.headerTitle}>Challenges</ThemedText>
@@ -361,6 +385,12 @@ export default function IndexScreen() {
         data={allChallenges}
         renderItem={({ item }) => renderChallengeSection(item)}
         ListHeaderComponent={HeaderComponent}
+        onRefresh={() => {
+          if (user?.id) {
+            loadChallenges(user.id);
+          }
+        }}
+        refreshing={refreshing} // Use refreshing state here
       />
     </ThemedView>
   );
