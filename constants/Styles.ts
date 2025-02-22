@@ -149,6 +149,7 @@ export const GlobalStyles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.15)",
+    marginRight: 10,
   },
   filterButtonActive: {
     backgroundColor: "#F44336",
