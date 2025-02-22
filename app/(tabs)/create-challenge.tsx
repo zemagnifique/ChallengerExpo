@@ -214,13 +214,13 @@ export default function CreateChallengeScreen() {
             <select
               style={styles.webSelect}
               value={selectedCoach || ""}
-              onChange={(e) => setSelectedCoach(parseInt(e.target.value))}
+              onChange={(e) => setSelectedCoach(e.target.value)}
             >
               <option value="">Select a coach</option>
               {users
                 .filter((u) => u.id !== user?.id)
                 .map((otherUser) => (
-                  <option key={otherUser.id} value={otherUser.id}>
+                  <option key={otherUser.id} value={otherUser.id.toString()}>
                     {otherUser.username}
                   </option>
                 ))}
@@ -229,9 +229,7 @@ export default function CreateChallengeScreen() {
             <View style={styles.coachSelectContainer}>
               <Picker
                 selectedValue={selectedCoach}
-                onValueChange={(itemValue) =>
-                  setSelectedCoach(parseInt(itemValue))
-                }
+                onValueChange={(itemValue) => setSelectedCoach(itemValue)}
                 style={styles.picker}
               >
                 <Picker.Item label="Select a coach" value="" />
@@ -241,7 +239,7 @@ export default function CreateChallengeScreen() {
                     <Picker.Item
                       key={otherUser.id}
                       label={`${otherUser.username}`}
-                      value={otherUser.id}
+                      value={otherUser.id.toString()}
                     />
                   ))}
               </Picker>
