@@ -334,9 +334,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             ...challenge,
             username,
             coachUsername,
-          ...challenge,
-          id: challenge.id.toString(),
-          messages: challenge.messages
+            id: challenge.id.toString(),
+            messages: challenge.messages
             ? challenge.messages.map((msg: any) => ({
                 ...msg,
                 read: msg.read,
