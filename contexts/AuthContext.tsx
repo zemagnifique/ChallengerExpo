@@ -327,22 +327,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const fetchedChallenges = await ApiClient.getChallenges(userId);
       if (Array.isArray(fetchedChallenges)) {
-        const processedChallenges = await Promise.all(fetchedChallenges.map(async (challenge: any) => {
-          const username = await ApiClient.getUsername(challenge.user_id);
-          const coachUsername = await ApiClient.getUsername(challenge.coach_id);
-          return {
-            ...challenge,
-            username,
-            coachUsername,
-            id: challenge.id.toString(),
-            messages: challenge.messages
-            ? challenge.messages.map((msg: any) => ({
-                ...msg,
-                read: msg.read,
-                user_id: msg.user_id,
-                timestamp: new Date(msg.created_at),
-              }))
-            : [],
+        const processedChallenges = await Promise.all(
+          fetchedChallenges.map(async (challenge: any) => {
+            const username = await ApiClient.getUsername(challenge.user_id);
+            const coachUsername = await ApiClient.getUsername(challenge.coach_id);
+            return {
+              ...challenge,
+              username,
+              coachUsername,
+              id: challenge.id.toString(),
+              messages: challenge.messages
+                ? challenge.messages.map((msg: any) => ({
+                    ...msg,
+                    read: msg.read,
+                    user_id: msg.user_id,
+                    timestamp: new Date(msg.created_at),
+                  }))
+                : []
+            };
+          })
+        );
         }));
         setChallenges(processedChallenges);
         await AsyncStorage.setItem(
