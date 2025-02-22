@@ -143,7 +143,6 @@ export default function ChatScreen() {
         imageUrl: selectedImage,
         isProof: false,
       });
-
       const messages = await ApiClient.getMessages(challenge_id as string);
       if (challenge) {
         updateChallenge({
