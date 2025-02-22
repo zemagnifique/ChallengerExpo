@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useCallback } from "react";
 import {
   StyleSheet,
   TouchableOpacity,
@@ -24,6 +24,7 @@ export default function IndexScreen() {
   const colorScheme = useColorScheme();
   const [filter, setFilter] = useState("all");
   const router = useRouter();
+  const [refreshing, setRefreshing] = useState(false);
   const {
     challenges,
     user,
@@ -34,7 +35,6 @@ export default function IndexScreen() {
     archiveChallenge,
     setChallenges, // Added to update challenges state
   } = useAuth();
-  const [refreshing, setRefreshing] = useState(false); // Added refreshing state
 
   const filteredChallenges = () => {
     let filtered = (challenges ?? []).filter((c) => c.status !== "rejected");
@@ -290,6 +290,18 @@ export default function IndexScreen() {
     }
   };
 
+  const handleRefresh = useCallback(async () => {
+    if (!user?.id) return;
+    setRefreshing(true);
+    try {
+      const refreshedChallenges = await ApiClient.getChallenges(user.id);
+      setChallenges(refreshedChallenges);
+    } catch (error) {
+      console.error('Error refreshing challenges:', error);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [user?.id, setChallenges]);
 
   useEffect(() => {
     if (user?.id) {
@@ -385,11 +397,7 @@ export default function IndexScreen() {
         data={allChallenges}
         renderItem={({ item }) => renderChallengeSection(item)}
         ListHeaderComponent={HeaderComponent}
-        onRefresh={() => {
-          if (user?.id) {
-            loadChallenges(user.id);
-          }
-        }}
+        onRefresh={handleRefresh}
         refreshing={refreshing} // Use refreshing state here
       />
     </ThemedView>
