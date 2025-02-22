@@ -207,10 +207,10 @@ export default function ChatScreen() {
         >
           <IconSymbol name="chevron.left" size={24} color={textColor} />
         </TouchableOpacity>
-        <View style={styles.headerContent}>
+        <ThemedView style={styles.headerContent}>
           <ThemedText style={styles.title}>{challenge.title}</ThemedText>
           {challenge.status === "pending" && isCoach && (
-            <View style={styles.actionButtons}>
+            <ThemedView style={styles.actionButtons}>
               <TouchableOpacity
                 style={[styles.actionButton, styles.acceptButton]}
                 onPress={handleAcceptChallenge}
@@ -278,7 +278,7 @@ export default function ChatScreen() {
                   {new Date(item.timestamp).toLocaleTimeString()}
                 </ThemedText>
                 {(item.isValidated || item.isProof) && (
-                  <View style={styles.iconContainer}>
+                  <ThemedView style={styles.iconContainer}>
                     <IconSymbol
                       name={
                         item.isValidated
