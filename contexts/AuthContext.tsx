@@ -129,7 +129,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         isValidated: msg.is_validated,
         timestamp: new Date(msg.created_at),
       }));
-      
+
       setChallenges(prevChallenges => 
         prevChallenges.map(challenge =>
           challenge.id === socketChallengeId
@@ -385,7 +385,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     async (messageId: string, isValidated: boolean, challengeId: string) => {
       try {
         await ApiClient.validateMessage(messageId, isValidated);
-        
+
         // No need to manually update state here as the WebSocket will handle it
         addNotification(`Proof ${isValidated ? 'validated' : 'invalidated'}`);
       } catch (error) {
@@ -405,7 +405,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           isProof: true,
           user_id: user?.id || "",
         });
-        
+
         // No need to manually update state here as the WebSocket will handle it
         addNotification("Proof submitted");
       } catch (error) {
