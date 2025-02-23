@@ -6,6 +6,7 @@ import {
   ScrollView,
   View,
   Platform,
+  ActionSheetIOS,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { ApiClient } from "@/api/client";
@@ -224,25 +225,53 @@ export default function CreateChallengeScreen() {
                 ))}
             </select>
           ) : (
-            <View style={styles.pickerContainer}>
-              <Picker
-                selectedValue={selectedCoach}
-                onValueChange={(itemValue) => setSelectedCoach(itemValue)}
-                style={styles.picker}
-                itemStyle={styles.pickerItem}
-              >
-                <Picker.Item label="Select a coach" value="" />
-                {users
-                  .filter((u) => u.id !== user?.id)
-                  .map((otherUser) => (
-                    <Picker.Item
-                      key={otherUser.id}
-                      label={otherUser.username}
-                      value={otherUser.id.toString()}
-                    />
-                  ))}
-              </Picker>
-            </View>
+            <TouchableOpacity
+              style={styles.pickerButton}
+              onPress={() => {
+                if (Platform.OS === 'ios') {
+                  ActionSheetIOS.showActionSheetWithOptions(
+                    {
+                      options: ['Cancel', ...users.filter(u => u.id !== user?.id).map(u => u.username)],
+                      cancelButtonIndex: 0,
+                      title: 'Select a Coach',
+                    },
+                    (buttonIndex) => {
+                      if (buttonIndex !== 0) {
+                        const selectedUser = users.filter(u => u.id !== user?.id)[buttonIndex - 1];
+                        setSelectedCoach(selectedUser.id.toString());
+                      }
+                    }
+                  );
+                } else {
+                  // Fallback to default Picker for other platforms
+                  <Picker
+                    selectedValue={selectedCoach}
+                    onValueChange={(itemValue) => setSelectedCoach(itemValue)}
+                    style={styles.picker}
+                  >
+                    <Picker.Item label="Select a coach" value="" />
+                    {users
+                      .filter((u) => u.id !== user?.id)
+                      .map((otherUser) => (
+                        <Picker.Item
+                          key={otherUser.id}
+                          label={otherUser.username}
+                          value={otherUser.id.toString()}
+                        />
+                      ))}
+                  </Picker>
+                }
+              }}
+            >
+              <View style={styles.pickerContainer}>
+                <ThemedText style={styles.pickerText}>
+                  {selectedCoach
+                    ? users.find(u => u.id.toString() === selectedCoach)?.username
+                    : 'Select a Coach'}
+                </ThemedText>
+                <IconSymbol name="chevron.right" size={20} color="#999" />
+              </View>
+            </TouchableOpacity>
           )}
 
           <TouchableOpacity
@@ -289,20 +318,23 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#eee",
   },
+  pickerButton: {
+    marginBottom: 16,
+  },
   pickerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     backgroundColor: "#fff",
     borderRadius: 8,
     borderWidth: 1,
     borderColor: "#ccc",
-    marginBottom: 16,
-    overflow: "hidden",
+    padding: 12,
+    height: 48,
   },
-  picker: {
-    height: 50,
-    width: "100%",
-  },
-  pickerItem: {
+  pickerText: {
     fontSize: 16,
+    color: '#000',
   },
   container: {
     flex: 1,
