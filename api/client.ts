@@ -229,4 +229,20 @@ export const ApiClient = {
       throw error;
     }
   },
+
+  setMessageAsProof: async (messageId: string, isProof: boolean): Promise<any> => {
+    const response = await fetch(`${API_URL}/api/messages/${messageId}/set-proof`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ isProof }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to set message as proof');
+    }
+
+    return response.json();
+  },
 };

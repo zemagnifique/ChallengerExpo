@@ -270,15 +270,95 @@ app.put("/api/challenges/:challenge_id/status", async (req, res) => {
   }
 });
 
+// Add a message to a challenge
+app.post("/api/challenges/:challenge_id/messages", async (req, res) => {
+  const { user_id, text, imageUrl, isProof } = req.body;
+
+  try {
+    const result = await pool.query(
+      `INSERT INTO messages (challenge_id, user_id, text, image_url, is_proof, created_at)
+       VALUES ($1, $2, $3, $4, $5, NOW())
+       RETURNING *`,
+      [req.params.challenge_id, user_id, text, imageUrl, isProof],
+    );
+
+    // Get all messages after inserting new one
+    const messagesResult = await pool.query(
+      "SELECT * FROM messages WHERE challenge_id = $1 ORDER BY created_at ASC",
+      [req.params.challenge_id],
+    );
+
+    const messages = messagesResult.rows.map((msg) => ({
+      ...msg,
+      timestamp: msg.created_at,
+      success: true,
+    }));
+
+    // Emit all messages to clients in the challenge room
+    io.to(`challenge_${req.params.challenge_id}`).emit(
+      "updateMessages",
+      messages,
+    );
+
+    res.status(201).json({ success: true, message: result.rows[0] });
+  } catch (error) {
+    console.error("Error creating message:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // Update message validation status
 app.put("/api/messages/:messageId/validate", async (req, res) => {
   const { isValidated } = req.body;
 
   try {
-    // First update the message validation status
-    const messageResult = await pool.query(
+    const result = await pool.query(
       "UPDATE messages SET is_validated = $1 WHERE id = $2 RETURNING *",
-      [isValidated, req.params.messageId]
+      [isValidated, req.params.messageId],
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Message not found" });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error("Error updating message:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.put("/api/challenges/:challenge_id/messages/read", async (req, res) => {
+  const { user_id } = req.body;
+
+  try {
+    const result = await pool.query(
+      "UPDATE messages SET is_read = true WHERE challenge_id = $1 AND user_id != $2 RETURNING *",
+      [req.params.challenge_id, user_id],
+    );
+
+    // Emit socket event when messages are marked as read
+    io.to(`challenge_${req.params.challenge_id}`).emit("messagesRead", {
+      challenge_id: req.params.challenge_id,
+      user_id: user_id,
+    });
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Error marking messages as read:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Set message as proof
+app.put("/api/messages/:messageId/set-proof", async (req, res) => {
+  const { isProof } = req.body;
+
+  try {
+    // Update the message proof status
+    const messageResult = await pool.query(
+      "UPDATE messages SET is_proof = $1 WHERE id = $2 RETURNING *",
+      [isProof, req.params.messageId]
     );
 
     if (messageResult.rows.length === 0) {
@@ -306,66 +386,6 @@ app.put("/api/messages/:messageId/validate", async (req, res) => {
     res.json(messageResult.rows[0]);
   } catch (error) {
     console.error("Error updating message:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
-
-// Add a message to a challenge
-app.post("/api/challenges/:challenge_id/messages", async (req, res) => {
-  const { user_id, text, imageUrl, isProof } = req.body;
-
-  try {
-    // Insert the new message
-    const result = await pool.query(
-      `INSERT INTO messages (challenge_id, user_id, text, image_url, is_proof, is_validated, created_at)
-       VALUES ($1, $2, $3, $4, $5, $6, NOW())
-       RETURNING *`,
-      [req.params.challenge_id, user_id, text, imageUrl, isProof, false]  // Set is_validated to false by default
-    );
-
-    // Get all messages after inserting new one
-    const messagesResult = await pool.query(
-      "SELECT * FROM messages WHERE challenge_id = $1 ORDER BY created_at ASC",
-      [req.params.challenge_id]
-    );
-
-    const messages = messagesResult.rows.map((msg) => ({
-      ...msg,
-      timestamp: msg.created_at,
-      success: true,
-    }));
-
-    // Emit all messages to clients in the challenge room
-    io.to(`challenge_${req.params.challenge_id}`).emit(
-      "updateMessages",
-      messages,
-    );
-
-    res.status(201).json({ success: true, message: result.rows[0] });
-  } catch (error) {
-    console.error("Error creating message:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
-
-app.put("/api/challenges/:challenge_id/messages/read", async (req, res) => {
-  const { user_id } = req.body;
-
-  try {
-    const result = await pool.query(
-      "UPDATE messages SET is_read = true WHERE challenge_id = $1 AND user_id != $2 RETURNING *",
-      [req.params.challenge_id, user_id],
-    );
-
-    // Emit socket event when messages are marked as read
-    io.to(`challenge_${req.params.challenge_id}`).emit("messagesRead", {
-      challenge_id: req.params.challenge_id,
-      user_id: user_id,
-    });
-
-    res.json(result.rows);
-  } catch (error) {
-    console.error("Error marking messages as read:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
