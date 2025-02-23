@@ -416,22 +416,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     [user, addNotification]
   );
 
-  // Add new function to set a message as proof
-  const setMessageAsProof = useCallback(
-    async (messageId: string, isProof: boolean) => {
-      try {
-        await ApiClient.setMessageAsProof(messageId, isProof);
-        
-        // No need to manually update state here as the WebSocket will handle it
-        addNotification(`Message ${isProof ? 'set as proof' : 'unset as proof'}`);
-      } catch (error) {
-        console.error("Error setting message as proof:", error);
-        throw error;
-      }
-    },
-    [addNotification]
-  );
-
   return (
     <AuthContext.Provider
       value={{
