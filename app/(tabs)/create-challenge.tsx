@@ -16,6 +16,7 @@ import { ThemedView } from "@/components/ThemedView";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { useRouter } from "expo-router";
 import { useAuth } from "@/contexts/AuthContext";
+import { GlobalStyles } from "@/constants/Styles"; // Added import
 
 const DEFAULT_CHALLENGES = [
   {
