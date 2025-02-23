@@ -72,10 +72,8 @@ export default function CreateChallengeScreen() {
         endDate,
         frequency,
         proofRequirements,
-        status: "pending",
         user_id: user?.id?.toString() || "",
-        coach_id: selectedCoach?.toString() || "",
-        createdAt: new Date(),
+        coachId: selectedCoach?.toString() || "",
       };
       addChallenge(challenge);
       router.back();
