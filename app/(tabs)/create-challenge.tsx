@@ -101,21 +101,29 @@ export default function CreateChallengeScreen() {
         <ThemedText style={styles.headerTitle}>Create Challenge</ThemedText>
       </ThemedView>
       <ScrollView style={styles.container}>
-        <ThemedView style={styles.section}>
-          <ThemedText type="subtitle">Quick Start Challenges</ThemedText>
-          {DEFAULT_CHALLENGES.map((challenge, index) => (
-            <TouchableOpacity
-              key={index}
-              style={styles.challengeCard}
-              onPress={() => selectDefaultChallenge(challenge)}
-            >
-              <ThemedText style={styles.cardTitle}>
-                {challenge.title}
-              </ThemedText>
-              <ThemedText>{challenge.description}</ThemedText>
-            </TouchableOpacity>
-          ))}
+        <ThemedView style={styles.quickStartSection}>
+          <ThemedText style={styles.quickStartTitle}>Quick Start Challenges</ThemedText>
+          <View style={styles.challengeGrid}>
+            {DEFAULT_CHALLENGES.map((challenge, index) => (
+              <TouchableOpacity
+                key={index}
+                style={[
+                  styles.challengeCard,
+                  styles[`challengeType${index + 1}`],
+                  { flex: 1 }
+                ]}
+                onPress={() => selectDefaultChallenge(challenge)}
+              >
+                <ThemedText style={styles.cardTitle}>
+                  {challenge.title}
+                </ThemedText>
+                <ThemedText style={styles.cardDescription}>{challenge.description}</ThemedText>
+              </TouchableOpacity>
+            ))}
+          </View>
         </ThemedView>
+
+        <View style={styles.formSeparator} />
 
         <ThemedView style={[styles.section, styles.form]}>
           <ThemedText>Challenge Title *</ThemedText>
@@ -293,6 +301,61 @@ export default function CreateChallengeScreen() {
 
 const styles = StyleSheet.create({
   ...GlobalStyles,
+  quickStartSection: {
+    padding: 20,
+    marginBottom: 20,
+  },
+  quickStartTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 16,
+    color: Colors.light.text,
+  },
+  challengeGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+    justifyContent: 'space-between',
+  },
+  challengeCard: {
+    padding: 16,
+    borderRadius: 12,
+    minHeight: 120,
+    width: '48%',
+    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  challengeType1: {
+    backgroundColor: "#FFE5E5", // Pastel red
+  },
+  challengeType2: {
+    backgroundColor: "#E5FFE5", // Pastel green
+  },
+  challengeType3: {
+    backgroundColor: "#E5E5FF", // Pastel blue
+  },
+  challengeType4: {
+    backgroundColor: "#FFE5FF", // Pastel purple
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    marginBottom: 8,
+    color: "#333",
+  },
+  cardDescription: {
+    fontSize: 14,
+    color: "#666",
+  },
+  formSeparator: {
+    height: 1,
+    backgroundColor: "rgba(0,0,0,0.1)",
+    marginVertical: 20,
+  },
   coachSelectContainer: {
     position: "relative",
     zIndex: 999,
