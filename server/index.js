@@ -19,18 +19,20 @@ const io = require("socket.io")(server, {
 
 // WebSocket connection handling
 io.on("connection", (socket) => {
-  console.log("Client connected");
+  console.log("Client connected with ID:", socket.id);
 
   socket.on("joinRoom", (challenge_id) => {
     socket.join(`challenge_${challenge_id}`);
+    console.log(`Client ${socket.id} joined room: challenge_${challenge_id}`);
   });
 
   socket.on("leaveRoom", (challenge_id) => {
     socket.leave(`challenge_${challenge_id}`);
+    console.log(`Client ${socket.id} left room: challenge_${challenge_id}`);
   });
 
-  socket.on("disconnect", () => {
-    console.log("Client disconnected");
+  socket.on("disconnect", (reason) => {
+    console.log(`Client ${socket.id} disconnected. Reason: ${reason}`);
   });
 });
 
@@ -353,8 +355,10 @@ app.put("/api/challenges/:challenge_id/messages/read", async (req, res) => {
 // Set message as proof
 app.put("/api/messages/:messageId/set-proof", async (req, res) => {
   const { isProof } = req.body;
+  console.log(`Attempting to set proof status for message ${req.params.messageId} to ${isProof}`);
 
   try {
+    console.log("Running update query with params:", [isProof, parseInt(req.params.messageId)]);
     // Update the message proof status
     const messageResult = await pool.query(
       "UPDATE messages SET is_proof = $1 WHERE id = $2 RETURNING *",
@@ -380,9 +384,13 @@ app.put("/api/messages/:messageId/set-proof", async (req, res) => {
       success: true
     }));
 
+    console.log(`Broadcasting updated messages to room challenge_${challengeId}`);
+    console.log("Updated message data:", messageResult.rows[0]);
+    
     // Emit updated messages to all clients in the challenge room
     io.to(`challenge_${challengeId}`).emit('updateMessages', messages);
 
+    console.log("WebSocket broadcast complete");
     res.json(messageResult.rows[0]);
   } catch (error) {
     console.error("Error updating message:", error);
