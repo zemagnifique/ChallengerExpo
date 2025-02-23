@@ -1,6 +1,6 @@
 
 import 'react-native-gesture-handler/jestSetup';
-import '@testing-library/jest-native/extend-expect';
+import * as jestNative from '@testing-library/jest-native';
 
 jest.mock('expo-router', () => ({
   useRouter: () => ({
@@ -23,3 +23,5 @@ jest.mock('react-native-reanimated', () => {
 });
 
 global.fetch = require('jest-fetch-mock');
+
+jest.setup(jestNative);
