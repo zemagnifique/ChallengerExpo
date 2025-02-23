@@ -37,6 +37,8 @@ const AuthContext = createContext<AuthContextType>({
   archiveChallenge: async () => {},
   getUnreadMessageCount: () => 0,
   markMessagesAsRead: async () => {},
+  validateProof: async () => {},
+  sendProofMessage: async () => {},
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -121,15 +123,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const socketChallengeId = String(messages[0].challenge_id);
       const processedMessages = messages.map((msg: any) => ({
         ...msg,
-        is_read: msg.is_read, // use API's property directly
+        id: String(msg.id),
+        is_read: msg.is_read,
+        isProof: msg.is_proof,
+        isValidated: msg.is_validated,
         timestamp: new Date(msg.created_at),
       }));
-      persistChallenges(
-        challenges.map((challenge) =>
+      
+      setChallenges(prevChallenges => 
+        prevChallenges.map(challenge =>
           challenge.id === socketChallengeId
             ? { ...challenge, messages: processedMessages }
-            : challenge,
-        ),
+            : challenge
+        )
       );
     });
 
@@ -137,7 +143,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       socket.disconnect();
       socketRef.current = null;
     };
-  }, [user?.id, challenges, persistChallenges]);
+  }, [user?.id, challenges]);
 
   // When challenges update, join new challenge rooms
   useEffect(() => {
@@ -359,6 +365,42 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     [persistChallenges],
   );
 
+  // Add new function to validate proof messages
+  const validateProof = useCallback(
+    async (messageId: string, isValidated: boolean, challengeId: string) => {
+      try {
+        await ApiClient.validateProof(messageId, isValidated);
+        
+        // No need to manually update state here as the WebSocket will handle it
+        addNotification(`Proof ${isValidated ? 'validated' : 'invalidated'}`);
+      } catch (error) {
+        console.error("Error validating proof:", error);
+        throw error;
+      }
+    },
+    [addNotification]
+  );
+
+  // Add new function to send proof messages
+  const sendProofMessage = useCallback(
+    async (challengeId: string, message: Partial<Message>) => {
+      try {
+        await ApiClient.sendMessage(challengeId, {
+          ...message,
+          isProof: true,
+          user_id: user?.id || "",
+        });
+        
+        // No need to manually update state here as the WebSocket will handle it
+        addNotification("Proof submitted");
+      } catch (error) {
+        console.error("Error sending proof:", error);
+        throw error;
+      }
+    },
+    [user, addNotification]
+  );
+
   return (
     <AuthContext.Provider
       value={{
@@ -380,6 +422,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         getUnreadMessageCount,
         markMessagesAsRead,
         setChallenges,
+        validateProof,
+        sendProofMessage,
       }}
     >
       {children}
