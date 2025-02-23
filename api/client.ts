@@ -104,11 +104,12 @@ export const ApiClient = {
 
   createChallenge: async (challenge: any) => {
     try {
-      console.log("Creating challenge:", challenge);
+      const { status, createdAt, ...challengeData } = challenge;
+      console.log("Creating challenge:", challengeData);
       const response = await fetch(`${API_URL}/api/challenges`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(challenge),
+        body: JSON.stringify(challengeData),
       });
       if (!response.ok) {
         const errorText = await response.text();
@@ -228,5 +229,21 @@ export const ApiClient = {
       console.error("API Error:", error);
       throw error;
     }
+  },
+
+  setMessageAsProof: async (messageId: string, isProof: boolean): Promise<any> => {
+    const response = await fetch(`${API_URL}/api/messages/${messageId}/set-proof`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ isProof }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to set message as proof');
+    }
+
+    return response.json();
   },
 };

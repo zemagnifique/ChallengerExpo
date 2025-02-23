@@ -98,18 +98,24 @@ export const GlobalStyles = StyleSheet.create({
     marginRight: 8,
   },
   badge: {
-    backgroundColor: "#FF4444",
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    marginLeft: 8,
+    backgroundColor: "#FF3B30",
+    borderRadius: 12,
+    minWidth: 24,
+    height: 24,
     justifyContent: "center",
     alignItems: "center",
+    marginLeft: 8,
+    paddingHorizontal: 6,
   },
   badgeText: {
-    fontSize: 12,
     color: "#FFFFFF",
+    fontSize: 13,
     fontWeight: "bold",
+    textAlign: "center",
+    lineHeight: 24,
+  },
+  unreadItem: {
+    backgroundColor: "rgba(0, 122, 255, 0.1)",
   },
 
   // Card & Section Styles
@@ -463,9 +469,14 @@ export const GlobalStyles = StyleSheet.create({
   logoutButton: {
     backgroundColor: "#F44336",
   },
+  challengesUsernameContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
   username: {
-    fontSize: 24,
-    marginVertical: 10,
+    fontWeight: "bold",
+    fontSize: 14,
+    marginBottom: 4,
   },
   notificationsContainer: {
     marginTop: 20,
@@ -500,5 +511,11 @@ export const GlobalStyles = StyleSheet.create({
   userButtonText: {
     color: "white",
     fontSize: 16,
+  },
+  coachUsername: {
+    color: "#2196F3", // Blue for coach
+  },
+  challengerUsername: {
+    color: "#F44336", // Red for challenger
   },
 });

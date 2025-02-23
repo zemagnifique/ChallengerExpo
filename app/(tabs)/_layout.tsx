@@ -1,6 +1,5 @@
-
 import { Tabs } from 'expo-router';
-import { Platform } from 'react-native';
+import { Platform, View, Text } from 'react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { HapticTab } from '@/components/HapticTab';
 import { IconSymbol } from '@/components/ui/IconSymbol';
@@ -9,7 +8,7 @@ import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 
 export default function TabLayout() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, challenges, getUnreadMessageCount } = useAuth();
   const colorScheme = useColorScheme();
 
   return (
@@ -26,12 +25,41 @@ export default function TabLayout() {
           default: {},
         }),
       }}>
-      
+
       <Tabs.Screen
         name="index"
         options={{
           title: 'Challenges',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="flame.fill" color={color} />,
+          tabBarIcon: ({ color }) => (
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <IconSymbol size={28} name="flame.fill" color={color} />
+              {(challenges.reduce((sum, challenge) => 
+                sum + getUnreadMessageCount(challenge.id), 0) + 
+                challenges.filter(c => c.status === 'pending').length) > 0 && (
+                <View style={{
+                  backgroundColor: '#FF3B30',
+                  borderRadius: 10,
+                  minWidth: 20,
+                  height: 20,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  position: 'absolute',
+                  top: -8,
+                  right: -12,
+                }}>
+                  <Text style={{
+                    color: '#FFFFFF',
+                    fontSize: 12,
+                    fontWeight: 'bold',
+                  }}>
+                    {challenges.reduce((sum, challenge) => 
+                      sum + getUnreadMessageCount(challenge.id), 0) + 
+                      challenges.filter(c => c.status === 'pending').length}
+                  </Text>
+                </View>
+              )}
+            </View>
+          ),
         }}
       />
       <Tabs.Screen

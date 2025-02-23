@@ -40,6 +40,19 @@ export const ChallengeItem: React.FC<ChallengeItemProps> = ({
     });
   };
 
+  const usernameStyle = [styles.username];
+  const displayedUsername =
+    parseInt(user?.id) === parseInt(item.coach_id)
+      ? item.username
+      : item.coachUsername;
+  const isDisplayedUserCoach = displayedUsername === item.coachUsername;
+
+  if (isDisplayedUserCoach) {
+    usernameStyle.push(styles.coachUsername); // Blue for coach
+  } else {
+    usernameStyle.push(styles.challengerUsername); // Red for challenger
+  }
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Swipeable
@@ -148,6 +161,7 @@ export const ChallengeItem: React.FC<ChallengeItemProps> = ({
               parseInt(user?.id) === item.coach_id
                 ? styles.coachingItem
                 : styles.challengeItem,
+              getUnreadCount(item) > 0 && styles.unreadItem,
             ]}
           >
             <View style={styles.avatarContainer}>
@@ -163,6 +177,13 @@ export const ChallengeItem: React.FC<ChallengeItemProps> = ({
                   {item.title.charAt(0).toUpperCase()}
                 </ThemedText>
               </View>
+              <View style={styles.challengesUsernameContainer}>
+                <ThemedText style={usernameStyle} numberOfLines={1}>
+                  {parseInt(user?.id) === parseInt(item.coach_id)
+                    ? item.username
+                    : item.coachUsername}
+                </ThemedText>
+              </View>
             </View>
             <View style={styles.contentContainer}>
               <View style={styles.titleContainer}>
@@ -175,9 +196,14 @@ export const ChallengeItem: React.FC<ChallengeItemProps> = ({
                   </View>
                 )}
               </View>
+              <ThemedText numberOfLines={1} style={styles.preview}>
+                {item.description || `Frequency: ${item.frequency}`}
+              </ThemedText>
               <View style={styles.previewRow}>
                 <ThemedText numberOfLines={1} style={styles.preview}>
-                  {item.description || `Frequency: ${item.frequency}`}
+                  {item.messages && item.messages.length > 0
+                    ? item.messages[item.messages.length - 1].text
+                    : ""}
                 </ThemedText>
                 {item.status === "pending" && (
                   <View style={styles.badge}>
@@ -185,11 +211,6 @@ export const ChallengeItem: React.FC<ChallengeItemProps> = ({
                   </View>
                 )}
               </View>
-              <ThemedText style={styles.participantInfo}>
-                {parseInt(user?.id) === parseInt(item.coach_id)
-                  ? `Challenger: ${item.username}`
-                  : `Coach: ${item.coachUsername}`}
-              </ThemedText>
             </View>
           </ThemedView>
         </TouchableOpacity>

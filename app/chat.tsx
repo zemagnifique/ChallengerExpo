@@ -191,38 +191,38 @@ export default function ChatScreen() {
   const handleDoubleTap = async (message: any) => {
     const now = Date.now();
     if (lastTap && now - lastTap < 300) {
-      if (isCoach && message.isProof && message.user_id !== user?.id) {
-        const updatedMessages = challenge.messages.map((msg) => {
-          if (
-            msg.timestamp === message.timestamp &&
-            msg.user_id === message.user_id
-          ) {
-            return { ...msg, isValidated: !msg.isValidated };
-          }
-          return msg;
-        });
-        await updateChallenge({
-          ...challenge,
-          messages: updatedMessages,
-          username: challenge.username,
-          coachUsername: challenge.coachUsername,
-        });
-      } else if (!isCoach && message.user_id === user?.id) {
-        const updatedMessages = challenge.messages.map((msg) => {
-          if (
-            msg.timestamp === message.timestamp &&
-            msg.user_id === message.user_id
-          ) {
-            return { ...msg, isProof: !msg.isProof };
-          }
-          return msg;
-        });
-        await updateChallenge({
-          ...challenge,
-          messages: updatedMessages,
-          username: challenge.username,
-          coachUsername: challenge.coachUsername,
-        });
+      try {
+        if (isCoach && message.isProof && message.user_id !== user?.id) {
+          await ApiClient.validateMessage(message.id, !message.isValidated);
+          const updatedMessages = challenge.messages.map((msg) => {
+            if (msg.id === message.id) {
+              return { ...msg, isValidated: !msg.isValidated };
+            }
+            return msg;
+          });
+          await updateChallenge({
+            ...challenge,
+            messages: updatedMessages,
+            username: challenge.username,
+            coachUsername: challenge.coachUsername,
+          });
+        } else if (!isCoach && message.user_id === user?.id) {
+          await ApiClient.setMessageAsProof(message.id, !message.isProof);
+          const updatedMessages = challenge.messages.map((msg) => {
+            if (msg.id === message.id) {
+              return { ...msg, isProof: !message.isProof };
+            }
+            return msg;
+          });
+          await updateChallenge({
+            ...challenge,
+            messages: updatedMessages,
+            username: challenge.username,
+            coachUsername: challenge.coachUsername,
+          });
+        }
+      } catch (error) {
+        console.error("Error updating message:", error);
       }
     }
     setLastTap(now);
