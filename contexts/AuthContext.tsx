@@ -384,7 +384,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const validateProof = useCallback(
     async (messageId: string, isValidated: boolean, challengeId: string) => {
       try {
-        await ApiClient.validateProof(messageId, isValidated);
+        await ApiClient.validateMessage(messageId, isValidated);
         
         // No need to manually update state here as the WebSocket will handle it
         addNotification(`Proof ${isValidated ? 'validated' : 'invalidated'}`);
@@ -440,7 +440,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setChallenges,
         validateProof,
         sendProofMessage,
-        setMessageAsProof,
       }}
     >
       {children}
