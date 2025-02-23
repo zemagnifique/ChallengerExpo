@@ -315,7 +315,7 @@ app.put("/api/messages/:messageId/validate", async (req, res) => {
 
   try {
     const result = await pool.query(
-      "UPDATE messages SET is_validated = $1 WHERE id = $2 RETURNING *",
+      "UPDATE messages SET is_validated = $1, is_read = false WHERE id = $2 RETURNING *",
       [isValidated, req.params.messageId],
     );
 
@@ -359,9 +359,9 @@ app.put("/api/messages/:messageId/set-proof", async (req, res) => {
 
   try {
     console.log("Running update query with params:", [isProof, parseInt(req.params.messageId)]);
-    // Update the message proof status
+    // Update the message proof status and mark as unread
     const messageResult = await pool.query(
-      "UPDATE messages SET is_proof = $1 WHERE id = $2 RETURNING *",
+      "UPDATE messages SET is_proof = $1, is_read = false WHERE id = $2 RETURNING *",
       [isProof, parseInt(req.params.messageId)]
     );
 
