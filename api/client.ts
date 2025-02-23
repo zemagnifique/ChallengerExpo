@@ -104,11 +104,12 @@ export const ApiClient = {
 
   createChallenge: async (challenge: any) => {
     try {
-      console.log("Creating challenge:", challenge);
+      const { status, createdAt, ...challengeData } = challenge;
+      console.log("Creating challenge:", challengeData);
       const response = await fetch(`${API_URL}/api/challenges`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(challenge),
+        body: JSON.stringify(challengeData),
       });
       if (!response.ok) {
         const errorText = await response.text();
