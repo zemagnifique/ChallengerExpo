@@ -224,11 +224,12 @@ export default function CreateChallengeScreen() {
                 ))}
             </select>
           ) : (
-            <View style={styles.coachSelectContainer}>
+            <View style={styles.pickerContainer}>
               <Picker
                 selectedValue={selectedCoach}
                 onValueChange={(itemValue) => setSelectedCoach(itemValue)}
                 style={styles.picker}
+                itemStyle={styles.pickerItem}
               >
                 <Picker.Item label="Select a coach" value="" />
                 {users
@@ -236,7 +237,7 @@ export default function CreateChallengeScreen() {
                   .map((otherUser) => (
                     <Picker.Item
                       key={otherUser.id}
-                      label={`${otherUser.username}`}
+                      label={otherUser.username}
                       value={otherUser.id.toString()}
                     />
                   ))}
@@ -288,13 +289,20 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#eee",
   },
-  picker: {
-    height: 50,
-    marginBottom: 16,
+  pickerContainer: {
     backgroundColor: "#fff",
+    borderRadius: 8,
     borderWidth: 1,
     borderColor: "#ccc",
-    borderRadius: 8,
+    marginBottom: 16,
+    overflow: "hidden",
+  },
+  picker: {
+    height: 50,
+    width: "100%",
+  },
+  pickerItem: {
+    fontSize: 16,
   },
   container: {
     flex: 1,
