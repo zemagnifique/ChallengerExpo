@@ -508,4 +508,10 @@ export const GlobalStyles = StyleSheet.create({
     color: "white",
     fontSize: 16,
   },
+  coachUsername: {
+    color: "#2196F3", // Blue for coach
+  },
+  challengerUsername: {
+    color: "#F44336", // Red for challenger
+  },
 });

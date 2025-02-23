@@ -40,6 +40,14 @@ export const ChallengeItem: React.FC<ChallengeItemProps> = ({
     });
   };
 
+  const usernameStyle = [styles.username];
+  if (parseInt(user?.id) === parseInt(item.coach_id)) {
+    usernameStyle.push(styles.coachUsername); // Assuming styles.coachUsername is defined for blue color
+  } else {
+    usernameStyle.push(styles.challengerUsername); // Assuming styles.challengerUsername is defined for red color
+  }
+
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Swipeable
@@ -165,7 +173,7 @@ export const ChallengeItem: React.FC<ChallengeItemProps> = ({
                 </ThemedText>
               </View>
               <View>
-                <ThemedText style={styles.username} numberOfLines={1}>
+                <ThemedText style={usernameStyle} numberOfLines={1}>
                   {parseInt(user?.id) === parseInt(item.coach_id)
                     ? item.username
                     : item.coachUsername}
