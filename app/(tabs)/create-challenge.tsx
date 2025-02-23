@@ -96,12 +96,11 @@ export default function CreateChallengeScreen() {
     <ParallaxScrollView
       headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
     >
+      <ThemedView style={styles.globalHeader}>
+        <ThemedText style={styles.headerTitle}>Create Challenge</ThemedText>
+      </ThemedView>
       <ScrollView style={styles.container}>
-        <ThemedText type="title" style={styles.title}>
-          Create Challenge
-        </ThemedText>
-
-        <ThemedView style={styles.defaultChallenges}>
+        <ThemedView style={styles.section}>
           <ThemedText type="subtitle">Quick Start Challenges</ThemedText>
           {DEFAULT_CHALLENGES.map((challenge, index) => (
             <TouchableOpacity
@@ -117,7 +116,7 @@ export default function CreateChallengeScreen() {
           ))}
         </ThemedView>
 
-        <ThemedView style={styles.form}>
+        <ThemedView style={[styles.section, styles.form]}>
           <ThemedText>Challenge Title *</ThemedText>
           <TextInput
             style={styles.input}
@@ -292,6 +291,7 @@ export default function CreateChallengeScreen() {
 }
 
 const styles = StyleSheet.create({
+  ...GlobalStyles,
   coachSelectContainer: {
     position: "relative",
     zIndex: 999,
