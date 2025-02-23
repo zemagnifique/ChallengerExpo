@@ -1,6 +1,6 @@
 
 import type { PropsWithChildren, ReactElement } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, RefreshControl } from 'react-native';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import Animated, {
@@ -21,6 +21,8 @@ type Props = PropsWithChildren<{
   data?: any[];
   renderItem?: any;
   ListHeaderComponent?: React.ComponentType<any> | React.ReactElement | null;
+  onRefresh?: () => Promise<void>;
+  refreshing?: boolean;
 }>;
 
 export default function ParallaxScrollView({
@@ -30,6 +32,8 @@ export default function ParallaxScrollView({
   data,
   renderItem,
   ListHeaderComponent,
+  onRefresh,
+  refreshing,
 }: Props) {
   const colorScheme = useColorScheme() ?? 'light';
   const scrollRef = useAnimatedRef<Animated.FlatList>();
@@ -99,6 +103,11 @@ export default function ParallaxScrollView({
         ListHeaderComponent={Header}
         scrollEventThrottle={16}
         contentContainerStyle={{ paddingBottom: bottom }}
+        refreshControl={
+          onRefresh ? (
+            <RefreshControl refreshing={refreshing || false} onRefresh={onRefresh} />
+          ) : undefined
+        }
       />
     </ThemedView>
   );

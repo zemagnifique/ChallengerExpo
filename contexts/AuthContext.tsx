@@ -1,263 +1,390 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-type User = {
-  id: string;
-  username: string;
-};
-
-const USERS: Record<string, { password: string }> = {
-  'user1': { password: 'user1' },
-  'user2': { password: 'user2' },
-  'user3': { password: 'user3' }
-};
-
-type Notification = {
-  id: string;
-  message: string;
-  read: boolean;
-  createdAt: Date;
-};
-
-type Challenge = {
-  id: string;
-  title: string;
-  description: string;
-  startDate: Date;
-  endDate: Date;
-  frequency: string;
-  proofRequirements: string;
-  status: string;
-  userId: string;
-  coachId: string;
-  createdAt: Date;
-  messages?: Array<{
-    text: string;
-    userId: string;
-    timestamp: Date;
-  }>;
-  archived?: boolean; // Added archived field
-};
-
-type AuthContextType = {
-  isAuthenticated: boolean;
-  user: User | null;
-  challenges: Challenge[];
-  notifications: Notification[];
-  login: (username: string, password: string) => Promise<boolean>;
-  logout: () => Promise<void>;
-  getCoaches: () => User[];
-  addChallenge: (challenge: Challenge) => void;
-  addNotification: (message: string) => void;
-  markNotificationAsRead: (id: string) => void;
-  updateChallenge: (challenge: Challenge) => void;
-  updateChallengeStatus: (challengeId: string, status: string) => void;
-  updateChallengeCoach: (challengeId: string, newCoachId: string) => Promise<void>;
-  deleteChallenge: (challengeId: string) => Promise<void>;
-  archiveChallenge: (challengeId: string) => void; // Added archiveChallenge method
-};
+import React, {
+  createContext,
+  useState,
+  useContext,
+  useEffect,
+  useRef,
+  useCallback,
+} from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { io, Socket } from "socket.io-client";
+import { ApiClient } from "@/api/client";
+import type {
+  User,
+  Challenge,
+  Notification,
+  Message,
+  AuthContextType,
+} from "@/types";
 
 const AuthContext = createContext<AuthContextType>({
   isAuthenticated: false,
   user: null,
+  challenges: [],
+  notifications: [],
   login: async () => false,
   logout: async () => {},
   getCoaches: () => [],
-  addChallenge: () => {},
+  addChallenge: async () => {
+    throw new Error("Not implemented");
+  },
   addNotification: () => {},
   markNotificationAsRead: () => {},
-  updateChallenge: () => {},
-  updateChallengeStatus: () => {},
+  updateChallenge: async () => {},
+  updateChallengeStatus: async () => {},
   updateChallengeCoach: async () => {},
-  deleteChallenge: async () => {}
+  deleteChallenge: async () => {},
+  archiveChallenge: async () => {},
+  getUnreadMessageCount: () => 0,
+  markMessagesAsRead: async () => {},
 });
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const socketRef = useRef<Socket | null>(null);
 
-  useEffect(() => {
-    checkAuth();
-    loadChallenges();
-  }, []);
+  // In‑memory caches: these persist for the lifetime of the provider.
+  const usernameCache = useRef<Record<string, string>>({});
+  const coachUsernameCache = useRef<Record<number, string>>({});
 
-  const checkAuth = async () => {
-    const storedUser = await AsyncStorage.getItem('user');
-    if (storedUser) {
-      setIsAuthenticated(true);
-      setUser(JSON.parse(storedUser));
-    }
-  };
+  // Helper: persist challenges and update state
+  const persistChallenges = useCallback(
+    async (updatedChallenges: Challenge[]) => {
+      setChallenges(updatedChallenges);
+      await AsyncStorage.setItem(
+        "challenges",
+        JSON.stringify(updatedChallenges),
+      );
+    },
+    [],
+  );
 
-  const login = async (username: string, password: string) => {
-    const userInfo = USERS[username];
-    if (userInfo && userInfo.password === password) {
-      const user = { id: username, username };
-      await AsyncStorage.setItem('user', JSON.stringify(user));
-      setIsAuthenticated(true);
-      setUser(user);
-      await loadChallenges(); // Load challenges after user is set
-      return true;
-    }
-    return false;
-  };
-
-  const logout = async () => {
-    await AsyncStorage.removeItem('user');
-    setIsAuthenticated(false);
-    setUser(null);
-    setChallenges([]);
-  };
-
-  const TEST_USERS = {
-    'user1': { id: 'user1', username: 'user1', isCoach: false },
-    'user2': { id: 'user2', username: 'user2', isCoach: true }
-  };
-
-  const getCoaches = () => {
-    return Object.entries(TEST_USERS)
-      .filter(([_, user]) => user.isCoach)
-      .map(([id, user]) => ({ id, username: user.username }));
-  };
-
-  const addChallenge = (challenge: Challenge) => {
-    const newChallenge = {
-      ...challenge,
-      id: Date.now().toString(), // Ensure unique ID
-    };
-    setChallenges(prev => {
-      const updatedChallenges = [...prev, newChallenge];
-      saveChallenges(updatedChallenges);
-      return updatedChallenges;
-    });
-    // Add notification for the coach
-    if (challenge.coachId) {
-      const notification = {
-        id: Date.now().toString(),
-        message: `New coaching request: ${challenge.title}`,
-        read: false,
-        createdAt: new Date(),
-        userId: challenge.coachId // Ensure notification goes to coach
-      };
-      setNotifications(prev => [notification, ...prev]);
-    }
-  };
-
-  const addNotification = (message: string) => {
-    const notification = {
+  // Define addNotification first so other functions can use it.
+  const addNotification = useCallback((message: string) => {
+    const notification: Notification = {
       id: Date.now().toString(),
       message,
       read: false,
-      createdAt: new Date()
+      createdAt: new Date(),
     };
-    setNotifications(prev => [notification, ...prev]);
-  };
+    setNotifications((prev) => [notification, ...prev]);
+  }, []);
 
-  const markNotificationAsRead = (id: string) => {
-    setNotifications(prev =>
-      prev.map(notif =>
-        notif.id === id ? { ...notif, read: true } : notif
-      )
+  const markNotificationAsRead = useCallback((id: string) => {
+    setNotifications((prev) =>
+      prev.map((notif) => (notif.id === id ? { ...notif, read: true } : notif)),
     );
-  };
+  }, []);
 
-  const updateChallenge = async (challenge: Challenge) => {
-    const updatedChallenges = challenges.map(ch =>
-      ch.id === challenge.id ? challenge : ch
-    );
-    setChallenges(updatedChallenges);
-    await AsyncStorage.setItem('challenges', JSON.stringify(updatedChallenges));
-  };
-
-  const updateChallengeStatus = async (challengeId: string, status: string, reason?: string) => {
-    const updatedChallenges = challenges.map(c => {
-      if (c.id === challengeId) {
-        return { ...c, status, rejectionReason: reason };
-      }
-      return c;
-    });
-    setChallenges(updatedChallenges);
-    await AsyncStorage.setItem('challenges', JSON.stringify(updatedChallenges));
-    addNotification(`Challenge ${status === 'rejected' ? 'rejected' : 'updated to ' + status}`);
-  };
-
-  const updateChallengeCoach = async (challengeId: string, newCoachId: string) => {
-    const updatedChallenges = challenges.map(c => {
-      if (c.id === challengeId) {
-        return { ...c, coachId: newCoachId, status: 'pending' };
-      }
-      return c;
-    });
-    setChallenges(updatedChallenges);
-    saveChallenges(updatedChallenges);
-    addNotification('Coach updated for challenge');
-  };
-
-  const deleteChallenge = async (challengeId: string) => {
-    const updatedChallenges = challenges.filter(c => c.id !== challengeId);
-    setChallenges(updatedChallenges);
-    saveChallenges(updatedChallenges);
-    addNotification('Challenge deleted');
-  };
-
-  const archiveChallenge = async (challengeId: string) => {
-    const updatedChallenges = challenges.map(c => {
-      if (c.id === challengeId) {
-        return { ...c, archived: true };
-      }
-      return c;
-    });
-    setChallenges(updatedChallenges);
-    await AsyncStorage.setItem('challenges', JSON.stringify(updatedChallenges));
-    addNotification('Challenge archived');
-  };
-
-  const saveChallenges = async (challengesToSave: Challenge[]) => {
+  // Check for stored user on mount
+  const checkAuth = useCallback(async () => {
     try {
-      const storedChallenges = await AsyncStorage.getItem('challenges');
-      const existingChallenges = storedChallenges ? JSON.parse(storedChallenges) : [];
-      const mergedChallenges = [...existingChallenges, ...challengesToSave.filter(c => !existingChallenges.find(ec => ec.id === c.id))];
-      await AsyncStorage.setItem('challenges', JSON.stringify(mergedChallenges));
-    } catch (e) {
-      console.error("Error saving challenges:", e);
-    }
-  };
-
-  const loadChallenges = async () => {
-    try {
-      const challengesJson = await AsyncStorage.getItem('challenges');
-      if (challengesJson !== null) {
-        const parsedChallenges = JSON.parse(challengesJson);
-        setChallenges(parsedChallenges);
+      const storedUser = await AsyncStorage.getItem("user");
+      if (storedUser) {
+        const parsedUser = JSON.parse(storedUser);
+        setIsAuthenticated(true);
+        setUser(parsedUser);
+        await loadChallenges(parsedUser.id);
       }
-    } catch (e) {
-      console.error("Error loading challenges:", e);
+    } catch (error) {
+      console.error("Error checking auth:", error);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
+  // Initialize the socket connection once the user is authenticated
+  useEffect(() => {
+    if (!user?.id) return;
+    const socket = io(ApiClient.getApiUrl(), {
+      transports: ["websocket", "polling"],
+      reconnection: true,
+      reconnectionAttempts: 5,
+    });
+    socketRef.current = socket;
+
+    socket.on("connect", () => {
+      console.log("Connected to main WebSocket");
+      // Join all challenge rooms on connection
+      challenges.forEach((challenge) => {
+        socket.emit("joinRoom", challenge.id);
+      });
+    });
+
+    socket.on("updateMessages", (messages: any) => {
+      if (!messages || !messages.length) return;
+      const socketChallengeId = String(messages[0].challenge_id);
+      const processedMessages = messages.map((msg: any) => ({
+        ...msg,
+        is_read: msg.is_read, // use API's property directly
+        timestamp: new Date(msg.created_at),
+      }));
+      persistChallenges(
+        challenges.map((challenge) =>
+          challenge.id === socketChallengeId
+            ? { ...challenge, messages: processedMessages }
+            : challenge,
+        ),
+      );
+    });
+
+    return () => {
+      socket.disconnect();
+      socketRef.current = null;
+    };
+  }, [user?.id, challenges, persistChallenges]);
+
+  // When challenges update, join new challenge rooms
+  useEffect(() => {
+    if (socketRef.current) {
+      challenges.forEach((challenge) => {
+        socketRef.current!.emit("joinRoom", challenge.id);
+      });
+    }
+  }, [challenges]);
+
+  // -----------------------
+  // Auth and Challenges Logic
+  // -----------------------
+
+  const login = useCallback(async (username: string, password: string) => {
+    try {
+      const userData = await ApiClient.login(username, password);
+      await AsyncStorage.setItem("user", JSON.stringify(userData));
+      setIsAuthenticated(true);
+      setUser(userData);
+      await loadChallenges(userData.id);
+      return true;
+    } catch (error) {
+      console.error("Login failed:", error);
+      return false;
+    }
+  }, []);
+
+  const logout = useCallback(async () => {
+    try {
+      await AsyncStorage.removeItem("user");
+      setIsAuthenticated(false);
+      setUser(null);
+      setChallenges([]);
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  }, []);
+
+  const getCoaches = useCallback((): User[] => {
+    // Dummy implementation; adjust as needed
+    return [
+      { id: "1", username: "Coach1" },
+      { id: "2", username: "Coach2" },
+    ];
+  }, []);
+
+  const addChallenge = useCallback(
+    async (challenge: Challenge): Promise<Challenge> => {
+      try {
+        const newChallenge = await ApiClient.createChallenge(challenge);
+        await persistChallenges([...challenges, newChallenge]);
+        addNotification(`New challenge created: ${challenge.title}`);
+        return newChallenge;
+      } catch (error) {
+        console.error("Error adding challenge:", error);
+        throw error;
+      }
+    },
+    [challenges, persistChallenges, addNotification],
+  );
+
+  // Updated merge: only override username fields if they are explicitly provided
+  const updateChallenge = useCallback(async (challenge: Challenge) => {
+    setChallenges((prevChallenges) => {
+      const updated = prevChallenges.map((ch) => {
+        if (ch.id === challenge.id) {
+          const merged = { ...ch, ...challenge };
+          if (challenge.username === undefined) {
+            merged.username = ch.username;
+          }
+          if (challenge.coachUsername === undefined) {
+            merged.coachUsername = ch.coachUsername;
+          }
+          return merged;
+        }
+        return ch;
+      });
+      AsyncStorage.setItem("challenges", JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
+
+  const updateChallengeStatus = useCallback(
+    async (challenge_id: string, status: string, reason?: string) => {
+      const updatedChallenges = challenges.map((c) =>
+        c.id === challenge_id ? { ...c, status, rejectionReason: reason } : c,
+      );
+      await persistChallenges(updatedChallenges);
+      addNotification(
+        `Challenge ${
+          status === "rejected" ? "rejected" : "updated to " + status
+        }`,
+      );
+    },
+    [challenges, persistChallenges, addNotification],
+  );
+
+  const updateChallengeCoach = useCallback(
+    async (challenge_id: string, newCoachId: string) => {
+      const updatedChallenges = challenges.map((c) =>
+        c.id === challenge_id
+          ? { ...c, coach_id: parseInt(newCoachId), status: "pending" }
+          : c,
+      );
+      await persistChallenges(updatedChallenges);
+      addNotification("Coach updated for challenge");
+    },
+    [challenges, persistChallenges, addNotification],
+  );
+
+  const deleteChallenge = useCallback(
+    async (challenge_id: string) => {
+      const updatedChallenges = challenges.filter((c) => c.id !== challenge_id);
+      await persistChallenges(updatedChallenges);
+      addNotification("Challenge deleted");
+    },
+    [challenges, persistChallenges, addNotification],
+  );
+
+  const archiveChallenge = useCallback(
+    async (challenge_id: string) => {
+      const updatedChallenges = challenges.map((c) =>
+        c.id === challenge_id ? { ...c, archived: true } : c,
+      );
+      await persistChallenges(updatedChallenges);
+      addNotification("Challenge archived");
+    },
+    [challenges, persistChallenges, addNotification],
+  );
+
+  const getUnreadMessageCount = useCallback(
+    (challenge_id: string): number => {
+      const challenge = challenges.find((c) => c.id === challenge_id);
+      if (!challenge || !challenge.messages) return 0;
+      return challenge.messages.filter(
+        (msg) => msg.user_id !== user?.id && !msg.is_read,
+      ).length;
+    },
+    [challenges, user],
+  );
+
+  const markMessagesAsRead = useCallback(
+    async (challenge_id: string) => {
+      const updatedChallenges = challenges.map((c) => {
+        if (c.id === challenge_id) {
+          return {
+            ...c,
+            messages:
+              c.messages?.map((msg) => ({
+                ...msg,
+                is_read: msg.user_id === user?.id ? msg.is_read : true,
+              })) || [],
+          };
+        }
+        return c;
+      });
+      await persistChallenges(updatedChallenges);
+      await ApiClient.markMessagesAsRead(challenge_id, user?.id || "");
+    },
+    [challenges, user, persistChallenges],
+  );
+
+  // Updated loadChallenges: fetch username only if not cached already.
+  const loadChallenges = useCallback(
+    async (userId: string) => {
+      try {
+        const fetchedChallenges = await ApiClient.getChallenges(userId);
+        if (Array.isArray(fetchedChallenges)) {
+          const processedChallenges = await Promise.all(
+            fetchedChallenges.map(async (challenge: any) => {
+              // Use cached username if available
+              let username = challenge.username;
+              if (!username) {
+                if (usernameCache.current[challenge.user_id]) {
+                  username = usernameCache.current[challenge.user_id];
+                } else {
+                  username = await ApiClient.getUsername(challenge.user_id);
+                  usernameCache.current[challenge.user_id] = username;
+                }
+              }
+              let coachUsername = challenge.coachUsername;
+              if (!coachUsername) {
+                if (coachUsernameCache.current[challenge.coach_id]) {
+                  coachUsername =
+                    coachUsernameCache.current[challenge.coach_id];
+                } else {
+                  coachUsername = await ApiClient.getUsername(
+                    challenge.coach_id,
+                  );
+                  coachUsernameCache.current[challenge.coach_id] =
+                    coachUsername;
+                }
+              }
+              return {
+                ...challenge,
+                username,
+                coachUsername,
+                id: challenge.id.toString(),
+                messages: challenge.messages
+                  ? challenge.messages.map((msg: any) => ({
+                      ...msg,
+                      is_read: msg.is_read,
+                      user_id: msg.user_id,
+                      timestamp: new Date(msg.created_at),
+                    }))
+                  : [],
+              };
+            }),
+          );
+          await persistChallenges(processedChallenges);
+        } else {
+          console.error("Invalid challenges data:", fetchedChallenges);
+        }
+      } catch (error) {
+        console.error("Error loading challenges:", error);
+      }
+    },
+    [persistChallenges],
+  );
 
   return (
-    <AuthContext.Provider value={{
-      isAuthenticated,
-      user,
-      challenges,
-      notifications,
-      login,
-      logout,
-      getCoaches,
-      addChallenge,
-      addNotification,
-      markNotificationAsRead,
-      updateChallenge,
-      updateChallengeStatus,
-      updateChallengeCoach,
-      deleteChallenge,
-      archiveChallenge
-    }}>
+    <AuthContext.Provider
+      value={{
+        isAuthenticated,
+        user,
+        challenges,
+        notifications,
+        login,
+        logout,
+        getCoaches,
+        addChallenge,
+        addNotification,
+        markNotificationAsRead,
+        updateChallenge,
+        updateChallengeStatus,
+        updateChallengeCoach,
+        deleteChallenge,
+        archiveChallenge,
+        getUnreadMessageCount,
+        markMessagesAsRead,
+        setChallenges,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
-}
+};
 
 export const useAuth = () => useContext(AuthContext);

@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import React from "react";
 import {
-  StyleSheet,
   View,
   TextInput,
   TouchableOpacity,
@@ -15,44 +14,79 @@ import { ThemedText } from "@/components/ThemedText";
 import { useAuth } from "@/contexts/AuthContext";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import * as ImagePicker from "expo-image-picker";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-
-type Challenge = {
-  id: string;
-  title: string;
-  description: string;
-  startDate: Date;
-  endDate: Date;
-  frequency: string;
-  proofRequirements: string;
-  status: string;
-  userId: string;
-  coachId: string;
-  createdAt: Date;
-  messages?: Array<{
-    text: string;
-    userId: string;
-    timestamp: Date;
-    image?: string;
-    isValidated?: boolean;
-    isProof?: boolean; // Added isProof property
-    isSystem?: boolean; // Added isSystem property
-    suggestionText?: string; //Added suggestionText property
-  }>;
-};
+import { ApiClient } from "@/api/client";
 
 export default function ChatScreen() {
-  const flatListRef = React.useRef(null);
-  const { challengeId } = useLocalSearchParams();
-  const { challenges, user, updateChallengeStatus, updateChallenge } =
-    useAuth();
+  const flatListRef = React.useRef<FlatList<any>>(null);
   const router = useRouter();
+  const { challenge_id, challengeId } = useLocalSearchParams<{
+    challenge_id?: string;
+    challengeId?: string;
+  }>();
+  const currentChallengeId = challenge_id || challengeId;
+  const {
+    challenges,
+    user,
+    updateChallengeStatus,
+    updateChallenge,
+    markMessagesAsRead,
+  } = useAuth();
+
   const [message, setMessage] = React.useState("");
-  const [localStatus, setLocalStatus] = React.useState("");
   const [keyboardHeight, setKeyboardHeight] = React.useState(0);
   const [selectedImage, setSelectedImage] = React.useState(null);
-  const [lastTap, setLastTap] = useState(null); // Added state for double tap detection
-  const challenge = challenges.find((c) => c.id === challengeId);
+  const [lastTap, setLastTap] = React.useState<number | null>(null);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const textColor = useThemeColor({}, "text");
+
+  const challenge = React.useMemo(() => {
+    const found = challenges.find(
+      (c) => String(c.id) === String(currentChallengeId),
+    );
+    if (!found) {
+      console.log("No challenge found with ID:", currentChallengeId);
+      console.log(
+        "Available challenges:",
+        challenges.map((c) => c.id),
+      );
+    }
+    return found;
+  }, [challenges, currentChallengeId]);
+
+  const isCoach = challenge
+    ? String(user?.id) === String(challenge.coach_id)
+    : false;
+  const messages =
+    challenge?.status === "pending" ? [] : (challenge?.messages ?? []);
+
+  React.useEffect(() => {
+    const loadMessages = async () => {
+      try {
+        if (challenge?.status !== "pending") {
+          const messages = await ApiClient.getMessages(challenge_id as string);
+          const processedMessages = messages.map((msg) => ({
+            ...msg,
+            is_read: false,
+          }));
+          // Preserve username and coachUsername when updating
+          updateChallenge({
+            ...challenge,
+            messages: processedMessages || [],
+            username: challenge.username,
+            coachUsername: challenge.coachUsername,
+          });
+          // Mark received messages as read when chat is opened
+          await markMessagesAsRead(challenge_id as string);
+        }
+      } catch (error) {
+        console.error("Error loading messages:", error);
+      }
+    };
+
+    if (challenge?.id) {
+      loadMessages();
+    }
+  }, [challenge_id, challenge?.id, challenge?.status]);
 
   React.useEffect(() => {
     const keyboardWillShow = (e: any) => {
@@ -78,65 +112,53 @@ export default function ChatScreen() {
     };
   }, []);
 
+  // Socket handling is now centralized in AuthContext
+
   const handleSendMessage = async () => {
-    if (!message.trim()) return;
-
-    const newMessage = {
-      text: message,
-      userId: user?.id || "",
-      timestamp: new Date(),
-      image: selectedImage,
-      isValidated: false, // Initially not validated
-      isProof: false, // Initially not marked as proof
-    };
-
-    const updatedChallenge = {
-      ...challenge,
-      messages: [...(challenge.messages || []), newMessage],
-    };
-
-    await updateChallenge(updatedChallenge);
-    setMessage("");
-    setSelectedImage(null);
-  };
-
-  // Poll for new messages every 2 seconds
-  React.useEffect(() => {
-    let isSubscribed = true;
-    const interval = setInterval(async () => {
-      if (!isSubscribed) return;
-
-      const storedChallenges = await AsyncStorage.getItem("challenges");
-      if (storedChallenges) {
-        const parsedChallenges = JSON.parse(storedChallenges);
-        const updatedChallenge = parsedChallenges.find(
-          (c: Challenge) => c.id === challengeId,
-        );
-        if (
-          updatedChallenge &&
-          JSON.stringify(updatedChallenge.messages) !==
-            JSON.stringify(challenge?.messages)
-        ) {
-          updateChallenge(updatedChallenge);
-        }
-      }
-    }, 2000);
-
-    return () => {
-      isSubscribed = false;
-      clearInterval(interval);
-    };
-  }, [challengeId]);
-
-  const handleAcceptChallenge = async () => {
+    if (!message.trim() && !selectedImage) return;
     try {
-      await updateChallengeStatus(challengeId as string, "active");
-      setLocalStatus("active");
-      router.back();
+      const newMessage = await ApiClient.sendMessage(challenge_id as string, {
+        user_id: user?.id || "",
+        text: message.trim(),
+        imageUrl: selectedImage,
+        isProof: false,
+      });
+      const messages = await ApiClient.getMessages(challenge_id as string);
+      if (challenge) {
+        updateChallenge({
+          ...challenge,
+          messages,
+          username: challenge.username,
+          coachUsername: challenge.coachUsername,
+        });
+      }
+      setMessage("");
+      setSelectedImage(null);
     } catch (error) {
-      console.error("Error accepting challenge:", error);
+      console.error("Error sending message:", error);
     }
   };
+
+  const handleAcceptChallenge = React.useCallback(async () => {
+    if (isSubmitting || !challenge_id) return;
+    try {
+      setIsSubmitting(true);
+      await ApiClient.updateChallengeStatus(challenge_id, "active");
+      if (challenge) {
+        await updateChallenge({
+          ...challenge,
+          status: "active",
+          username: challenge.username,
+          coachUsername: challenge.coachUsername,
+        });
+      }
+      setTimeout(() => router.back(), 100);
+    } catch (error) {
+      console.error("Error accepting challenge:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [challenge_id, isSubmitting, challenge, updateChallenge, router]);
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -145,71 +167,62 @@ export default function ChatScreen() {
       aspect: [4, 3],
       quality: 1,
     });
-
     if (!result.cancelled && !result.canceled) {
       const newMessage = {
         text: "",
-        userId: user?.id || "",
+        user_id: user?.id || "",
         timestamp: new Date(),
         image: result.assets[0].uri,
-        isValidated: false, // Initially not validated
-        isProof: false, // Initially not marked as proof
+        isValidated: false,
+        isProof: false,
       };
-
-      const updatedChallenge = {
-        ...challenge,
-        messages: [...(challenge.messages || []), newMessage],
-      };
-
-      await updateChallenge(updatedChallenge);
-    }
-  };
-
-  const handleLongPress = async (message: any) => {
-    if (!isCoach || message.userId === user?.id || !message.isProof) return;
-
-    const updatedMessages = challenge.messages.map((msg) => {
-      if (
-        msg.timestamp === message.timestamp &&
-        msg.userId === message.userId
-      ) {
-        return { ...msg, isValidated: !msg.isValidated, isProof: true };
+      if (challenge) {
+        const updatedChallenge = {
+          ...challenge,
+          messages: [...(challenge.messages || []), newMessage],
+          username: challenge.username,
+          coachUsername: challenge.coachUsername,
+        };
+        await updateChallenge(updatedChallenge);
       }
-      return msg;
-    });
-    const updatedChallenge = { ...challenge, messages: updatedMessages };
-    await updateChallenge(updatedChallenge);
+    }
   };
 
   const handleDoubleTap = async (message: any) => {
     const now = Date.now();
     if (lastTap && now - lastTap < 300) {
-      if (isCoach && message.isProof && message.userId !== user?.id) {
-        // Coach validating a proof
+      if (isCoach && message.isProof && message.user_id !== user?.id) {
         const updatedMessages = challenge.messages.map((msg) => {
           if (
             msg.timestamp === message.timestamp &&
-            msg.userId === message.userId
+            msg.user_id === message.user_id
           ) {
             return { ...msg, isValidated: !msg.isValidated };
           }
           return msg;
         });
-        const updatedChallenge = { ...challenge, messages: updatedMessages };
-        await updateChallenge(updatedChallenge);
-      } else if (!isCoach && message.userId === user?.id) {
-        // Challenger marking their message as proof
+        await updateChallenge({
+          ...challenge,
+          messages: updatedMessages,
+          username: challenge.username,
+          coachUsername: challenge.coachUsername,
+        });
+      } else if (!isCoach && message.user_id === user?.id) {
         const updatedMessages = challenge.messages.map((msg) => {
           if (
             msg.timestamp === message.timestamp &&
-            msg.userId === message.userId
+            msg.user_id === message.user_id
           ) {
             return { ...msg, isProof: !msg.isProof };
           }
           return msg;
         });
-        const updatedChallenge = { ...challenge, messages: updatedMessages };
-        await updateChallenge(updatedChallenge);
+        await updateChallenge({
+          ...challenge,
+          messages: updatedMessages,
+          username: challenge.username,
+          coachUsername: challenge.coachUsername,
+        });
       }
     }
     setLastTap(now);
@@ -217,77 +230,50 @@ export default function ChatScreen() {
 
   if (!challenge) {
     return (
-      <ThemedView style={styles.container}>
+      <ThemedView style={styles.chatContainer}>
         <ThemedText>Challenge not found</ThemedText>
       </ThemedView>
     );
   }
 
-  const messages = challenge?.messages ?? [];
-  const isCoach = challenge.coachId === user?.id;
-
   return (
-    <ThemedView style={styles.container}>
+    <ThemedView style={styles.chatContainer}>
       <View
         style={[
-          styles.header,
-          {
-            backgroundColor:
-              challenge?.coachId === user?.id ? "#2B5876" : "#B71C1C",
-          },
+          styles.chatHeader,
+          { backgroundColor: isCoach ? "#2B5876" : "#B71C1C" },
         ]}
       >
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => router.back()}
         >
-          <IconSymbol
-            name="chevron.left"
-            size={24}
-            color={useThemeColor({}, "text")}
-          />
+          <IconSymbol name="chevron.left" size={24} color={textColor} />
         </TouchableOpacity>
-        <View style={styles.headerContent}>
-          <ThemedText style={styles.title}>{challenge.title}</ThemedText>
+        <View style={styles.chatHeaderContent}>
+          <ThemedText style={styles.chatTitle}>{challenge.title}</ThemedText>
           {challenge.status === "pending" && isCoach && (
-            <View style={styles.actionButtons}>
+            <View style={styles.chatActionButtons}>
               <TouchableOpacity
-                style={[styles.actionButton, styles.acceptButton]}
+                style={[styles.chatActionButton, styles.chatAcceptButton]}
                 onPress={handleAcceptChallenge}
               >
-                <ThemedText style={styles.buttonText}>Accept</ThemedText>
+                <ThemedText style={styles.chatButtonText}>Accept</ThemedText>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.actionButton, styles.rejectButton]}
+                style={[styles.chatActionButton, styles.chatRejectButton]}
                 onPress={() => updateChallengeStatus(challenge.id, "rejected")}
               >
-                <ThemedText style={styles.buttonText}>Reject</ThemedText>
+                <ThemedText style={styles.chatButtonText}>Reject</ThemedText>
               </TouchableOpacity>
             </View>
           )}
-          <ThemedText style={styles.subtitle}>
+          <ThemedText style={styles.chatSubtitle}>
             {isCoach
-              ? `Challenger: ${challenge.userId}`
-              : `Coach: ${challenge.coachId}`}
+              ? `Challenger: ${challenge.username || "User " + challenge.user_id}`
+              : `Coach: ${challenge.coachUsername || "User " + challenge.coach_id}`}
           </ThemedText>
         </View>
-
-        {challenge.status === "pending" && !isCoach && (
-          <View style={styles.actionButtons}>
-            <TouchableOpacity
-              style={[styles.actionButton, styles.changeCoachButton]}
-              onPress={() => handleChangeCoach(challenge.id, "newCoachId")}
-            >
-              <ThemedText style={styles.buttonText}>Change Coach</ThemedText>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.actionButton, styles.deleteButton]}
-              onPress={() => deleteChallenge(challenge.id)}
-            >
-              <ThemedText style={styles.buttonText}>Delete</ThemedText>
-            </TouchableOpacity>
-          </View>
-        )}
       </View>
 
       <FlatList
@@ -300,47 +286,29 @@ export default function ChatScreen() {
         }
         onLayout={() => flatListRef.current?.scrollToEnd({ animated: true })}
         renderItem={({ item }) => {
-          const isCoach = challenge.coachId === user?.id;
-          let suggestionText = "";
-          if (isCoach && item.isProof && !item.isValidated) {
-            suggestionText = "Double tap to approve proof";
-          } else if (!isCoach && item.userId === user?.id) {
-            suggestionText = "Double tap to submit as proof";
-          }
+          const suggestionText =
+            isCoach && item.isProof && !item.isValidated
+              ? "Double tap to approve proof"
+              : !isCoach && item.user_id === user?.id
+                ? "Double tap to submit as proof"
+                : "";
           return (
-            <TouchableOpacity
-              onLongPress={() => {
-                isCoach && handleLongPress(item);
-              }}
-              onPressIn={() => {
-                const now = Date.now();
-                const DOUBLE_PRESS_DELAY = 300;
-                if (lastTap && now - lastTap < DOUBLE_PRESS_DELAY) {
-                  handleDoubleTap(item);
-                } else {
-                  setLastTap(now);
-                }
-              }}
-              delayLongPress={200}
-            >
+            <TouchableOpacity onPress={() => handleDoubleTap(item)}>
               <View
                 style={[
                   styles.messageBubble,
-                  item.userId === user?.id
+                  item.user_id === user?.id
                     ? [
                         styles.ownMessage,
-                        {
-                          backgroundColor:
-                            item.userId === challenge?.coachId
-                              ? "#2B5876"
-                              : "#B71C1C",
-                        },
+                        { backgroundColor: isCoach ? "#2B5876" : "#B71C1C" },
                       ]
                     : styles.otherMessage,
                 ]}
               >
                 {item.text && (
-                  <ThemedText style={styles.messageText}>{item.text}</ThemedText>
+                  <ThemedText style={styles.messageText}>
+                    {item.text}
+                  </ThemedText>
                 )}
                 {item.image && (
                   <Image
@@ -366,15 +334,13 @@ export default function ChatScreen() {
                   </View>
                 )}
               </View>
-              {((isCoach && item.isProof && !item.isValidated) ||
-                (!isCoach &&
-                  messages[messages.length - 1].timestamp === item.timestamp)) && (
+              {suggestionText && (
                 <ThemedText
                   style={[
                     styles.suggestionText,
-                    isCoach
-                      ? { alignSelf: "flex-start", marginLeft: 8 }
-                      : { alignSelf: "flex-end", marginRight: 8 },
+                    item.user_id === user?.id
+                      ? { alignSelf: "flex-end", marginRight: 8 }
+                      : { alignSelf: "flex-start", marginLeft: 8 },
                   ]}
                 >
                   {suggestionText}
@@ -388,7 +354,7 @@ export default function ChatScreen() {
       {challenge.status === "active" ? (
         <View style={[styles.inputContainer, { marginBottom: keyboardHeight }]}>
           <TextInput
-            style={styles.input}
+            style={styles.chatInput}
             value={message}
             onChangeText={setMessage}
             placeholder="Type a message..."
@@ -396,29 +362,22 @@ export default function ChatScreen() {
             multiline
           />
           <TouchableOpacity style={styles.attachButton} onPress={pickImage}>
-            <IconSymbol
-              name="paperclip"
-              size={24}
-              color={useThemeColor({}, "text")}
-            />
+            <IconSymbol name="paperclip" size={24} color={textColor} />
           </TouchableOpacity>
           <TouchableOpacity
             style={[
               styles.sendButton,
-              {
-                backgroundColor:
-                  challenge?.coachId === user?.id ? "#2B5876" : "#B71C1C",
-              },
+              { backgroundColor: isCoach ? "#2B5876" : "#B71C1C" },
             ]}
             onPress={handleSendMessage}
           >
-            <ThemedText style={styles.sendButtonText}>Send</ThemedText>
+            <ThemedText style={styles.chatSendButtonText}>Send</ThemedText>
           </TouchableOpacity>
         </View>
       ) : (
         <View style={[styles.inputContainer, styles.disabledInput]}>
           <TextInput
-            style={[styles.input, styles.disabledTextInput]}
+            style={[styles.chatInput, styles.disabledTextInput]}
             value="Chat available after challenge is accepted"
             editable={false}
           />
@@ -427,7 +386,7 @@ export default function ChatScreen() {
             disabled
           >
             <ThemedText
-              style={[styles.sendButtonText, styles.disabledButtonText]}
+              style={[styles.chatSendButtonText, styles.disabledButtonText]}
             >
               Send
             </ThemedText>
@@ -438,173 +397,5 @@ export default function ChatScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  backButton: {
-    padding: 8,
-    marginRight: 8,
-  },
-  actionContainer: {
-    marginTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: "rgba(0,0,0,0.1)",
-    paddingTop: 16,
-  },
-  actionButtons: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    gap: 10,
-  },
-  actionButton: {
-    flex: 1,
-    padding: 10,
-    borderRadius: 8,
-    alignItems: "center",
-  },
-  acceptButton: {
-    backgroundColor: "#4CAF50",
-  },
-  rejectButton: {
-    backgroundColor: "#f44336",
-  },
-  changeCoachButton: {
-    backgroundColor: "#2196F3",
-  },
-  deleteButton: {
-    backgroundColor: "#f44336",
-  },
-  buttonText: {
-    color: "#fff",
-    fontWeight: "bold",
-  },
-  disabledInput: {
-    opacity: 0.7,
-    backgroundColor: "#f5f5f5",
-  },
-  disabledTextInput: {
-    color: "#666",
-  },
-  disabledButton: {
-    backgroundColor: "#ccc",
-  },
-  disabledButtonText: {
-    color: "#666",
-  },
-  container: {
-    flex: 1,
-  },
-  header: {
-    padding: 16,
-    paddingTop: 48,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(0,0,0,0.1)",
-  },
-  headerContent: {
-    marginLeft: 40,
-    marginTop: -30,
-  },
-  actionButtons: {
-    flexDirection: "row",
-    gap: 10,
-    marginVertical: 8,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginLeft: 8,
-    color: "#FFFFFF",
-  },
-  subtitle: {
-    fontSize: 14,
-    color: "#FFFFFF",
-    opacity: 0.7,
-  },
-  messageList: {
-    flex: 1,
-    padding: 16,
-  },
-  messageBubble: {
-    padding: 12,
-    borderRadius: 16,
-    marginBottom: 8,
-    maxWidth: "80%",
-  },
-  ownMessage: {
-    alignSelf: "flex-end",
-    borderBottomRightRadius: 4,
-  },
-  otherMessage: {
-    backgroundColor: "#1C1C1E",
-    alignSelf: "flex-start",
-    borderBottomLeftRadius: 4,
-  },
-  messageText: {
-    fontSize: 16,
-    color: "#FFFFFF",
-  },
-  messageTime: {
-    fontSize: 12,
-    opacity: 0.7,
-    marginTop: 4,
-  },
-  inputContainer: {
-    flexDirection: "row",
-    padding: 16,
-    borderTopWidth: 1,
-    borderTopColor: "rgba(0,0,0,0.1)",
-  },
-  input: {
-    flex: 1,
-    padding: 12,
-    borderRadius: 20,
-    backgroundColor: "#F0F0F0",
-    marginRight: 8,
-  },
-  sendButton: {
-    padding: 12,
-    borderRadius: 20,
-    justifyContent: "center",
-  },
-  sendButtonText: {
-    color: "#fff",
-    fontWeight: "bold",
-  },
-  attachButton: {
-    padding: 8,
-    justifyContent: "center",
-  },
-  messageImage: {
-    width: 200,
-    height: 200,
-    borderRadius: 8,
-    marginVertical: 8,
-    alignSelf: "center",
-  },
-  checkmarkContainer: {
-    marginTop: 4,
-    alignSelf: "flex-end",
-  },
-  suggestionText: {
-    fontSize: 12,
-    color: "#666666",
-    marginTop: 4,
-    marginBottom: 16,
-    fontStyle: "italic",
-  },
-  imagePreview: {
-    position: "relative",
-    margin: 8,
-    marginTop: 0,
-  },
-  previewImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 8,
-  },
-  removeImage: {
-    position: "absolute",
-    top: -8,
-    right: -8,
-    backgroundColor: "white",
-    borderRadius: 12,
-  },
-});
+import { GlobalStyles } from "@/constants/Styles";
+const styles = GlobalStyles;
