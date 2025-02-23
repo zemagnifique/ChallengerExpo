@@ -41,10 +41,13 @@ export const ChallengeItem: React.FC<ChallengeItemProps> = ({
   };
 
   const usernameStyle = [styles.username];
-  if (parseInt(user?.id) === parseInt(item.coach_id)) {
-    usernameStyle.push(styles.coachUsername); // Assuming styles.coachUsername is defined for blue color
+  const displayedUsername = parseInt(user?.id) === parseInt(item.coach_id) ? item.username : item.coachUsername;
+  const isDisplayedUserCoach = displayedUsername === item.coachUsername;
+  
+  if (isDisplayedUserCoach) {
+    usernameStyle.push(styles.coachUsername); // Blue for coach
   } else {
-    usernameStyle.push(styles.challengerUsername); // Assuming styles.challengerUsername is defined for red color
+    usernameStyle.push(styles.challengerUsername); // Red for challenger
   }
 
 
