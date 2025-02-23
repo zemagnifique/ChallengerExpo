@@ -358,7 +358,7 @@ app.put("/api/messages/:messageId/set-proof", async (req, res) => {
     // Update the message proof status
     const messageResult = await pool.query(
       "UPDATE messages SET is_proof = $1 WHERE id = $2 RETURNING *",
-      [isProof, req.params.messageId]
+      [isProof, parseInt(req.params.messageId)]
     );
 
     if (messageResult.rows.length === 0) {
