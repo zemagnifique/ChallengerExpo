@@ -9,6 +9,7 @@ import {
   ActionSheetIOS,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
+import { IconSymbol } from "@/components/ui/IconSymbol";
 import { ApiClient } from "@/api/client";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
