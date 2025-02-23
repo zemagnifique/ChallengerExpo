@@ -469,6 +469,10 @@ export const GlobalStyles = StyleSheet.create({
   logoutButton: {
     backgroundColor: "#F44336",
   },
+  challengesUsernameContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
   username: {
     fontWeight: "bold",
     fontSize: 14,

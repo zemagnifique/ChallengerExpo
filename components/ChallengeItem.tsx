@@ -41,15 +41,17 @@ export const ChallengeItem: React.FC<ChallengeItemProps> = ({
   };
 
   const usernameStyle = [styles.username];
-  const displayedUsername = parseInt(user?.id) === parseInt(item.coach_id) ? item.username : item.coachUsername;
+  const displayedUsername =
+    parseInt(user?.id) === parseInt(item.coach_id)
+      ? item.username
+      : item.coachUsername;
   const isDisplayedUserCoach = displayedUsername === item.coachUsername;
-  
+
   if (isDisplayedUserCoach) {
     usernameStyle.push(styles.coachUsername); // Blue for coach
   } else {
     usernameStyle.push(styles.challengerUsername); // Red for challenger
   }
-
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -175,7 +177,7 @@ export const ChallengeItem: React.FC<ChallengeItemProps> = ({
                   {item.title.charAt(0).toUpperCase()}
                 </ThemedText>
               </View>
-              <View>
+              <View style={styles.challengesUsernameContainer}>
                 <ThemedText style={usernameStyle} numberOfLines={1}>
                   {parseInt(user?.id) === parseInt(item.coach_id)
                     ? item.username
