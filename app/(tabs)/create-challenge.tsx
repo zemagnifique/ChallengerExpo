@@ -103,7 +103,9 @@ export default function CreateChallengeScreen() {
       </ThemedView>
       <ScrollView style={styles.container}>
         <ThemedView style={styles.quickStartSection}>
-          <ThemedText style={styles.quickStartTitle}>Quick Start Challenges</ThemedText>
+          <ThemedText style={styles.quickStartTitle}>
+            Quick Start Challenges
+          </ThemedText>
           <View style={styles.challengeGrid}>
             {DEFAULT_CHALLENGES.map((challenge, index) => (
               <TouchableOpacity
@@ -111,22 +113,26 @@ export default function CreateChallengeScreen() {
                 style={[
                   styles.challengeCard,
                   styles[`challengeType${index + 1}`],
-                  { flex: 1 }
+                  { flex: 1 },
                 ]}
                 onPress={() => selectDefaultChallenge(challenge)}
               >
                 <ThemedText style={styles.cardTitle}>
                   {challenge.title}
                 </ThemedText>
-                <ThemedText style={styles.cardDescription}>{challenge.description}</ThemedText>
+                <ThemedText style={styles.cardDescription}>
+                  {challenge.description}
+                </ThemedText>
               </TouchableOpacity>
             ))}
           </View>
         </ThemedView>
-
         <View style={styles.formSeparator} />
 
         <ThemedView style={[styles.section, styles.form]}>
+          <ThemedText style={styles.headerTitle}>
+            Create New Challenge
+          </ThemedText>
           <ThemedText>Challenge Title *</ThemedText>
           <TextInput
             style={styles.input}
@@ -238,19 +244,26 @@ export default function CreateChallengeScreen() {
             <TouchableOpacity
               style={styles.pickerButton}
               onPress={() => {
-                if (Platform.OS === 'ios') {
+                if (Platform.OS === "ios") {
                   ActionSheetIOS.showActionSheetWithOptions(
                     {
-                      options: ['Cancel', ...users.filter(u => u.id !== user?.id).map(u => u.username)],
+                      options: [
+                        "Cancel",
+                        ...users
+                          .filter((u) => u.id !== user?.id)
+                          .map((u) => u.username),
+                      ],
                       cancelButtonIndex: 0,
-                      title: 'Select a Coach',
+                      title: "Select a Coach",
                     },
                     (buttonIndex) => {
                       if (buttonIndex !== 0) {
-                        const selectedUser = users.filter(u => u.id !== user?.id)[buttonIndex - 1];
+                        const selectedUser = users.filter(
+                          (u) => u.id !== user?.id,
+                        )[buttonIndex - 1];
                         setSelectedCoach(selectedUser.id.toString());
                       }
-                    }
+                    },
                   );
                 } else {
                   // Fallback to default Picker for other platforms
@@ -269,15 +282,16 @@ export default function CreateChallengeScreen() {
                           value={otherUser.id.toString()}
                         />
                       ))}
-                  </Picker>
+                  </Picker>;
                 }
               }}
             >
               <View style={styles.pickerContainer}>
                 <ThemedText style={styles.pickerText}>
                   {selectedCoach
-                    ? users.find(u => u.id.toString() === selectedCoach)?.username
-                    : 'Select a Coach'}
+                    ? users.find((u) => u.id.toString() === selectedCoach)
+                        ?.username
+                    : "Select a Coach"}
                 </ThemedText>
                 <IconSymbol name="chevron.right" size={20} color="#999" />
               </View>
@@ -310,19 +324,18 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 16,
-    color: Colors.light.text,
   },
   challengeGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: 12,
-    justifyContent: 'space-between',
+    justifyContent: "space-between",
   },
   challengeCard: {
     padding: 16,
     borderRadius: 12,
     minHeight: 120,
-    width: '48%',
+    width: "48%",
     marginBottom: 12,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
@@ -355,7 +368,7 @@ const styles = StyleSheet.create({
   formSeparator: {
     height: 1,
     backgroundColor: "rgba(0,0,0,0.1)",
-    marginVertical: 20,
+    marginVertical: 10,
   },
   coachSelectContainer: {
     position: "relative",
@@ -388,9 +401,9 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   pickerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     backgroundColor: "#fff",
     borderRadius: 8,
     borderWidth: 1,
@@ -400,7 +413,7 @@ const styles = StyleSheet.create({
   },
   pickerText: {
     fontSize: 16,
-    color: '#000',
+    color: "#000",
   },
   container: {
     flex: 1,
@@ -418,10 +431,6 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.1)",
     borderRadius: 8,
     marginTop: 10,
-  },
-  cardTitle: {
-    fontWeight: "bold",
-    marginBottom: 5,
   },
   form: {
     padding: 20,
