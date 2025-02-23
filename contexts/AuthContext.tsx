@@ -365,6 +365,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     [persistChallenges],
   );
 
+  // Add function to set message as proof
+  const setMessageAsProof = useCallback(
+    async (messageId: string, isProof: boolean) => {
+      try {
+        await ApiClient.setMessageAsProof(messageId, isProof);
+        // WebSocket will handle state update
+        addNotification(`Message ${isProof ? 'marked as' : 'unmarked from'} proof`);
+      } catch (error) {
+        console.error("Error setting message as proof:", error);
+        throw error;
+      }
+    },
+    [addNotification]
+  );
+
   // Add new function to validate proof messages
   const validateProof = useCallback(
     async (messageId: string, isValidated: boolean, challengeId: string) => {
@@ -420,6 +435,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   return (
     <AuthContext.Provider
       value={{
+        setMessageAsProof,
         isAuthenticated,
         user,
         challenges,
