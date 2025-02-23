@@ -164,41 +164,36 @@ export const ChallengeItem: React.FC<ChallengeItemProps> = ({
                   {item.title.charAt(0).toUpperCase()}
                 </ThemedText>
               </View>
-              <View>
+            </View>
+            <View style={styles.contentContainer}>
+                <View style={styles.titleContainer}>
+                  <ThemedText style={styles.title}>{item.title}</ThemedText>
+                  {getUnreadCount(item) > 0 && (
+                    <View style={styles.badge}>
+                      <ThemedText style={styles.badgeText}>
+                        {getUnreadCount(item)}
+                      </ThemedText>
+                    </View>
+                  )}
+                </View>
                 <ThemedText style={styles.username} numberOfLines={1}>
                   {parseInt(user?.id) === parseInt(item.coach_id)
                     ? item.username
                     : item.coachUsername}
                 </ThemedText>
+                <View style={styles.previewRow}>
+                  <ThemedText numberOfLines={1} style={styles.preview}>
+                    {item.messages && item.messages.length > 0
+                      ? item.messages[item.messages.length - 1].text
+                      : item.description || `Frequency: ${item.frequency}`}
+                  </ThemedText>
+                  {item.status === "pending" && (
+                    <View style={styles.badge}>
+                      <ThemedText style={styles.badgeText}>Pending</ThemedText>
+                    </View>
+                  )}
+                </View>
               </View>
-            </View>
-            <View style={styles.contentContainer}>
-              <View style={styles.titleContainer}>
-                <ThemedText style={styles.title}>{item.title}</ThemedText>
-                {getUnreadCount(item) > 0 && (
-                  <View style={styles.badge}>
-                    <ThemedText style={styles.badgeText}>
-                      {getUnreadCount(item)}
-                    </ThemedText>
-                  </View>
-                )}
-              </View>
-              <ThemedText numberOfLines={1} style={styles.preview}>
-                {item.description || `Frequency: ${item.frequency}`}
-              </ThemedText>
-              <View style={styles.previewRow}>
-                <ThemedText numberOfLines={1} style={styles.preview}>
-                  {item.messages && item.messages.length > 0
-                    ? item.messages[item.messages.length - 1].text
-                    : ""}
-                </ThemedText>
-                {item.status === "pending" && (
-                  <View style={styles.badge}>
-                    <ThemedText style={styles.badgeText}>Pending</ThemedText>
-                  </View>
-                )}
-              </View>
-            </View>
           </ThemedView>
         </TouchableOpacity>
       </Swipeable>
