@@ -33,8 +33,9 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => (
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <IconSymbol size={28} name="flame.fill" color={color} />
-              {challenges.reduce((sum, challenge) => 
-                sum + getUnreadMessageCount(challenge.id), 0) > 0 && (
+              {(challenges.reduce((sum, challenge) => 
+                sum + getUnreadMessageCount(challenge.id), 0) + 
+                challenges.filter(c => c.status === 'pending').length) > 0 && (
                 <View style={{
                   backgroundColor: '#FF3B30',
                   borderRadius: 10,
@@ -52,7 +53,8 @@ export default function TabLayout() {
                     fontWeight: 'bold',
                   }}>
                     {challenges.reduce((sum, challenge) => 
-                      sum + getUnreadMessageCount(challenge.id), 0)}
+                      sum + getUnreadMessageCount(challenge.id), 0) + 
+                      challenges.filter(c => c.status === 'pending').length}
                   </Text>
                 </View>
               )}
