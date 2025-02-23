@@ -24,4 +24,4 @@ jest.mock('react-native-reanimated', () => {
 
 global.fetch = require('jest-fetch-mock');
 
-jest.setup(jestNative);
+expect.extend(jestNative.matchers);
