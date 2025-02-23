@@ -76,35 +76,48 @@ This will start the development server and provide options to:
 - Run on Android emulator
 - Run on physical device through Expo Go app
 
+## Database Setup
+
+1. Set up your database connection string as an environment variable:
+```bash
+export DATABASE_URL=postgresql://username:password@0.0.0.0:5432/dbname
+```
+
+2. Initialize the database by running:
+```bash
+node server/init-db.js
+```
+
+This will:
+- Create required tables (users, challenges, messages)
+- Set up initial test users
+- Configure necessary indexes
+
 ## Testing
 
-The project includes several types of tests:
+The project includes Jest tests for components, API, and hooks.
 
-### Unit Tests
+### Running Tests
 
-Run unit tests with:
+1. Run all tests in watch mode:
 ```bash
 npm test
 ```
 
-This will run Jest tests located in:
+2. Run tests for a specific file:
+```bash
+npm test ChallengeItem.test.tsx
+```
+
+3. Run tests with coverage:
+```bash
+npm test -- --coverage
+```
+
+Test files are located in:
 - components/__tests__/
 - api/__tests__/
 - hooks/__tests__/
-
-### End-to-End Tests
-
-Run E2E tests with:
-```bash
-npm run test:e2e
-```
-
-### API Tests
-
-Test the backend API endpoints:
-```bash
-npm run test:api
-```
 
 ## Development
 
