@@ -59,27 +59,27 @@ const pool = new Pool({
 
 // Configure multer for image upload
 const storage = multer.diskStorage({
-  destination: './uploads/',
+  destination: (req, file, cb) => {
+    const dir = './uploads';
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    cb(null, dir);
+  },
   filename: (req, file, cb) => {
-    const uniqueName = `${uuidv4()}${path.extname(file.originalname)}`;
+    const uniqueName = `${Date.now()}-${uuidv4()}${path.extname(file.originalname)}`;
     cb(null, uniqueName);
   }
 });
 
-// Ensure uploads directory exists
-if (!fs.existsSync('./uploads')) {
-  fs.mkdirSync('./uploads', { recursive: true });
-}
-
 const upload = multer({
   storage,
-  limits: { fileSize: 5000000 }, // 5MB limit
+  limits: { fileSize: 10000000 }, // 10MB limit
   fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) {
-      cb(null, true);
-    } else {
-      cb(new Error('Only images are allowed'));
+    if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
+      return cb(new Error('Only image files are allowed!'), false);
     }
+    cb(null, true);
   }
 });
 
@@ -262,17 +262,26 @@ app.post("/api/challenges/:challenge_id/messages", upload.single('image'), async
   try {
     const { user_id, text, isProof } = req.body;
     const image_url = req.file ? `/uploads/${req.file.filename}` : null;
+    
+    console.log("Received file:", req.file);
+    console.log("Body:", req.body);
 
     const result = await pool.query(
       "INSERT INTO messages (challenge_id, user_id, text, image_url, is_proof, created_at) VALUES ($1, $2, $3, $4, $5, NOW()) RETURNING *",
       [req.params.challenge_id, user_id, text, image_url, isProof === 'true']
     );
 
-    io.to(`challenge_${req.params.challenge_id}`).emit('newMessage', result.rows[0]);
-    res.json(result.rows[0]);
+    const message = {
+      ...result.rows[0],
+      imageUrl: image_url,
+      timestamp: result.rows[0].created_at
+    };
+
+    io.to(`challenge_${req.params.challenge_id}`).emit('newMessage', message);
+    res.json(message);
   } catch (error) {
     console.error("Error sending message:", error);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: "Internal server error", details: error.message });
   }
 });
 
