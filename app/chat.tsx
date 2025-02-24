@@ -120,7 +120,7 @@ export default function ChatScreen() {
       const newMessage = await ApiClient.sendMessage(challenge_id as string, {
         user_id: user?.id || "",
         text: message.trim(),
-        imageUrl: selectedImage,
+        image: selectedImage,
         isProof: false,
       });
       const messages = await ApiClient.getMessages(challenge_id as string);
@@ -168,22 +168,11 @@ export default function ChatScreen() {
       quality: 1,
     });
     if (!result.cancelled && !result.canceled) {
-      const newMessage = {
-        text: "",
-        user_id: user?.id || "",
-        timestamp: new Date(),
-        image: result.assets[0].uri,
-        isValidated: false,
-        isProof: false,
-      };
-      if (challenge) {
-        const updatedChallenge = {
-          ...challenge,
-          messages: [...(challenge.messages || []), newMessage],
-          username: challenge.username,
-          coachUsername: challenge.coachUsername,
-        };
-        await updateChallenge(updatedChallenge);
+      setSelectedImage(result.assets[0].uri);
+      try {
+        await handleSendMessage();
+      } catch (error) {
+        console.error("Error sending message with image:", error);
       }
     }
   };
