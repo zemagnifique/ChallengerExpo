@@ -162,6 +162,7 @@ export const ChallengeItem: React.FC<ChallengeItemProps> = ({
                 ? styles.coachingItem
                 : styles.challengeItem,
               getUnreadCount(item) > 0 && styles.unreadItem,
+              item.status === "pending" && styles.pendingItem,
             ]}
           >
             <View style={styles.avatarContainer}>
@@ -188,6 +189,11 @@ export const ChallengeItem: React.FC<ChallengeItemProps> = ({
             <View style={styles.contentContainer}>
               <View style={styles.titleContainer}>
                 <ThemedText style={styles.title}>{item.title}</ThemedText>
+                {item.status === "pending" && (
+                  <View style={styles.pendingbadge}>
+                    <ThemedText style={styles.badgeText}>Pending</ThemedText>
+                  </View>
+                )}
                 {getUnreadCount(item) > 0 && (
                   <View style={styles.badge}>
                     <ThemedText style={styles.badgeText}>
@@ -205,11 +211,6 @@ export const ChallengeItem: React.FC<ChallengeItemProps> = ({
                     ? item.messages[item.messages.length - 1].text
                     : ""}
                 </ThemedText>
-                {item.status === "pending" && (
-                  <View style={styles.badge}>
-                    <ThemedText style={styles.badgeText}>Pending</ThemedText>
-                  </View>
-                )}
               </View>
             </View>
           </ThemedView>

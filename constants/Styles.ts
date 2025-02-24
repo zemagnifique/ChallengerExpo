@@ -107,6 +107,16 @@ export const GlobalStyles = StyleSheet.create({
     marginLeft: 8,
     paddingHorizontal: 6,
   },
+  pendingbadge: {
+    backgroundColor: "orange",
+    borderRadius: 12,
+    minWidth: 24,
+    height: 24,
+    justifyContent: "center",
+    alignItems: "center",
+    marginLeft: 8,
+    paddingHorizontal: 6,
+  },
   badgeText: {
     color: "#FFFFFF",
     fontSize: 13,
@@ -116,6 +126,9 @@ export const GlobalStyles = StyleSheet.create({
   },
   unreadItem: {
     backgroundColor: "rgba(0, 122, 255, 0.1)",
+  },
+  pendingItem: {
+    backgroundColor: "rgba(255,255,255,0.15)",
   },
 
   // Card & Section Styles
