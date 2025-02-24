@@ -162,7 +162,6 @@ export const ChallengeItem: React.FC<ChallengeItemProps> = ({
                 ? styles.coachingItem
                 : styles.challengeItem,
               getUnreadCount(item) > 0 && styles.unreadItem,
-              item.status === "pending" && styles.pendingItem,
             ]}
           >
             <View style={styles.avatarContainer}>

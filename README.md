@@ -1,132 +1,150 @@
+
 # Challenge Coaching App
 
-A React Native application built with Expo for managing coaching challenges and interactions between coaches and challengers. The app allows users to create challenges, assign coaches, track progress, and communicate through a real-time chat system.
+A React Native application built with Expo that facilitates coaching relationships and challenge management. The app enables users to create challenges, assign coaches, track progress, and communicate through a real-time chat system.
 
-## Features
+## Core Features
 
-- User authentication system
-- Create and manage challenges
-- Real-time chat functionality
-- Challenge status tracking
-- Progress validation system
-- Coach assignment system
+### 1. Authentication System
+- User login/logout functionality
+- Session management
+- Secure authentication flow
 
-## Prerequisites
+### 2. Challenge Management
+- Create new challenges with customizable:
+  - Title and description
+  - Start and end dates
+  - Frequency (Daily/Weekly)
+  - Proof requirements
+  - Coach assignment
+- View active and pending challenges
+- Archive completed challenges
+- Delete pending challenges
+- Change coach for pending challenges
 
-- Node.js (v16 or higher)
+### 3. Real-time Chat System
+- Instant messaging between coach and challenger
+- Image sharing capabilities
+- Message read status tracking
+- Unread message count indicators
+- Proof submission and validation:
+  - Challengers can mark messages as proof
+  - Coaches can validate submitted proofs
+  - Visual indicators for proof status
+
+### 4. Coach-Challenger Interaction
+- Challenge acceptance/rejection by coaches
+- Progress tracking
+- Real-time notifications
+- Status updates
+
+### 5. User Interface
+- Dark/Light theme support
+- Responsive design
+- Gesture support (swipe actions)
+- Parallax scrolling effects
+- Quick-start challenge templates
+
+## Technical Architecture
+
+### Frontend
+- Built with React Native and Expo
+- Uses Expo Router for navigation
+- TypeScript for type safety
+- Socket.IO client for real-time features
+- Component-based architecture
+
+### Backend
+- Express.js server
 - PostgreSQL database
-- Expo CLI
+- Socket.IO for real-time communication
+- RESTful API endpoints
+
+### Real-time Features
+- WebSocket connections for instant updates
+- Message delivery confirmation
+- Online status tracking
+- Live challenge status updates
+
+### Data Storage
+- PostgreSQL for persistent data
+- AsyncStorage for local caching
+- Efficient data synchronization
+
+## API Endpoints
+
+### Authentication
+- POST `/api/login` - User authentication
+- GET `/api/users` - Retrieve all users
+- GET `/api/users/username` - Get username by ID
+
+### Challenges
+- GET `/api/challenges` - List user's challenges
+- POST `/api/challenges` - Create new challenge
+- PUT `/api/challenges/:id/status` - Update challenge status
+
+### Messages
+- GET `/api/challenges/:id/messages` - Get challenge messages
+- POST `/api/challenges/:id/messages` - Send new message
+- PUT `/api/challenges/:id/messages/read` - Mark messages as read
+- PUT `/api/messages/:id/validate` - Validate proof message
+- PUT `/api/messages/:id/set-proof` - Mark message as proof
+
+## Development Setup
+
+1. Install dependencies:
+```bash
+npm install
+```
+
+2. Initialize the database:
+```bash
+node server/init-db.js
+```
+
+3. Start the development server:
+```bash
+npm start
+```
+
+## Testing
+
+The project includes comprehensive tests for:
+- Components
+- API client
+- Authentication context
+- Chat functionality
+
+Run tests with:
+```bash
+npm test
+```
 
 ## Project Structure
 
 ```
 .
-├── api/                  # API client and storage utilities
-├── app/                  # Main application directory (Expo Router)
+├── api/                  # API client and utilities
+├── app/                  # Main application routes
 ├── components/          # Reusable React components
-├── constants/          # Application constants and styles
+├── constants/          # App constants and styles
 ├── contexts/           # React Context providers
-├── server/            # Express.js backend server
-└── types/             # TypeScript type definitions
+├── hooks/             # Custom React hooks
+├── server/            # Backend server code
+└── types/             # TypeScript definitions
 ```
 
-## Installation
+## Configuration
 
-1. Clone this repository 
-2. Install dependencies:
-```bash
-npm install
-```
+The application uses environment variables for configuration:
+- Database connection
+- API endpoints
+- WebSocket connections
 
-## Setting Up the Database
+## Deployment
 
-1. Make sure PostgreSQL is running
-2. Set up your database connection string as an environment variable:
-```
-DATABASE_URL=postgresql://username:password@localhost:5432/dbname
-```
-3. Initialize the database:
-```bash
-node server/init-db.js
-```
+The application can be deployed on Replit:
+1. Database setup is handled automatically
+2. WebSocket connections are configured for the deployment environment
+3. Static assets are served through the Express server
 
-## Running the Application
-
-### Server Side
-
-1. Start the Express server:
-```bash
-node server/index.js
-```
-The server will run on port 3001 and provide:
-- REST API endpoints
-- WebSocket connections for real-time chat
-- Database interactions
-
-### Client Side
-
-1. Start the Expo development server:
-```bash
-npm start
-```
-
-This will start the development server and provide options to:
-- Run on web browser
-- Run on iOS simulator
-- Run on Android emulator
-- Run on physical device through Expo Go app
-
-## Database Setup
-
-1. Set up your database connection string as an environment variable:
-```bash
-export DATABASE_URL=postgresql://username:password@0.0.0.0:5432/dbname
-```
-
-2. Initialize the database by running:
-```bash
-node server/init-db.js
-```
-
-This will:
-- Create required tables (users, challenges, messages)
-- Set up initial test users
-- Configure necessary indexes
-
-## Testing
-
-The project includes Jest tests for components, API, and hooks.
-
-### Running Tests
-
-1. Run all tests in watch mode:
-```bash
-npm test
-```
-
-2. Run tests for a specific file:
-```bash
-npm test ChallengeItem.test.tsx
-```
-
-3. Run tests with coverage:
-```bash
-npm test -- --coverage
-```
-
-Test files are located in:
-- components/__tests__/
-- api/__tests__/
-- hooks/__tests__/
-
-## Development
-
-- The app uses Expo Router for navigation
-- Styling is done through StyleSheet API
-- Backend uses Express.js with PostgreSQL
-- Real-time features implemented with Socket.IO
-- TypeScript is used throughout the project
-
-## Project Status
-
-This project is currently in active development. Features are being added and refined based on user feedback and requirements.
