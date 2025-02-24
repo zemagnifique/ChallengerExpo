@@ -351,7 +351,7 @@ app.post("/api/challenges/:challenge_id/messages", upload.single('image'), async
       `INSERT INTO messages (challenge_id, user_id, text, image_url, is_proof, created_at)
        VALUES ($1, $2, $3, $4, $5, NOW())
        RETURNING *`,
-      [req.params.challenge_id, user_id, text, imageUrl, isProof],
+      [req.params.challenge_id, user_id, text, image_url, isProof],
     );
 
     // Get all messages after inserting new one
