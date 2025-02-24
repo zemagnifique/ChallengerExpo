@@ -117,6 +117,11 @@ export const GlobalStyles = StyleSheet.create({
   unreadItem: {
     backgroundColor: "rgba(0, 122, 255, 0.1)",
   },
+  pendingItem: {
+    borderStyle: "dashed",
+    borderWidth: 2,
+    borderColor: "#FFB74D",
+  },
 
   // Card & Section Styles
   coachingCard: {
