@@ -9,6 +9,26 @@ jest.mock('expo-router', () => ({
   useRouter: () => ({ back: jest.fn(), push: jest.fn() })
 }));
 
+jest.mock('@/api/client', () => ({
+  ApiClient: {
+    getApiUrl: jest.fn(() => 'http://test.url'),
+    sendMessage: jest.fn().mockResolvedValue({}),
+    getMessages: jest.fn().mockResolvedValue([]),
+    validateMessage: jest.fn(),
+    setMessageAsProof: jest.fn(),
+    markMessagesAsRead: jest.fn(),
+    updateChallengeStatus: jest.fn()
+  }
+}));
+
+jest.mock('socket.io-client', () => ({
+  io: () => ({
+    on: jest.fn(),
+    emit: jest.fn(),
+    disconnect: jest.fn()
+  })
+}));
+
 const mockChallenge = {
   id: '1',
   title: 'Test Challenge',
@@ -19,26 +39,6 @@ const mockChallenge = {
   username: 'testuser',
   coachUsername: 'testcoach'
 };
-
-const mockApiClient = {
-  getApiUrl: jest.fn(() => 'http://test.url'),
-  sendMessage: jest.fn().mockResolvedValue({}),
-  getMessages: jest.fn().mockResolvedValue([]),
-  validateMessage: jest.fn(),
-  setMessageAsProof: jest.fn(),
-  markMessagesAsRead: jest.fn(),
-  updateChallengeStatus: jest.fn()
-};
-
-jest.mock('@/api/client', () => mockApiClient);
-
-jest.mock('socket.io-client', () => ({
-  io: () => ({
-    on: jest.fn(),
-    emit: jest.fn(),
-    disconnect: jest.fn()
-  })
-}));
 
 describe('ChatScreen', () => {
   beforeEach(() => {
@@ -61,7 +61,8 @@ describe('ChatScreen', () => {
     const sendButton = getByText('Send');
     fireEvent.press(sendButton);
 
-    expect(mockApiClient.sendMessage).toHaveBeenCalledWith('1', {
+    const { ApiClient } = require('@/api/client');
+    expect(ApiClient.sendMessage).toHaveBeenCalledWith('1', {
       user_id: '1',
       text: 'Test message',
       imageUrl: null,
