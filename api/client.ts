@@ -155,9 +155,15 @@ export const ApiClient = {
       formData.append('user_id', message.user_id);
       if (message.text) formData.append('text', message.text);
       if (message.image) {
+        // Extract filename from the URI
+        const filename = message.image.split('/').pop() || 'image.jpg';
+        
+        // Create blob from the image URI
         const response = await fetch(message.image);
         const blob = await response.blob();
-        formData.append('image', blob, 'image.jpg');
+        
+        // Append to form with proper filename and mime type
+        formData.append('image', blob, filename);
       }
       if (message.isProof !== undefined) formData.append('isProof', String(message.isProof));
       
