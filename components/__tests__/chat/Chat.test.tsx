@@ -20,15 +20,17 @@ const mockChallenge = {
   coachUsername: 'testcoach'
 };
 
-jest.mock('@/api/client', () => ({
-  getApiUrl: () => 'http://test.url',
-  sendMessage: jest.fn(),
+const mockApiClient = {
+  getApiUrl: jest.fn(() => 'http://test.url'),
+  sendMessage: jest.fn().mockResolvedValue({}),
   getMessages: jest.fn().mockResolvedValue([]),
   validateMessage: jest.fn(),
   setMessageAsProof: jest.fn(),
   markMessagesAsRead: jest.fn(),
   updateChallengeStatus: jest.fn()
-}));
+};
+
+jest.mock('@/api/client', () => mockApiClient);
 
 jest.mock('socket.io-client', () => ({
   io: () => ({
@@ -39,6 +41,10 @@ jest.mock('socket.io-client', () => ({
 }));
 
 describe('ChatScreen', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('sends a message successfully', async () => {
     const initialChallenges = [mockChallenge];
     const mockUser = { id: '1', username: 'testuser' };
@@ -54,5 +60,12 @@ describe('ChatScreen', () => {
 
     const sendButton = getByText('Send');
     fireEvent.press(sendButton);
+
+    expect(mockApiClient.sendMessage).toHaveBeenCalledWith('1', {
+      user_id: '1',
+      text: 'Test message',
+      imageUrl: null,
+      isProof: false
+    });
   });
 });
