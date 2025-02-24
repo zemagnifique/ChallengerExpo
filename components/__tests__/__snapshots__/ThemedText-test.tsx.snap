@@ -9,6 +9,7 @@ exports[`renders correctly 1`] = `
       },
       {
         "fontSize": 16,
+        "letterSpacing": 0.3,
         "lineHeight": 24,
       },
       undefined,

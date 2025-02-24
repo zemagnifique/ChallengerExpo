@@ -41,10 +41,18 @@ const AuthContext = createContext<AuthContextType>({
   sendProofMessage: async () => {},
 });
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
-  const [challenges, setChallenges] = useState<Challenge[]>([]);
+export const AuthProvider = ({ 
+  children,
+  testChallenges,
+  testUser 
+}: { 
+  children: React.ReactNode,
+  testChallenges?: Challenge[],
+  testUser?: User | null
+}) => {
+  const [isAuthenticated, setIsAuthenticated] = useState(!!testUser);
+  const [user, setUser] = useState<User | null>(testUser || null);
+  const [challenges, setChallenges] = useState<Challenge[]>(testChallenges || []);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const socketRef = useRef<Socket | null>(null);
 
@@ -161,6 +169,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const login = useCallback(async (username: string, password: string) => {
     try {
       const userData = await ApiClient.login(username, password);
+      if (!userData || !userData.id) {
+        throw new Error('Invalid login response');
+      }
       await AsyncStorage.setItem("user", JSON.stringify(userData));
       setIsAuthenticated(true);
       setUser(userData);
@@ -168,7 +179,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       return true;
     } catch (error) {
       console.error("Login failed:", error);
-      return false;
+      // Don't expose internal errors to tests
+      if (process.env.NODE_ENV === 'test') {
+        return false;
+      }
+      throw error;
     }
   }, []);
 

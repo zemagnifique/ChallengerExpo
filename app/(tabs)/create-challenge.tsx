@@ -16,6 +16,8 @@ import { ThemedView } from "@/components/ThemedView";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { useRouter } from "expo-router";
 import { useAuth } from "@/contexts/AuthContext";
+import { GlobalStyles } from "@/constants/Styles";
+import { Colors } from "@/constants/Colors";
 
 const DEFAULT_CHALLENGES = [
   {
@@ -96,28 +98,41 @@ export default function CreateChallengeScreen() {
     <ParallaxScrollView
       headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
     >
+      <ThemedView style={styles.globalHeader}>
+        <ThemedText style={styles.headerTitle}>Create Challenge</ThemedText>
+      </ThemedView>
       <ScrollView style={styles.container}>
-        <ThemedText type="title" style={styles.title}>
-          Create Challenge
-        </ThemedText>
-
-        <ThemedView style={styles.defaultChallenges}>
-          <ThemedText type="subtitle">Quick Start Challenges</ThemedText>
-          {DEFAULT_CHALLENGES.map((challenge, index) => (
-            <TouchableOpacity
-              key={index}
-              style={styles.challengeCard}
-              onPress={() => selectDefaultChallenge(challenge)}
-            >
-              <ThemedText style={styles.cardTitle}>
-                {challenge.title}
-              </ThemedText>
-              <ThemedText>{challenge.description}</ThemedText>
-            </TouchableOpacity>
-          ))}
+        <ThemedView style={styles.quickStartSection}>
+          <ThemedText style={styles.quickStartTitle}>
+            Quick Start Challenges
+          </ThemedText>
+          <View style={styles.challengeGrid}>
+            {DEFAULT_CHALLENGES.map((challenge, index) => (
+              <TouchableOpacity
+                key={index}
+                style={[
+                  styles.challengeCard,
+                  styles[`challengeType${index + 1}`],
+                  { flex: 1 },
+                ]}
+                onPress={() => selectDefaultChallenge(challenge)}
+              >
+                <ThemedText style={styles.cardTitle}>
+                  {challenge.title}
+                </ThemedText>
+                <ThemedText style={styles.cardDescription}>
+                  {challenge.description}
+                </ThemedText>
+              </TouchableOpacity>
+            ))}
+          </View>
         </ThemedView>
+        <View style={styles.formSeparator} />
 
-        <ThemedView style={styles.form}>
+        <ThemedView style={[styles.section, styles.form]}>
+          <ThemedText style={styles.headerTitle}>
+            Create New Challenge
+          </ThemedText>
           <ThemedText>Challenge Title *</ThemedText>
           <TextInput
             style={styles.input}
@@ -229,19 +244,26 @@ export default function CreateChallengeScreen() {
             <TouchableOpacity
               style={styles.pickerButton}
               onPress={() => {
-                if (Platform.OS === 'ios') {
+                if (Platform.OS === "ios") {
                   ActionSheetIOS.showActionSheetWithOptions(
                     {
-                      options: ['Cancel', ...users.filter(u => u.id !== user?.id).map(u => u.username)],
+                      options: [
+                        "Cancel",
+                        ...users
+                          .filter((u) => u.id !== user?.id)
+                          .map((u) => u.username),
+                      ],
                       cancelButtonIndex: 0,
-                      title: 'Select a Coach',
+                      title: "Select a Coach",
                     },
                     (buttonIndex) => {
                       if (buttonIndex !== 0) {
-                        const selectedUser = users.filter(u => u.id !== user?.id)[buttonIndex - 1];
+                        const selectedUser = users.filter(
+                          (u) => u.id !== user?.id,
+                        )[buttonIndex - 1];
                         setSelectedCoach(selectedUser.id.toString());
                       }
-                    }
+                    },
                   );
                 } else {
                   // Fallback to default Picker for other platforms
@@ -260,15 +282,16 @@ export default function CreateChallengeScreen() {
                           value={otherUser.id.toString()}
                         />
                       ))}
-                  </Picker>
+                  </Picker>;
                 }
               }}
             >
               <View style={styles.pickerContainer}>
                 <ThemedText style={styles.pickerText}>
                   {selectedCoach
-                    ? users.find(u => u.id.toString() === selectedCoach)?.username
-                    : 'Select a Coach'}
+                    ? users.find((u) => u.id.toString() === selectedCoach)
+                        ?.username
+                    : "Select a Coach"}
                 </ThemedText>
                 <IconSymbol name="chevron.right" size={20} color="#999" />
               </View>
@@ -292,6 +315,61 @@ export default function CreateChallengeScreen() {
 }
 
 const styles = StyleSheet.create({
+  ...GlobalStyles,
+  quickStartSection: {
+    padding: 20,
+    marginBottom: 20,
+  },
+  quickStartTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 16,
+  },
+  challengeGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 12,
+    justifyContent: "space-between",
+  },
+  challengeCard: {
+    padding: 16,
+    borderRadius: 12,
+    minHeight: 120,
+    width: "48%",
+    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  challengeType1: {
+    backgroundColor: "#FFE5E5", // Pastel red
+  },
+  challengeType2: {
+    backgroundColor: "#E5FFE5", // Pastel green
+  },
+  challengeType3: {
+    backgroundColor: "#E5E5FF", // Pastel blue
+  },
+  challengeType4: {
+    backgroundColor: "#FFE5FF", // Pastel purple
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    marginBottom: 8,
+    color: "#333",
+  },
+  cardDescription: {
+    fontSize: 14,
+    color: "#666",
+  },
+  formSeparator: {
+    height: 1,
+    backgroundColor: "rgba(0,0,0,0.1)",
+    marginVertical: 10,
+  },
   coachSelectContainer: {
     position: "relative",
     zIndex: 999,
@@ -323,9 +401,9 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   pickerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     backgroundColor: "#fff",
     borderRadius: 8,
     borderWidth: 1,
@@ -335,7 +413,7 @@ const styles = StyleSheet.create({
   },
   pickerText: {
     fontSize: 16,
-    color: '#000',
+    color: "#000",
   },
   container: {
     flex: 1,
@@ -353,10 +431,6 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.1)",
     borderRadius: 8,
     marginTop: 10,
-  },
-  cardTitle: {
-    fontWeight: "bold",
-    marginBottom: 5,
   },
   form: {
     padding: 20,

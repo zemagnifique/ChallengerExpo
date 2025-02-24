@@ -31,31 +31,6 @@ export default function UserScreen() {
     <ThemedView style={styles.userContainer}>
       <ThemedText style={styles.username}>Profile: {user?.username}</ThemedText>
 
-      <ThemedView style={styles.notificationsContainer}>
-        <ThemedText type="subtitle">Notifications</ThemedText>
-        {notifications.length === 0 ? (
-          <ThemedText>No notifications</ThemedText>
-        ) : (
-          notifications.map((notification) => (
-            <TouchableOpacity
-              key={notification.id}
-              style={[
-                styles.notification,
-                notification.read && styles.notificationRead,
-              ]}
-              onPress={() => markNotificationAsRead(notification.id)}
-            >
-              <ThemedText style={styles.notificationText}>
-                {notification.message}
-              </ThemedText>
-              <ThemedText style={styles.notificationDate}>
-                {new Date(notification.createdAt).toLocaleDateString()}
-              </ThemedText>
-            </TouchableOpacity>
-          ))
-        )}
-      </ThemedView>
-
       <ThemedView style={styles.testControls}>
         <ThemedText type="subtitle">Test Controls</ThemedText>
         <TouchableOpacity
