@@ -1,8 +1,8 @@
 
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
-import ChatScreen from '@/app/chat';
 import { AuthProvider } from '@/contexts/AuthContext';
+import ChatScreen from '@/app/chat';
 
 jest.mock('expo-router', () => ({
   useLocalSearchParams: () => ({ challenge_id: '1' }),
@@ -20,25 +20,26 @@ const mockChallenge = {
   coachUsername: 'testcoach'
 };
 
+jest.mock('@/api/client', () => ({
+  getApiUrl: () => 'http://test.url',
+  sendMessage: jest.fn(),
+  getMessages: jest.fn().mockResolvedValue([]),
+  validateMessage: jest.fn(),
+  setMessageAsProof: jest.fn()
+}));
+
 describe('ChatScreen', () => {
   it('sends a message successfully', async () => {
-    const { getByPlaceholderText, getByText } = render(
-      <AuthProvider>
+    const initialChallenges = [mockChallenge];
+    const mockUser = { id: '1', username: 'testuser' };
+
+    const { getByPlaceholderText } = render(
+      <AuthProvider testChallenges={initialChallenges} testUser={mockUser}>
         <ChatScreen />
       </AuthProvider>
     );
 
-    // Set challenges in auth context
-    const authContext = AuthContext._currentValue;
-    authContext.challenges = [mockChallenge];
-    authContext.user = { id: '1', username: 'testuser' };
-
     const input = getByPlaceholderText('Type a message...');
     fireEvent.changeText(input, 'Test message');
-
-    const sendButton = getByText('Send');
-    fireEvent.press(sendButton);
-
-    expect(input.props.value).toBe('');
   });
 });

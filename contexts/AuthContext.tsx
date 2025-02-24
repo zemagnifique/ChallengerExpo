@@ -41,10 +41,18 @@ const AuthContext = createContext<AuthContextType>({
   sendProofMessage: async () => {},
 });
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
-  const [challenges, setChallenges] = useState<Challenge[]>([]);
+export const AuthProvider = ({ 
+  children,
+  testChallenges,
+  testUser 
+}: { 
+  children: React.ReactNode,
+  testChallenges?: Challenge[],
+  testUser?: User | null
+}) => {
+  const [isAuthenticated, setIsAuthenticated] = useState(!!testUser);
+  const [user, setUser] = useState<User | null>(testUser || null);
+  const [challenges, setChallenges] = useState<Challenge[]>(testChallenges || []);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const socketRef = useRef<Socket | null>(null);
 
