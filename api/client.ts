@@ -1,13 +1,14 @@
 import { Platform } from "react-native";
 
 const getApiUrl = () => {
+  const port = 3001;
   if (Platform.OS === "web" && typeof window !== "undefined") {
     const protocol = window.location.protocol;
     const hostname = window.location.hostname;
-    return `${protocol}//${hostname}`;
+    return `${protocol}//${hostname}:${port}`;
   }
 
-  return "https://137cc191-b824-40bd-89ee-eb24e7330321-00-qgvpjoy7e1af.worf.replit.dev";
+  return "https://137cc191-b824-40bd-89ee-eb24e7330321-00-qgvpjoy7e1af.worf.replit.dev:3001";
 };
 
 const API_URL = getApiUrl();
