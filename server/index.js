@@ -47,6 +47,15 @@ const pool = new Pool({
 
 // Configure multer for image upload
 const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/')
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
+    cb(null, uniqueSuffix + path.extname(file.originalname))
+  }
+});
+const storage = multer.diskStorage({
   destination: './uploads/',
   filename: (req, file, cb) => {
     const uniqueName = `${uuidv4()}${path.extname(file.originalname)}`;
@@ -76,6 +85,7 @@ app.use((req, res, next) => {
 });
 
 app.use(express.json());
+app.use('/uploads', express.static('uploads'));
 
 // Login endpoint
 app.post("/api/login", async (req, res) => {
@@ -238,6 +248,30 @@ app.get("/api/users/username", async (req, res) => {
     res.json(result.rows[0]);
   } catch (error) {
     console.error("Error fetching user:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Ensure uploads directory exists
+if (!fs.existsSync('uploads')) {
+  fs.mkdirSync('uploads');
+}
+
+// Handle image upload for messages
+app.post("/api/challenges/:challenge_id/messages", upload.single('image'), async (req, res) => {
+  try {
+    const { user_id, text, isProof } = req.body;
+    const image_url = req.file ? `/uploads/${req.file.filename}` : null;
+
+    const result = await pool.query(
+      "INSERT INTO messages (challenge_id, user_id, text, image_url, is_proof, created_at) VALUES ($1, $2, $3, $4, $5, NOW()) RETURNING *",
+      [req.params.challenge_id, user_id, text, image_url, isProof === 'true']
+    );
+
+    io.to(`challenge_${req.params.challenge_id}`).emit('newMessage', result.rows[0]);
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error("Error sending message:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });

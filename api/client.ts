@@ -146,7 +146,7 @@ export const ApiClient = {
     message: {
       user_id: string;
       text?: string;
-      image?: File;
+      image?: string;
       isProof?: boolean;
     },
   ) => {
@@ -154,8 +154,12 @@ export const ApiClient = {
       const formData = new FormData();
       formData.append('user_id', message.user_id);
       if (message.text) formData.append('text', message.text);
-      if (message.image) formData.append('image', message.image);
-      if (message.isProof) formData.append('isProof', String(message.isProof));
+      if (message.image) {
+        const response = await fetch(message.image);
+        const blob = await response.blob();
+        formData.append('image', blob, 'image.jpg');
+      }
+      if (message.isProof !== undefined) formData.append('isProof', String(message.isProof));
       
       const response = await fetch(
         `${API_URL}/api/challenges/${challenge_id}/messages`,
