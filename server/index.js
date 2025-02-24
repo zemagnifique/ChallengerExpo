@@ -342,11 +342,15 @@ app.put("/api/challenges/:challenge_id/status", async (req, res) => {
 
 // Add a message to a challenge
 app.post("/api/challenges/:challenge_id/messages", upload.single('image'), async (req, res) => {
-  const { user_id, text, isProof } = req.body;
-  const image_url = req.file ? `/uploads/${req.file.filename}` : null;
-  console.log("Processing image upload:", { file: req.file, image_url });
-
   try {
+    const { user_id, text, isProof } = req.body;
+    let image_url = null;
+    
+    if (req.file) {
+      image_url = `/uploads/${req.file.filename}`;
+      console.log("Image uploaded successfully:", image_url);
+    }
+
     const result = await pool.query(
       `INSERT INTO messages (challenge_id, user_id, text, image_url, is_proof, created_at)
        VALUES ($1, $2, $3, $4, $5, NOW())
