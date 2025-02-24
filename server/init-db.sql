@@ -1,4 +1,3 @@
-
 -- Create users table
 CREATE TABLE IF NOT EXISTS users (
   id VARCHAR(255) PRIMARY KEY,
@@ -26,7 +25,7 @@ CREATE TABLE IF NOT EXISTS challenges (
 CREATE TABLE IF NOT EXISTS messages (
   id SERIAL PRIMARY KEY,
   challenge_id INTEGER REFERENCES challenges(id),
-  user_id VARCHAR(255) REFERENCES users(id),
+  user_id TEXT NOT NULL,
   text TEXT,
   image_url TEXT,
   is_proof BOOLEAN DEFAULT FALSE,

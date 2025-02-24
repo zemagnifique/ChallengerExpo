@@ -146,17 +146,22 @@ export const ApiClient = {
     message: {
       user_id: string;
       text?: string;
-      imageUrl?: string;
+      image?: File;
       isProof?: boolean;
     },
   ) => {
     try {
+      const formData = new FormData();
+      formData.append('user_id', message.user_id);
+      if (message.text) formData.append('text', message.text);
+      if (message.image) formData.append('image', message.image);
+      if (message.isProof) formData.append('isProof', String(message.isProof));
+      
       const response = await fetch(
         `${API_URL}/api/challenges/${challenge_id}/messages`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(message),
+          body: formData,
         },
       );
       if (!response.ok) {

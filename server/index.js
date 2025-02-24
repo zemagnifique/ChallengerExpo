@@ -1,4 +1,8 @@
-const express = require("express");
+const express = require('express');
+const multer = require('multer');
+const { v4: uuidv4 } = require('uuid');
+const path = require('path');
+const fs = require('fs');
 const cors = require("cors");
 const { Pool } = require("pg");
 
@@ -39,6 +43,27 @@ io.on("connection", (socket) => {
 // Configure PostgreSQL connection
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
+});
+
+// Configure multer for image upload
+const storage = multer.diskStorage({
+  destination: './uploads/',
+  filename: (req, file, cb) => {
+    const uniqueName = `${uuidv4()}${path.extname(file.originalname)}`;
+    cb(null, uniqueName);
+  }
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 5000000 }, // 5MB limit
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only images are allowed'));
+    }
+  }
 });
 
 // Configure CORS
@@ -202,7 +227,7 @@ app.get("/api/users/username", async (req, res) => {
     if (isNaN(userId)) {
       return res.status(400).json({ error: "Invalid user ID" });
     }
-    
+
     const result = await pool.query(
       "SELECT username FROM users WHERE id = $1",
       [userId]
@@ -273,8 +298,9 @@ app.put("/api/challenges/:challenge_id/status", async (req, res) => {
 });
 
 // Add a message to a challenge
-app.post("/api/challenges/:challenge_id/messages", async (req, res) => {
-  const { user_id, text, imageUrl, isProof } = req.body;
+app.post("/api/challenges/:challenge_id/messages", upload.single('image'), async (req, res) => {
+  const { user_id, text, isProof } = req.body;
+  const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
 
   try {
     const result = await pool.query(
@@ -386,7 +412,7 @@ app.put("/api/messages/:messageId/set-proof", async (req, res) => {
 
     console.log(`Broadcasting updated messages to room challenge_${challengeId}`);
     console.log("Updated message data:", messageResult.rows[0]);
-    
+
     // Emit updated messages to all clients in the challenge room
     io.to(`challenge_${challengeId}`).emit('updateMessages', messages);
 
