@@ -1,9 +1,9 @@
+
 import { render, act } from '@testing-library/react-native';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import React from 'react';
 import { Text } from 'react-native';
 
-// Create a test component that uses the hook
 const TestComponent = () => {
   const { login, isAuthenticated } = useAuth();
   return <Text testID="auth-status">{isAuthenticated ? 'logged-in' : 'logged-out'}</Text>;
