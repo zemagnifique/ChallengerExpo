@@ -458,6 +458,13 @@ app.put("/api/messages/:messageId/set-proof", async (req, res) => {
   }
 });
 
+// Configure CORS for all routes
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 server.listen(PORT, "0.0.0.0", () => {
   console.log(`API Server running on port ${PORT}`);
 });
