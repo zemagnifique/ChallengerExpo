@@ -10,6 +10,14 @@ const app = express();
 const PORT = 3001;
 const http = require("http");
 const server = http.createServer(app);
+
+// Configure CORS before any routes
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 const io = require("socket.io")(server, {
   cors: {
     origin: "*",
@@ -457,13 +465,6 @@ app.put("/api/messages/:messageId/set-proof", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
-
-// Configure CORS for all routes
-app.use(cors({
-  origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
 
 server.listen(PORT, "0.0.0.0", () => {
   console.log(`API Server running on port ${PORT}`);
