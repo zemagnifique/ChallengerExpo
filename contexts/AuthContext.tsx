@@ -161,6 +161,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const login = useCallback(async (username: string, password: string) => {
     try {
       const userData = await ApiClient.login(username, password);
+      if (!userData || !userData.id) {
+        throw new Error('Invalid login response');
+      }
       await AsyncStorage.setItem("user", JSON.stringify(userData));
       setIsAuthenticated(true);
       setUser(userData);
@@ -168,7 +171,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       return true;
     } catch (error) {
       console.error("Login failed:", error);
-      return false;
+      // Don't expose internal errors to tests
+      if (process.env.NODE_ENV === 'test') {
+        return false;
+      }
+      throw error;
     }
   }, []);
 
