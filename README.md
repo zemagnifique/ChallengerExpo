@@ -2,6 +2,58 @@
 
 A React Native application built with Expo that facilitates coaching relationships and challenge management. The app enables users to create challenges, assign coaches, track progress, and communicate through a real-time chat system.
 
+## Getting Started
+
+### Prerequisites
+
+- Node.js 16+ and npm/yarn
+- PostgreSQL database
+- Expo CLI (`npm install -g expo-cli`)
+- Expo Go app on your mobile device (for testing)
+
+### Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/ChallengerExpo.git
+cd ChallengerExpo
+```
+
+2. Install dependencies:
+```bash
+npm install
+# or
+yarn install
+```
+
+3. Configure environment:
+```bash
+# Copy the environment template
+cp .env.example .env
+# Edit .env to match your configuration
+```
+
+4. Start the server:
+```bash
+# Using the automated startup script (recommended)
+cd server
+node start.js
+
+# Or manually
+cd server
+node init-db.js # Only needed first time
+node index.js
+```
+
+5. Start the Expo development server (in a new terminal):
+```bash
+npm start
+# or
+yarn start
+```
+
+6. Scan the QR code with Expo Go app or use an emulator/simulator
+
 ## Core Features
 
 ### 1. Authentication System
@@ -46,7 +98,7 @@ A React Native application built with Expo that facilitates coaching relationshi
 
 ## Image Upload Feature
 
-The application now supports image uploads in messages. Users can:
+The application supports image uploads in messages. Users can:
 
 1. Click the photo icon in the message input area to select an image from their device
 2. Send the image as part of a message
@@ -57,7 +109,7 @@ The application now supports image uploads in messages. Users can:
 - Images are stored in a `/uploads` directory on the server
 - Each image is given a unique filename to prevent conflicts
 - The server supports common image formats (jpg, jpeg, png, gif)
-- Image uploads are limited to 5MB in size
+- Image uploads are limited to 10MB in size
 - The database stores the path to the image in the `image_url` field of the messages table
 
 ### Technical Notes
@@ -111,35 +163,45 @@ The application now supports image uploads in messages. Users can:
 - PUT `/api/messages/:id/validate` - Validate proof message
 - PUT `/api/messages/:id/set-proof` - Mark message as proof
 
-## Development Setup
+### Files
+- POST `/api/upload` - Upload an image file
 
-1. Install dependencies:
-```bash
-npm install
-```
+## Troubleshooting
 
-2. Initialize the database:
-```bash
-node server/init-db.js
-```
+### Common Issues
 
-3. Start the development server:
-```bash
-npm start
-```
+1. **Server connection issues**:
+   - Ensure the server is running (`node server/index.js`)
+   - Check that the API URL in `api/client.ts` is correctly configured for your environment
+   - For Android emulators, try using `10.0.2.2` instead of `localhost`
 
-## Testing
+2. **Image upload problems**:
+   - Ensure the `/uploads` directory exists and has proper permissions
+   - Check that the form field name is 'image' in the FormData object
+   - Verify image size is under 10MB
+   - Check the server console for detailed error messages
 
-The project includes comprehensive tests for:
-- Components
-- API client
-- Authentication context
-- Chat functionality
+3. **Socket connection issues**:
+   - Ensure the WebSocket server is running
+   - Check for any network restrictions or firewall issues
+   - Verify the socket connection URL matches your environment
 
-Run tests with:
-```bash
-npm test
-```
+4. **Database errors**:
+   - Ensure PostgreSQL is running
+   - Check that the database credentials in `server/index.js` are correct
+   - Verify that the required tables exist
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License.
 
 ## Project Structure
 

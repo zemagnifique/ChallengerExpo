@@ -15,6 +15,7 @@ export type Message = {
   is_read: boolean; // using API field directly
   isProof?: boolean;
   isValidated?: boolean;
+  imageUrl?: string; // Added for image support
 };
 
 export type Challenge = {
@@ -69,4 +70,9 @@ export type AuthContextType = {
   archiveChallenge: (challenge_id: string) => Promise<void>;
   getUnreadMessageCount: (challenge_id: string) => number;
   markMessagesAsRead: (challenge_id: string) => Promise<void>;
+  validateMessage: (messageId: string, isValidated: boolean) => Promise<void>;
+  setMessageAsProof: (messageId: string, isProof: boolean) => Promise<void>;
+  // Legacy functions to maintain compatibility - these are aliases
+  validateProof: (messageId: string, isValidated: boolean, challengeId: string) => Promise<void>;
+  sendProofMessage: (challengeId: string, message: Partial<Message>) => Promise<void>;
 };

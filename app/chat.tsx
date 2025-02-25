@@ -16,6 +16,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import * as ImagePicker from "expo-image-picker";
 import { ApiClient } from "@/api/client";
+import { Message } from "@/types";
 
 // Get the API URL for image source URLs
 const API_URL = ApiClient.getApiUrl();
@@ -71,7 +72,7 @@ export default function ChatScreen() {
       try {
         if (challenge?.status !== "pending") {
           const messages = await ApiClient.getMessages(challenge_id as string);
-          const processedMessages = messages.map((msg) => ({
+          const processedMessages = messages.map((msg: Message) => ({
             ...msg,
             is_read: false,
           }));
@@ -294,13 +295,13 @@ export default function ChatScreen() {
     }
   };
 
-  const handleDoubleTap = async (message: any) => {
+  const handleDoubleTap = async (message: Message) => {
     const now = Date.now();
     if (lastTap && now - lastTap < 300) {
       try {
         if (isCoach && message.isProof && message.user_id !== user?.id) {
-          await ApiClient.validateMessage(message.id, !message.isValidated);
-          const updatedMessages = challenge.messages.map((msg) => {
+          await ApiClient.validateMessage(message.id as string, !message.isValidated);
+          const updatedMessages = challenge.messages.map((msg: Message) => {
             if (msg.id === message.id) {
               return { ...msg, isValidated: !msg.isValidated };
             }
@@ -313,8 +314,8 @@ export default function ChatScreen() {
             coachUsername: challenge.coachUsername,
           });
         } else if (!isCoach && message.user_id === user?.id) {
-          await ApiClient.setMessageAsProof(message.id, !message.isProof);
-          const updatedMessages = challenge.messages.map((msg) => {
+          await ApiClient.setMessageAsProof(message.id as string, !message.isProof);
+          const updatedMessages = challenge.messages.map((msg: Message) => {
             if (msg.id === message.id) {
               return { ...msg, isProof: !message.isProof };
             }

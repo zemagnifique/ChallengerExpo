@@ -7,9 +7,21 @@ const getApiUrl = () => {
     const hostname = window.location.hostname;
     return `${protocol}//${hostname}:${port}`;
   }
-  return "http://10.0.0.234:3001";
-  // return "http://localhost:3001";
-  //return "https://137cc191-b824-40bd-89ee-eb24e7330321-00-qgvpjoy7e1af.worf.replit.dev:3001";
+  
+  // For React Native, we need to detect the right host IP
+  // Development: Use localhost for iOS simulator or Metro bundler host for Android
+  if (__DEV__) {
+    // iOS simulator can use localhost
+    if (Platform.OS === 'ios') {
+      return "http://10.0.0.234:3001";
+      return "http://localhost:3001";
+    }
+    // Android needs the Metro bundler IP
+    return "http://10.0.0.234:3001"; // Android emulator default - change if needed
+  }
+  // Production environment
+  // This would typically be your deployed server URL
+  return "https://your-production-api.com";
 };
 
 const API_URL = getApiUrl();

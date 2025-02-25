@@ -397,6 +397,38 @@ export const AuthProvider = ({
     [addNotification]
   );
 
+  // Add new function to validate message
+  const validateMessage = useCallback(
+    async (messageId: string, isValidated: boolean) => {
+      try {
+        await ApiClient.validateMessage(messageId, isValidated);
+        
+        // Notification
+        addNotification(`Message ${isValidated ? 'approved' : 'disapproved'}`);
+      } catch (error) {
+        console.error("Error validating message:", error);
+        throw error;
+      }
+    },
+    [addNotification]
+  );
+
+  // Add function to set message as proof
+  const setMessageAsProof = useCallback(
+    async (messageId: string, isProof: boolean) => {
+      try {
+        await ApiClient.setMessageAsProof(messageId, isProof);
+        
+        // Notification
+        addNotification(`Message ${isProof ? 'marked as proof' : 'unmarked as proof'}`);
+      } catch (error) {
+        console.error("Error setting message as proof:", error);
+        throw error;
+      }
+    },
+    [addNotification]
+  );
+
   // Add new function to send proof messages
   const sendProofMessage = useCallback(
     async (challengeId: string, message: Partial<Message>) => {
@@ -440,6 +472,8 @@ export const AuthProvider = ({
         setChallenges,
         validateProof,
         sendProofMessage,
+        validateMessage,
+        setMessageAsProof,
       }}
     >
       {children}
