@@ -66,6 +66,7 @@ yarn start
   - Title and description
   - Start and end dates
   - Frequency (Daily/Weekly)
+  - Day selection for weekly challenges
   - Proof requirements
   - Coach assignment
 - View active and pending challenges
@@ -89,7 +90,15 @@ yarn start
 - Real-time notifications
 - Status updates
 
-### 5. User Interface
+### 5. Reminder System
+- Automatic reminder notifications:
+  - Daily reminders for daily challenges
+  - Weekly reminders for weekly challenges based on the selected day
+- Customizable reminder times (default: 10 AM)
+- Real-time notifications via websockets when online
+- Database-stored notifications for when offline
+
+### 6. User Interface
 - Dark/Light theme support
 - Responsive design
 - Gesture support (swipe actions)

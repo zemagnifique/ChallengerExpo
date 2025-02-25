@@ -1,4 +1,5 @@
 import { Platform } from "react-native";
+import { useCallback } from "react";
 
 const getApiUrl = () => {
   const port = 3001;
@@ -13,12 +14,15 @@ const getApiUrl = () => {
   if (__DEV__) {
     // iOS simulator can use localhost
     if (Platform.OS === 'ios') {
-      return "http://10.0.0.234:3001";
+      // For iOS simulator - try to use localhost first
       return "http://localhost:3001";
     }
-    // Android needs the Metro bundler IP
-    return "http://10.0.0.234:3001"; // Android emulator default - change if needed
+    
+    // For Android - use the default IP that works in most cases
+    // Note: This might need to be changed based on your network configuration
+    return "http://10.0.2.2:3001"; // Standard Android emulator IP for localhost
   }
+  
   // Production environment
   // This would typically be your deployed server URL
   return "https://your-production-api.com";
@@ -322,5 +326,27 @@ export const ApiClient = {
     }
 
     return response.json();
+  },
+
+  // Add setup reminders function
+  setUpReminders: async (challenge_id: string, user_id: string): Promise<any> => {
+    try {
+      const response = await fetch(`${API_URL}/api/challenges/${challenge_id}/reminders`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ user_id }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to set up reminders');
+      }
+      
+      return response.json();
+    } catch (error) {
+      console.error("API Error:", error);
+      throw error;
+    }
   },
 };

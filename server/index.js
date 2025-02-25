@@ -103,6 +103,17 @@ io.on("connection", (socket) => {
   socket.on("disconnect", (reason) => {
     console.log(`Client ${socket.id} disconnected. Reason: ${reason}`);
   });
+
+  // Add handler for user notifications
+  socket.on("subscribeToUserNotifications", (userId) => {
+    socket.join(`user_${userId}`);
+    console.log(`Client ${socket.id} subscribed to notifications for user: ${userId}`);
+  });
+  
+  socket.on("unsubscribeFromUserNotifications", (userId) => {
+    socket.leave(`user_${userId}`);
+    console.log(`Client ${socket.id} unsubscribed from notifications for user: ${userId}`);
+  });
 });
 
 // Configure PostgreSQL connection
@@ -198,6 +209,7 @@ app.post("/api/challenges", async (req, res) => {
     startDate,
     endDate,
     frequency,
+    weekday,
     proofRequirements,
     user_id,
     coachId,
@@ -229,6 +241,14 @@ app.post("/api/challenges", async (req, res) => {
     });
   }
 
+  // Additional validation for weekly challenges
+  if (frequency === "Weekly" && !weekday) {
+    return res.status(400).json({
+      error: "Weekday is required for weekly challenges",
+      required: ["weekday"],
+    });
+  }
+
   try {
     // Validate users exist
     const userCheck = await pool.query(
@@ -240,8 +260,8 @@ app.post("/api/challenges", async (req, res) => {
     }
 
     const result = await pool.query(
-      `INSERT INTO challenges (title, description, start_date, end_date, frequency, proof_requirements, status, user_id, coach_id, created_at, archived)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), false)
+      `INSERT INTO challenges (title, description, start_date, end_date, frequency, weekday, proof_requirements, status, user_id, coach_id, created_at, archived)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), false)
        RETURNING *`,
       [
         title,
@@ -249,6 +269,7 @@ app.post("/api/challenges", async (req, res) => {
         startDate,
         endDate,
         frequency,
+        weekday || null,
         proofRequirements,
         "pending",
         user_id,
@@ -267,6 +288,7 @@ app.post("/api/challenges", async (req, res) => {
       coachId: result.rows[0].coach_id,
       startDate: result.rows[0].start_date,
       endDate: result.rows[0].end_date,
+      weekday: result.rows[0].weekday,
       createdAt: result.rows[0].created_at,
     };
 
@@ -610,6 +632,190 @@ app.post("/api/upload", (req, res) => {
       }
     });
   });
+});
+
+// Reminder system - runs every minute to check for reminders to send
+const REMINDER_CHECK_INTERVAL = 60000; // 1 minute in ms
+
+async function checkAndSendReminders() {
+  try {
+    console.log("Checking for reminders to send...");
+    
+    // Get all reminders that need to be sent
+    const now = new Date();
+    const remindersResult = await pool.query(
+      `SELECT r.id, r.challenge_id, r.user_id, r.reminder_type, c.title, c.frequency, c.weekday, c.status, u.username
+       FROM reminders r
+       JOIN challenges c ON r.challenge_id = c.id
+       JOIN users u ON r.user_id = u.id
+       WHERE r.next_reminder <= NOW() AND r.sent = false AND c.status = 'active'`
+    );
+    
+    if (remindersResult.rows.length === 0) {
+      return;
+    }
+    
+    console.log(`Found ${remindersResult.rows.length} reminders to send`);
+    
+    // Send notifications for each reminder
+    for (const reminder of remindersResult.rows) {
+      try {
+        // Create a notification in the database
+        await pool.query(
+          `INSERT INTO notifications (user_id, message, read, created_at)
+           VALUES ($1, $2, false, NOW())`,
+          [
+            reminder.user_id,
+            createReminderMessage(reminder),
+          ]
+        );
+        
+        // Update the reminder as sent and schedule the next one
+        await updateReminderStatus(reminder);
+        
+        // If connected, emit a socket event to the user
+        io.to(`user_${reminder.user_id}`).emit('newNotification', {
+          type: 'reminder',
+          challengeId: reminder.challenge_id,
+          message: createReminderMessage(reminder),
+        });
+        
+        console.log(`Sent reminder for challenge ${reminder.challenge_id} to user ${reminder.user_id}`);
+      } catch (error) {
+        console.error(`Error sending reminder ${reminder.id}:`, error);
+      }
+    }
+  } catch (error) {
+    console.error("Error checking reminders:", error);
+  }
+}
+
+function createReminderMessage(reminder) {
+  if (reminder.reminder_type === 'daily_proof') {
+    return `Don't forget to submit proof for your "${reminder.title}" challenge today!`;
+  } else if (reminder.reminder_type === 'weekly_proof') {
+    return `Remember to submit proof for your "${reminder.title}" challenge this week! Due day: ${reminder.weekday}`;
+  } else {
+    return `Reminder for your "${reminder.title}" challenge`;
+  }
+}
+
+async function updateReminderStatus(reminder) {
+  // Mark the current reminder as sent
+  await pool.query(
+    `UPDATE reminders SET sent = true WHERE id = $1`,
+    [reminder.id]
+  );
+  
+  // Calculate the next reminder time based on type
+  let nextReminderDate = new Date();
+  
+  if (reminder.reminder_type === 'daily_proof') {
+    // Set next reminder for tomorrow
+    nextReminderDate.setDate(nextReminderDate.getDate() + 1);
+    nextReminderDate.setHours(10, 0, 0, 0); // 10:00 AM
+  } else if (reminder.reminder_type === 'weekly_proof') {
+    // Set next reminder for next week
+    nextReminderDate.setDate(nextReminderDate.getDate() + 7);
+    nextReminderDate.setHours(10, 0, 0, 0); // 10:00 AM
+  }
+  
+  // Create a new reminder for the next time
+  await pool.query(
+    `INSERT INTO reminders (challenge_id, user_id, reminder_type, next_reminder, sent, created_at)
+     VALUES ($1, $2, $3, $4, false, NOW())`,
+    [
+      reminder.challenge_id,
+      reminder.user_id,
+      reminder.reminder_type,
+      nextReminderDate
+    ]
+  );
+}
+
+// Start the reminder checker
+setInterval(checkAndSendReminders, REMINDER_CHECK_INTERVAL);
+
+// New endpoint to create or update reminders for a challenge
+app.post("/api/challenges/:challenge_id/reminders", async (req, res) => {
+  const { challenge_id } = req.params;
+  const { user_id } = req.body;
+  
+  if (!user_id) {
+    return res.status(400).json({ error: "User ID is required" });
+  }
+  
+  try {
+    // Get challenge details
+    const challengeResult = await pool.query(
+      "SELECT * FROM challenges WHERE id = $1",
+      [challenge_id]
+    );
+    
+    if (challengeResult.rows.length === 0) {
+      return res.status(404).json({ error: "Challenge not found" });
+    }
+    
+    const challenge = challengeResult.rows[0];
+    
+    // Delete any existing reminders for this challenge and user
+    await pool.query(
+      "DELETE FROM reminders WHERE challenge_id = $1 AND user_id = $2",
+      [challenge_id, user_id]
+    );
+    
+    // Create new reminders based on challenge frequency
+    if (challenge.status === 'active') {
+      // Set the initial reminder time (10 AM)
+      const reminderDate = new Date();
+      reminderDate.setHours(10, 0, 0, 0);
+      
+      if (challenge.frequency === 'Daily') {
+        // Create a daily reminder
+        await pool.query(
+          `INSERT INTO reminders (challenge_id, user_id, reminder_type, next_reminder, sent, created_at)
+           VALUES ($1, $2, $3, $4, false, NOW())`,
+          [
+            challenge_id,
+            user_id,
+            'daily_proof',
+            reminderDate
+          ]
+        );
+      } else if (challenge.frequency === 'Weekly') {
+        // For weekly challenges, set the reminder for the specified weekday
+        const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const today = new Date().getDay(); // 0 = Sunday, 1 = Monday, etc.
+        const targetDay = weekdays.indexOf(challenge.weekday);
+        
+        if (targetDay !== -1) {
+          // Calculate days until the next occurrence of the target weekday
+          let daysToAdd = (targetDay - today + 7) % 7;
+          if (daysToAdd === 0) {
+            daysToAdd = 7; // If today is the target day, set for next week
+          }
+          
+          reminderDate.setDate(reminderDate.getDate() + daysToAdd);
+          
+          await pool.query(
+            `INSERT INTO reminders (challenge_id, user_id, reminder_type, next_reminder, sent, created_at)
+             VALUES ($1, $2, $3, $4, false, NOW())`,
+            [
+              challenge_id,
+              user_id,
+              'weekly_proof',
+              reminderDate
+            ]
+          );
+        }
+      }
+    }
+    
+    res.status(201).json({ message: "Reminders created successfully" });
+  } catch (error) {
+    console.error("Error creating reminders:", error);
+    res.status(500).json({ error: "Internal server error", details: error.message });
+  }
 });
 
 server.listen(PORT, "0.0.0.0", () => {

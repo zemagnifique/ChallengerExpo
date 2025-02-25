@@ -14,6 +14,7 @@ import { ApiClient } from "@/api/client";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
+import { WeekdayPicker } from "@/components/WeekdayPicker";
 import { useRouter } from "expo-router";
 import { useAuth } from "@/contexts/AuthContext";
 import { GlobalStyles } from "@/constants/Styles";
@@ -36,6 +37,7 @@ const DEFAULT_CHALLENGES = [
     title: "Weekly Meditation",
     description: "1 hour of meditation",
     frequency: "Weekly",
+    weekday: "Sunday",
     proofRequirements: "Screenshot of meditation app completion",
   },
 ];
@@ -48,6 +50,7 @@ export default function CreateChallengeScreen() {
     new Date(Date.now() + 180 * 24 * 60 * 60 * 1000),
   );
   const [frequency, setFrequency] = useState("Daily");
+  const [weekday, setWeekday] = useState<string | null>("Monday");
   const [proofRequirements, setProofRequirements] = useState("");
   const [selectedCoach, setSelectedCoach] = useState<number | null>(null);
   const [users, setUsers] = useState([]);
@@ -75,6 +78,7 @@ export default function CreateChallengeScreen() {
         startDate,
         endDate,
         frequency,
+        weekday: frequency === "Weekly" ? weekday : null,
         proofRequirements,
         user_id: user?.id?.toString() || "",
         coachId: selectedCoach?.toString() || "",
@@ -92,6 +96,9 @@ export default function CreateChallengeScreen() {
     setDescription(challenge.description);
     setFrequency(challenge.frequency);
     setProofRequirements(challenge.proofRequirements);
+    if (challenge.frequency === "Weekly" && challenge.weekday) {
+      setWeekday(challenge.weekday);
+    }
   };
 
   return (
@@ -214,6 +221,13 @@ export default function CreateChallengeScreen() {
               </TouchableOpacity>
             ))}
           </View>
+
+          {frequency === "Weekly" && (
+            <WeekdayPicker
+              selectedDay={weekday}
+              onDaySelected={setWeekday}
+            />
+          )}
 
           <ThemedText>Proof Requirements</ThemedText>
           <TextInput

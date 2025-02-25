@@ -37,6 +37,7 @@ const createTablesQueries = [
     start_date DATE NOT NULL,
     end_date DATE NOT NULL,
     frequency VARCHAR(50) NOT NULL,
+    weekday VARCHAR(10), 
     proof_requirements TEXT,
     status VARCHAR(50) NOT NULL DEFAULT 'pending',
     user_id INTEGER REFERENCES users(id),
@@ -66,6 +67,17 @@ const createTablesQueries = [
     read BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   )`,
+  
+  // Reminders table
+  `CREATE TABLE IF NOT EXISTS reminders (
+    id SERIAL PRIMARY KEY,
+    challenge_id INTEGER REFERENCES challenges(id),
+    user_id INTEGER REFERENCES users(id),
+    reminder_type VARCHAR(20) NOT NULL,
+    next_reminder TIMESTAMP NOT NULL,
+    sent BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  )`
 ];
 
 // Sample data for demonstration

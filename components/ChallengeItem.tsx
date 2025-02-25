@@ -158,7 +158,7 @@ export const ChallengeItem: React.FC<ChallengeItemProps> = ({
           <ThemedView
             style={[
               styles.listItem,
-              parseInt(user?.id) === item.coach_id
+              parseInt(user?.id) === parseInt(item.coach_id)
                 ? styles.coachingItem
                 : styles.challengeItem,
               getUnreadCount(item) > 0 && styles.unreadItem,

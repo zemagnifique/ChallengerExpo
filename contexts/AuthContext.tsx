@@ -244,17 +244,34 @@ export const AuthProvider = ({
 
   const updateChallengeStatus = useCallback(
     async (challenge_id: string, status: string, reason?: string) => {
-      const updatedChallenges = challenges.map((c) =>
-        c.id === challenge_id ? { ...c, status, rejectionReason: reason } : c,
-      );
-      await persistChallenges(updatedChallenges);
-      addNotification(
-        `Challenge ${
-          status === "rejected" ? "rejected" : "updated to " + status
-        }`,
-      );
+      try {
+        await ApiClient.updateChallengeStatus(challenge_id, status);
+        
+        // If the challenge is now active, set up reminders
+        if (status === "active" && user?.id) {
+          try {
+            await ApiClient.setUpReminders(challenge_id, user.id);
+            console.log("Reminders set up for challenge:", challenge_id);
+          } catch (error) {
+            console.error("Error setting up reminders:", error);
+          }
+        }
+        
+        const updatedChallenges = challenges.map((c) =>
+          c.id === challenge_id ? { ...c, status, rejectionReason: reason } : c,
+        );
+        await persistChallenges(updatedChallenges);
+        addNotification(
+          `Challenge ${
+            status === "rejected" ? "rejected" : "updated to " + status
+          }`,
+        );
+      } catch (error) {
+        console.error("Error updating challenge status:", error);
+        throw error;
+      }
     },
-    [challenges, persistChallenges, addNotification],
+    [challenges, persistChallenges, addNotification, user],
   );
 
   const updateChallengeCoach = useCallback(

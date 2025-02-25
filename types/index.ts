@@ -25,6 +25,7 @@ export type Challenge = {
   startDate: Date;
   endDate: Date;
   frequency: string;
+  weekday?: string; // Day of the week for weekly challenges
   proofRequirements: string;
   status: string;
   user_id: string;
