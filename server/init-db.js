@@ -1,10 +1,10 @@
-
+require('dotenv').config();
 const { Pool } = require('pg');
 const fs = require('fs');
 const path = require('path');
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL
+  connectionString: process.env.DATABASE_URL || 'postgres://localhost:5432/challenges_app'
 });
 
 async function initDatabase() {

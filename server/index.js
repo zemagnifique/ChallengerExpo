@@ -38,7 +38,11 @@ io.on("connection", (socket) => {
 
 // Configure PostgreSQL connection
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  user: 'myappuser',
+  host: 'localhost',
+  database: 'challenges_app',
+  password: 'mypassword',  // Change to your actual password
+  port: 5432,
 });
 
 // Configure CORS

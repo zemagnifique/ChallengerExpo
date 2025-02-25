@@ -1,0 +1,8 @@
+4. Create a User (optional but recommended)
+CREATE USER myappuser WITH ENCRYPTED PASSWORD 'mypassword';
+GRANT ALL PRIVILEGES ON DATABASE challenges_app TO myappuser;
+
+
+ALTER TABLE users OWNER TO myappuser;
+ALTER TABLE challenges OWNER TO myappuser;
+ALTER TABLE messages OWNER TO myappuser;

@@ -42,3 +42,18 @@ VALUES
   ('2', 'user2', 'user2'),
   ('3', 'user3', 'user3')
 ON CONFLICT (username) DO NOTHING;
+
+-- Insert sample challenges
+INSERT INTO challenges (title, description, start_date, end_date, frequency, proof_requirements, status, user_id, coach_id)
+VALUES
+  ('Daily Exercise', 'Complete 30 minutes of exercise', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '30 days', 'daily', 'Photo or workout summary', 'active', '1', '2'),
+  ('Reading Challenge', 'Read 20 pages daily', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '14 days', 'daily', 'Book progress screenshot', 'active', '2', '3'),
+  ('Meditation Practice', 'Meditate for 10 minutes', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '7 days', 'daily', 'Meditation app screenshot', 'pending', '3', '1');
+
+-- Insert sample messages
+INSERT INTO messages (challenge_id, user_id, text, is_proof, is_validated, is_read)
+VALUES
+  (1, '1', 'Started my exercise routine today!', false, false, true),
+  (1, '2', 'Great! Keep it up!', false, false, true),
+  (2, '2', 'Finished chapter 1 today', true, true, true),
+  (2, '3', 'Excellent progress!', false, false, false);

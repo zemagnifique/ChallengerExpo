@@ -7,8 +7,8 @@ const getApiUrl = () => {
     const hostname = window.location.hostname;
     return `${protocol}//${hostname}:${port}`;
   }
-
-  return "https://137cc191-b824-40bd-89ee-eb24e7330321-00-qgvpjoy7e1af.worf.replit.dev:3001";
+  return "http://localhost:3001";
+  //return "https://137cc191-b824-40bd-89ee-eb24e7330321-00-qgvpjoy7e1af.worf.replit.dev:3001";
 };
 
 const API_URL = getApiUrl();
