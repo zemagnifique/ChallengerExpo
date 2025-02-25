@@ -400,12 +400,14 @@ export default function ChatScreen() {
                   let imageUri = '';
                   
                   if (item.imageUrl) {
-                    // Handle server-side uploaded images
-                    // Make sure the URL starts with the API URL
+                    // Make sure the URL starts with the API URL if it's a relative path
                     if (item.imageUrl.startsWith('http')) {
                       imageUri = item.imageUrl;
                     } else {
-                      imageUri = `${API_URL}${item.imageUrl}`;
+                      // Ensure we have a clean path without double slashes
+                      const apiUrl = API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL;
+                      const imgPath = item.imageUrl.startsWith('/') ? item.imageUrl : `/${item.imageUrl}`;
+                      imageUri = `${apiUrl}${imgPath}`;
                     }
                     console.log("Using server image URL:", imageUri);
                   } else if (item.image) {
@@ -414,13 +416,18 @@ export default function ChatScreen() {
                     console.log("Using local image URL:", imageUri);
                   }
                   
-                  return (
-                    <Image
-                      source={{ uri: imageUri }}
-                      style={styles.messageImage}
-                      resizeMode="contain"
-                    />
-                  );
+                  return imageUri ? (
+                    <View style={styles.imageContainer}>
+                      <Image
+                        source={{ uri: imageUri }}
+                        style={styles.messageImage}
+                        resizeMode="contain"
+                        // Add loading indicator and error handling
+                        loadingIndicatorSource={{ uri: 'https://via.placeholder.com/150' }}
+                        onError={(e) => console.error("Image load error:", e.nativeEvent.error, "URL:", imageUri)}
+                      />
+                    </View>
+                  ) : null;
                 })()}
                 
                 <ThemedText style={styles.messageTime}>
@@ -552,5 +559,16 @@ const styles = {
   removeImageText: {
     color: 'white',
     fontSize: 12,
-  }
+  },
+  imageContainer: {
+    marginVertical: 5,
+    borderRadius: 10, 
+    overflow: 'hidden' as const,
+    alignItems: 'center' as const,
+  },
+  messageImage: {
+    width: 200,
+    height: 200,
+    borderRadius: 10,
+  },
 };
