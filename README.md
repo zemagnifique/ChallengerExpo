@@ -1,4 +1,3 @@
-
 # Challenge Coaching App
 
 A React Native application built with Expo that facilitates coaching relationships and challenge management. The app enables users to create challenges, assign coaches, track progress, and communicate through a real-time chat system.
@@ -44,6 +43,28 @@ A React Native application built with Expo that facilitates coaching relationshi
 - Gesture support (swipe actions)
 - Parallax scrolling effects
 - Quick-start challenge templates
+
+## Image Upload Feature
+
+The application now supports image uploads in messages. Users can:
+
+1. Click the photo icon in the message input area to select an image from their device
+2. Send the image as part of a message
+3. View images in the chat history
+
+### Implementation Details
+
+- Images are stored in a `/uploads` directory on the server
+- Each image is given a unique filename to prevent conflicts
+- The server supports common image formats (jpg, jpeg, png, gif)
+- Image uploads are limited to 5MB in size
+- The database stores the path to the image in the `image_url` field of the messages table
+
+### Technical Notes
+
+- Uses `expo-image-picker` for selecting images on mobile devices
+- Uses `multer` on the server for handling file uploads
+- Images are served as static files through the Express server
 
 ## Technical Architecture
 

@@ -87,7 +87,7 @@ export const ApiClient = {
 
       // Fetch messages for each challenge
       const challengesWithMessages = await Promise.all(
-        challenges.map(async (challenge) => {
+        challenges.map(async (challenge: any) => {
           const messages = await ApiClient.getMessages(challenge.id);
           return { ...challenge, messages };
         }),
@@ -227,6 +227,70 @@ export const ApiClient = {
       return response.json();
     } catch (error) {
       console.error("API Error:", error);
+      throw error;
+    }
+  },
+
+  uploadImage: async (uri: string): Promise<string> => {
+    try {
+      console.log("Starting image upload with URI:", uri);
+      
+      // Extract filename from URI
+      const uriParts = uri.split('/');
+      const fileName = uriParts[uriParts.length - 1];
+      
+      // Create a new FormData instance
+      const formData = new FormData();
+      
+      // The key problem is that React Native requires a very specific format for file objects
+      // We need to create the object with EXACTLY these properties - no more, no less
+      
+      if (Platform.OS === 'web') {
+        // For web, we'll use a different approach
+        // Fetch the file as a blob
+        const response = await fetch(uri);
+        const blob = await response.blob();
+        formData.append('image', blob, fileName || 'image.jpg');
+      } else {
+        // For React Native, we need this VERY specific structure
+        const fileObject = {
+          uri: uri,
+          type: 'image/jpeg', 
+          name: fileName || 'image.jpg'
+        };
+        
+        console.log("File object:", JSON.stringify(fileObject));
+        
+        // Append to FormData - the type casting is crucial here
+        formData.append('image', fileObject as any);
+      }
+      
+      console.log("FormData created, sending to server...");
+      
+      // CRITICAL: Do NOT set any Content-Type header - let the browser/RN set it
+      // This is essential for the multipart boundary to be correctly set
+      const response = await fetch(`${API_URL}/api/upload`, {
+        method: 'POST',
+        body: formData
+      });
+      
+      console.log(`Upload response status: ${response.status}`);
+      
+      const responseText = await response.text();
+      console.log(`Raw response: ${responseText}`);
+      
+      if (!response.ok) {
+        throw new Error(`Upload failed with status ${response.status}: ${responseText}`);
+      }
+      
+      // Parse response
+      const result = JSON.parse(responseText);
+      
+      // Log success and return the URL
+      console.log(`Upload successful, image URL: ${result.imageUrl}`);
+      return result.imageUrl;
+    } catch (error) {
+      console.error(`Error in uploadImage: ${error}`);
       throw error;
     }
   },
