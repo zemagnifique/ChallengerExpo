@@ -169,7 +169,7 @@ export const ChallengeItem: React.FC<ChallengeItemProps> = ({
               <View
                 style={[
                   styles.avatar,
-                  parseInt(user?.id) === item.coach_id
+                  parseInt(user?.id) === parseInt(item.coach_id)
                     ? styles.coachingAvatar
                     : styles.challengeAvatar,
                 ]}
