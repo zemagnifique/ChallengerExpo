@@ -195,6 +195,37 @@ export default function ChatScreen() {
         const response = await ApiClient.sendMessage(currentChallengeId as string, messageData);
         console.log("Message sent, response:", response);
         
+        // Immediately update local UI with the new message
+        if (response.success && challenge) {
+          // Create a new message object for the UI
+          const newMessage = {
+            id: response.message.id,
+            text: messageData.text || "",
+            user_id: user?.id || "",
+            imageUrl: messageData.imageUrl || "",
+            isProof: false,
+            isValidated: false,
+            timestamp: new Date().toISOString(),
+            is_read: true, // Mark as read since it's our own message
+          };
+          
+          console.log("Adding new message to local UI:", newMessage);
+          
+          // Update the challenge object with the new message
+          const updatedMessages = [...(challenge.messages || []), newMessage];
+          updateChallenge({
+            ...challenge,
+            messages: updatedMessages,
+            username: challenge.username,
+            coachUsername: challenge.coachUsername,
+          });
+          
+          // Ensure the UI scrolls to the new message
+          setTimeout(() => {
+            flatListRef.current?.scrollToEnd({ animated: true });
+          }, 100);
+        }
+        
         // Clear the input fields
         setMessage("");
         setSelectedImage(null);
